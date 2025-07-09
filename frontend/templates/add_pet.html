@@ -291,4 +291,112 @@
                             <label for="need_none">无特殊需求</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_seafood" name="special_needs" value="海鲜
+                            <input type="checkbox" id="need_seafood" name="special_needs" value="海鲜过敏">
+                            <label for="need_seafood">海鲜过敏</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_nuts" name="special_needs" value="坚果过敏">
+                            <label for="need_nuts">坚果过敏</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_obesity" name="special_needs" value="肥胖">
+                            <label for="need_obesity">肥胖</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_diabetes" name="special_needs" value="糖尿病">
+                            <label for="need_diabetes">糖尿病</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_kidney" name="special_needs" value="肾脏疾病">
+                            <label for="need_kidney">肾脏疾病</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_sensitive" name="special_needs" value="肠胃敏感">
+                            <label for="need_sensitive">肠胃敏感</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_fur" name="special_needs" value="美毛需求">
+                            <label for="need_fur">美毛需求</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_joint" name="special_needs" value="关节问题">
+                            <label for="need_joint">关节问题</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_dental" name="special_needs" value="牙齿健康">
+                            <label for="need_dental">牙齿健康</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">✨ 选择头像</div>
+                <div class="form-group">
+                    <label>请为您的宠物选择一个可爱的头像：</label>
+                    <div class="avatar-selector">
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_dog1" name="avatar" value="dog1.png" required>
+                            <label for="avatar_dog1">
+                                <img src="{{ url_for('static', filename='images/avatars/dog1.png') }}" alt="狗头像1" class="avatar-img">
+                                <span class="avatar-label">狗狗1</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_dog2" name="avatar" value="dog2.png">
+                            <label for="avatar_dog2">
+                                <img src="{{ url_for('static', filename='images/avatars/dog2.png') }}" alt="狗头像2" class="avatar-img">
+                                <span class="avatar-label">狗狗2</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_dog3" name="avatar" value="dog3.png">
+                            <label for="avatar_dog3">
+                                <img src="{{ url_for('static', filename='images/avatars/dog3.png') }}" alt="狗头像3" class="avatar-img">
+                                <span class="avatar-label">狗狗3</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_dog4" name="avatar" value="dog4.png">
+                            <label for="avatar_dog4">
+                                <img src="{{ url_for('static', filename='images/avatars/dog4.png') }}" alt="狗头像4" class="avatar-img">
+                                <span class="avatar-label">狗狗4</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_cat1" name="avatar" value="cat1.png">
+                            <label for="avatar_cat1">
+                                <img src="{{ url_for('static', filename='images/avatars/cat1.png') }}" alt="猫头像1" class="avatar-img">
+                                <span class="avatar-label">猫猫1</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_cat2" name="avatar" value="cat2.png">
+                            <label for="avatar_cat2">
+                                <img src="{{ url_for('static', filename='images/avatars/cat2.png') }}" alt="猫头像2" class="avatar-img">
+                                <span class="avatar-label">猫猫2</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_cat3" name="avatar" value="cat3.png">
+                            <label for="avatar_cat3">
+                                <img src="{{ url_for('static', filename='images/avatars/cat3.png') }}" alt="猫头像3" class="avatar-img">
+                                <span class="avatar-label">猫猫3</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_cat4" name="avatar" value="cat4.png">
+                            <label for="avatar_cat4">
+                                <img src="{{ url_for('static', filename='images/avatars/cat4.png') }}" alt="猫头像4" class="avatar-img">
+                                <span class="avatar-label">猫猫4</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">✅ 添加宠物</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
