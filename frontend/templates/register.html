@@ -115,7 +115,7 @@
     </div>
 
     <div class="form-container">
-        <form method="POST">
+        <form method="POST" id="registerForm">  {# 添加id #}
             <div class="form-group">
                 <label for="username">
                     <span class="icon">👤</span>用户名
@@ -175,12 +175,13 @@
     });
 
     // 表单提交验证
+    // 主要由auth.js处理，但验证可以保留
     document.querySelector('form').addEventListener('submit', function(e) {
         const password = document.getElementById('password').value;
         const confirmPassword = document.getElementById('confirm_password').value;
         
         if (password !== confirmPassword) {
-            e.preventDefault();
+            e.preventDefault();  // 阻止表单提交
             alert('两次输入的密码不一致，请检查后重试！');
             return false;
         }

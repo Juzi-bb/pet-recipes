@@ -278,14 +278,15 @@
                 <li><a href="{{ url_for('main.user_center') }}">用户中心</a></li>
             </ul>
             <div class="user-info">
-                {% if session.user_id %}
-                    <span>欢迎，{{ session.nickname }}！</span>
-                    <a href="{{ url_for('logout') }}">退出登录</a>
-                {% else %}
-                    <a href="{{ url_for('user.login') }}">登录</a>
-                    <a href="{{ url_for('user.register') }}">注册</a>
-                {% endif %}
-            </div>
+                <div class="logged-in" style="display: none;"> {# 默认隐藏，由JS控制 #}
+                    <span>欢迎，<span id="usernameDisplay"></span>！</span> {# 添加 id 用于 JS 更新昵称 #}
+                    <a href="#" id="logoutBtn">退出登录</a> {# 添加 id 用于 JS 绑定事件 #}
+                </div>
+                <div class="logged-out" style="display: flex;"> {# 默认显示，由JS控制 #}
+                    <a href="#" id="loginBtn">登录</a> {# 添加 id 用于 JS 绑定事件 #}
+                    <a href="#" id="registerBtn">注册</a> {# 添加 id 用于 JS 绑定事件 #}
+                </div>
+                </div>
         </div>
     </nav>
 
