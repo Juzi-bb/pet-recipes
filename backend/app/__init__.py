@@ -6,12 +6,12 @@ from .extensions import db, bcrypt, cors
 
 def create_app(config_class=Config):
     # 添加template和static路径
-    base_dir = os.path.abspath(os.path.dirname(__file__))
-    template_path = os.path.join(base_dir, "../../frontend/templates")
-    static_path = os.path.join(base_dir, "../../frontend/static")
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+    app.template_folder = os.path.join(project_root, 'frontend', 'templates')
+    app.static_folder = os.path.join(project_root, 'frontend', 'static')
 
     # 创建Flask app并指定模板目录
-    app = Flask(__name__, instance_relative_config=True, template_folder=template_path, static_folder=static_path)
+    app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config_class)
 
     # 初始化扩展

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}宠物食谱网站{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -270,19 +271,19 @@
         <div class="nav-container">
             <div class="logo">🐾 宠物食谱</div>
             <ul class="nav-links">
-                <li><a href="{{ url_for('index') }}">首页</a></li>
+                <li><a href="{{ url_for('main.home') }}">首页</a></li>
                 <li><a href="#">创建食谱</a></li>
                 <li><a href="#">食材百科</a></li>
                 <li><a href="#">社区</a></li>
-                <li><a href="{{ url_for('user_center') }}">用户中心</a></li>
+                <li><a href="{{ url_for('main.user_center') }}">用户中心</a></li>
             </ul>
             <div class="user-info">
                 {% if session.user_id %}
                     <span>欢迎，{{ session.nickname }}！</span>
                     <a href="{{ url_for('logout') }}">退出登录</a>
                 {% else %}
-                    <a href="{{ url_for('login') }}">登录</a>
-                    <a href="{{ url_for('register') }}">注册</a>
+                    <a href="{{ url_for('user.login') }}">登录</a>
+                    <a href="{{ url_for('user.register') }}">注册</a>
                 {% endif %}
             </div>
         </div>
