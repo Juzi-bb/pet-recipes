@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}添加宠物信息 - 宠物食谱网站{% endblock %}
+
+{% block content %}
+<style>
+    .add-pet-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        color: #510B0B;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #B82F0D;
+        font-size: 1.1rem;
+    }
+
+    .form-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 2px solid #A1B4B2;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        color: #510B0B;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #EDBF9D;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        color: #510B0B;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #A1B4B2;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #5580AD;
+        box-shadow: 0 0 0 3px rgba(85, 128, 173, 0.1);
+    }
+
+    .form-help {
+        font-size: 0.9rem;
+        color: #B82F0D;
+        margin-top: 0.5rem;
+    }
+
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        border: 1px solid #A1B4B2;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .checkbox-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        margin-right: 0.5rem;
+        width: auto;
+    }
+
+    .checkbox-item input[type="checkbox"]:checked + label {
+        color: #510B0B;
+        font-weight: bold;
+    }
+
+    .avatar-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .avatar-option {
+        text-align: center;
+        cursor: pointer;
+        padding: 1rem;
+        border: 2px solid #A1B4B2;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-option:hover {
+        border-color: #5580AD;
+        background-color: #f8f9fa;
+    }
+
+    .avatar-option input[type="radio"] {
+        display: none;
+    }
+
+    .avatar-option input[type="radio"]:checked + label {
+        color: #510B0B;
+        font-weight: bold;
+    }
+
+    .avatar-option input[type="radio"]:checked + label .avatar-img {
+        border-color: #510B0B;
+        box-shadow: 0 0 0 3px rgba(81, 11, 11, 0.2);
+    }
+
+    .avatar-img {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #A1B4B2;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-label {
+        display: block;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background-color: #5580AD;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .submit-btn:hover {
+        background-color: #A1B4B2;
+        transform: translateY(-2px);
+    }
+
+    .back-link {
+        display: inline-block;
+        color: #5580AD;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    .back-link:hover {
+        color: #510B0B;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .checkbox-group {
+            grid-template-columns: 1fr;
+        }
+        
+        .avatar-selector {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+</style>
+
+<div class="add-pet-container">
+    <a href="{{ url_for('user_center') }}" class="back-link">← 返回用户中心</a>
+    
+    <div class="page-header">
+        <h1>🐾 添加宠物信息</h1>
+        <p>为您的爱宠创建专属档案，获得个性化食谱推荐</p>
+    </div>
+
+    <div class="form-container">
+        <form method="POST">
+            <!-- 基本信息 -->
+            <div class="form-section">
+                <div class="section-title">📋 基本信息</div>
+                
+                <div class="form-group">
+                    <label for="name">
+                        <span style="margin-right: 0.5rem;">🏷️</span>宠物名字
+                    </label>
+                    <input type="text" id="name" name="name" required maxlength="50" 
+                           placeholder="请输入宠物的名字">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="species">
+                            <span style="margin-right: 0.5rem;">🐕</span>宠物种类
+                        </label>
+                        <select id="species" name="species" required>
+                            <option value="">请选择种类</option>
+                            <option value="狗">狗</option>
+                            <option value="猫">猫</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="breed">
+                            <span style="margin-right: 0.5rem;">📝</span>品种（可选）
+                        </label>
+                        <input type="text" id="breed" name="breed" maxlength="50" 
+                               placeholder="如：金毛、英短等">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="weight">
+                            <span style="margin-right: 0.5rem;">⚖️</span>体重（kg）
+                        </label>
+                        <input type="number" id="weight" name="weight" required 
+                               min="0.5" max="80" step="0.1" placeholder="请输入体重">
+                        <div class="form-help">范围：0.5-80kg</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">
+                            <span style="margin-right: 0.5rem;">🎂</span>年龄（岁）
+                        </label>
+                        <input type="number" id="age" name="age" required 
+                               min="0" max="25" placeholder="请输入年龄">
+                        <div class="form-help">范围：0-25岁</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 特殊需求 -->
+            <div class="form-section">
+                <div class="section-title">🏥 特殊需求</div>
+                <div class="form-group">
+                    <label>请选择您宠物的特殊需求（可多选）：</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_none" name="special_needs" value="无特殊需求">
+                            <label for="need_none">无特殊需求</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_seafood" name="special_needs" value="海鲜

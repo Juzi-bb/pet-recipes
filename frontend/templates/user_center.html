@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}用户中心 - 宠物食谱网站{% endblock %}
+
+{% block content %}
+<style>
+    .user-welcome {
+        background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .user-welcome h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .user-welcome p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        color: #510B0B;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #EDBF9D;
+    }
+
+    .pets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .pet-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        border: 2px solid #A1B4B2;
+        transition: transform 0.3s ease;
+    }
+
+    .pet-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .pet-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .pet-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-right: 1rem;
+        border: 3px solid #EDBF9D;
+    }
+
+    .pet-info h3 {
+        color: #510B0B;
+        margin-bottom: 0.5rem;
+        font-size: 1.3rem;
+    }
+
+    .pet-species {
+        color: #B82F0D;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .pet-details {
+        margin-bottom: 1rem;
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .detail-label {
+        font-weight: bold;
+        color: #510B0B;
+    }
+
+    .detail-value {
+        color: #B82F0D;
+    }
+
+    .special-needs {
+        background-color: #EDBF9D;
+        padding: 0.5rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        color: #510B0B;
+        font-size: 0.9rem;
+    }
+
+    .pet-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .btn-small {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background-color: #5580AD;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background-color: #A1B4B2;
+    }
+
+    .btn-delete {
+        background-color: #B82F0D;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background-color: #510B0B;
+    }
+
+    .add-pet-card {
+        background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
+        border: 2px dashed #5580AD;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+        color: #510B0B;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .add-pet-card:hover {
+        background: linear-gradient(135deg, #A1B4B2 0%, #5580AD 100%);
+        color: white;
+        transform: translateY(-5px);
+    }
+
+    .add-pet-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .add-pet-text {
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #B82F0D;
+    }
+
+    .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        color: #510B0B;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .pets-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .pet-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="user-welcome">
+    <h1>👋 欢迎回来，{{ session.nickname }}！</h1>
+    <p>管理您的宠物信息，为它们创建专属的健康食谱</p>
+</div>
+
+<div class="section-title">
+    🐾 我的宠物们
+</div>
+
+<div class="pets-grid">
+    <!-- 添加新宠物卡片 -->
+    <a href="{{ url_for('add_pet') }}" class="pet-card add-pet-card">
+        <div class="add-pet-icon">➕</div>
+        <div class="add-pet-text">添加新宠物</div>
+    </a>
+
+    <!-- 宠物列表 -->
+    {% if pets %}
+        {% for pet in pets %}
+        <div class="pet-card">
+            <div class="pet-header">
+                <img src="{{ url_for('static', filename='images/avatars/' + pet.avatar) }}" 
+                     alt="{{ pet.name }}" class="pet-avatar">
+                <div class="pet-info">
+                    <h3>{{ pet.name }}</h3>
+                    <div class="pet-species">{{ pet.species }}{% if pet.breed %} - {{ pet.breed }}{% endif %}</div>
+                </div>
+            </div>
+            
+            <div class="pet-details">
+                <div class="detail-item">
+                    <span class="detail-label">⚖️ 体重</span>
+                    <span class="detail-value">{{ pet.weight }} kg</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">🎂 年龄</span>
+                    <span class="detail-value">{{ pet.age }} 岁</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">📅 添加时间</span>
+                    <span class="detail-value">{{ pet.created_at.split(' ')[0] }}</span>
+                </div>
+            </div>
+            
+            {% if pet.special_needs and pet.special_needs != '无特殊需求' %}
+            <div class="special-needs">
+                <strong>特殊需求：</strong>{{ pet.special_needs }}
+            </div>
+            {% endif %}
+            
+            <div class="pet-actions">
+                <a href="{{ url_for('edit_pet', pet_id=pet.id) }}" class="btn-small btn-edit">
+                    ✏️ 编辑
+                </a>
+                <a href="{{ url_for('delete_pet', pet_id=pet.id) }}" class="btn-small btn-delete"
+                   onclick="return confirm('确定要删除宠物 {{ pet.name }} 的信息吗？')">
+                    🗑️ 删除
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+{% if not pets %}
+<div class="empty-state">
+    <div class="empty-state-icon">🐕</div>
+    <h3>还没有添加宠物信息</h3>
+    <p>点击上方的"添加新宠物"按钮，开始为您的爱宠创建专属档案吧！</p>
+</div>
+{% endif %}
+
+<div class="section-title">
+    🍽️ 快速操作
+</div>
+
+<div class="pets-grid">
+    <a href="{{ url_for('add_pet') }}" class="pet-card add-pet-card">
+        <div class="add-pet-icon">🐾</div>
+        <div class="add-pet-text">添加宠物信息</div>
+    </a>
+    
+    <a href="#" class="pet-card add-pet-card">
+        <div class="add-pet-icon">🍖</div>
+        <div class="add-pet-text">创建食谱</div>
+    </a>
+    
+    <a href="#" class="pet-card add-pet-card">
+        <div class="add-pet-icon">📚</div>
+        <div class="add-pet-text">浏览食材百科</div>
+    </a>
+</div>
+{% endblock %}

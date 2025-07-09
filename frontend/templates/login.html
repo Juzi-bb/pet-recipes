@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}用户登录 - 宠物食谱网站{% endblock %}
+
+{% block content %}
+<style>
+    .login-container {
+        max-width: 450px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .login-header h1 {
+        color: #510B0B;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-header p {
+        color: #B82F0D;
+        font-size: 1.1rem;
+    }
+
+    .form-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 2px solid #A1B4B2;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        color: #510B0B;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #A1B4B2;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #5580AD;
+        box-shadow: 0 0 0 3px rgba(85, 128, 173, 0.1);
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background-color: #5580AD;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .submit-btn:hover {
+        background-color: #A1B4B2;
+        transform: translateY(-2px);
+    }
+
+    .register-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #A1B4B2;
+    }
+
+    .register-link a {
+        color: #5580AD;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    .register-link a:hover {
+        color: #510B0B;
+    }
+
+    .icon {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+    }
+
+    .welcome-message {
+        background-color: #EDBF9D;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        color: #510B0B;
+        text-align: center;
+        border: 1px solid #A1B4B2;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-header">
+        <h1>🔐 用户登录</h1>
+        <p>登录您的账户，继续管理您的宠物食谱</p>
+    </div>
+
+    <div class="form-container">
+        <div class="welcome-message">
+            <strong>欢迎回来！</strong><br>
+            登录后您可以管理宠物信息、创建食谱、参与社区讨论
+        </div>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="username">
+                    <span class="icon">👤</span>用户名
+                </label>
+                <input type="text" id="username" name="username" required 
+                       placeholder="请输入您的用户名">
+            </div>
+
+            <div class="form-group">
+                <label for="password">
+                    <span class="icon">🔒</span>密码
+                </label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="请输入您的密码">
+            </div>
+
+            <button type="submit" class="submit-btn">🚀 立即登录</button>
+        </form>
+
+        <div class="register-link">
+            <p>还没有账户？<a href="{{ url_for('register') }}">点击注册</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宠物食谱网站</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-paw"></i>
+                <span>宠物食谱</span>
+            </div>
+            <div class="nav-menu">
+                <a href="{{ url_for('main.base') }}" class="nav-link active">首页</a>
+        {#        <a href="{{ url_for('main.add_recipe') }}" class="nav-link">创建食谱</a>  #}
+                <a href="#" class="nav-link disabled">创建食谱</a>
+        {#        <a href="{{ url_for('main.encyclopedia') }}" class="nav-link">食材百科</a>  #}
+                <a href="#" class="nav-link disabled">食材百科</a>
+        {#        <a href="{{ url_for('main.community') }}" class="nav-link">社区</a>  #}
+                <a href="#" class="nav-link disabled">社区</a>
+                <a href="{{ url_for('main.user_center') }}" class="nav-link">用户中心</a>
+                <div class="auth-section">
+                    <div class="logged-out">
+                        <a href="{{ url_for('user.login') }}"><button class="btn btn-primary" id="loginBtn">登录</button></a>
+                        <a href="{{ url_for('user.register') }}"><button class="btn btn-secondary" id="registerBtn">注册</button></a>
+                    </div>
+                    <div class="logged-in" style="display: none;">
+                        <span class="welcome-text">欢迎，<span id="username"></span></span>
+                        <button class="btn btn-outline" id="logoutBtn">退出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="main-content">
+        <!-- 首页 -->
+        <section class="page" id="home-page">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h1>为您的宠物定制健康食谱</h1>
+                    <p>基于科学营养配比，为您的爱宠提供个性化的饮食建议</p>
+                    <button class="btn btn-primary btn-large" id="startCreateBtn">开始创建食谱</button>
+                </div>
+                <div class="hero-image">
+                    <i class="fas fa-heart" style="font-size: 120px; color: #ff6b6b;"></i>
+                </div>
+            </div>
+            
+            <div class="features-section">
+                <div class="feature-card">
+                    <i class="fas fa-calculator"></i>
+                    <h3>营养计算</h3>
+                    <p>精准计算营养成分，确保均衡饮食</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-book"></i>
+                    <h3>食材百科</h3>
+                    <p>详细的食材信息和营养成分介绍</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-users"></i>
+                    <h3>社区分享</h3>
+                    <p>与其他宠物主人分享经验和食谱</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 创建食谱页面 -->
+        <section class="page" id="create-recipe-page" style="display: none;">
+            <div class="create-recipe-container">
+                <div class="progress-bar">
+                    <div class="progress-step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">宠物信息</div>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">选择食材</div>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">营养分析</div>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">推荐食谱</div>
+                    </div>
+                </div>
+
+                <!-- 步骤1: 宠物信息 -->
+                <div class="step-content" id="step1" style="display: block;">
+                    <h2>填写宠物信息</h2>
+                    <div class="login-reminder" id="loginReminder">
+                        <i class="fas fa-info-circle"></i>
+                        <span>登录后可保存宠物信息，获得更个性化的建议</span>
+                        <button class="btn btn-primary" id="quickLoginBtn">立即登录</button>
+                    </div>
+                    
+                    <form class="pet-form" id="petForm">
+                        <div class="form-group">
+                            <label for="petName">宠物名字</label>
+                            <input type="text" id="petName" name="petName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="petSpecies">宠物种类</label>
+                            <select id="petSpecies" name="petSpecies" required>
+                                <option value="">请选择</option>
+                                <option value="dog">狗</option>
+                                <option value="cat">猫</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="petWeight">体重 (kg)</label>
+                            <input type="number" id="petWeight" name="petWeight" min="0.1" step="0.1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="petAge">年龄 (岁)</label>
+                            <input type="number" id="petAge" name="petAge" min="0" max="30" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specialNeeds">特殊需求</label>
+                            <div class="checkbox-group">
+                                <label><input type="checkbox" name="specialNeeds" value="allergy"> 过敏体质</label>
+                                <label><input type="checkbox" name="specialNeeds" value="obesity"> 肥胖</label>
+                                <label><input type="checkbox" name="specialNeeds" value="diabetes"> 糖尿病</label>
+                                <label><input type="checkbox" name="specialNeeds" value="kidney"> 肾脏疾病</label>
+                                <label><input type="checkbox" name="specialNeeds" value="sensitive"> 肠胃敏感</label>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary" id="nextToStep2">下一步</button>
+                    </form>
+                </div>
+
+                <!-- 步骤2: 选择食材 -->
+                <div class="step-content" id="step2" style="display: none;">
+                    <h2>选择食材</h2>
+                    <div class="ingredient-categories">
+                        <button class="category-btn active" data-category="all">全部</button>
+                        <button class="category-btn" data-category="红肉">红肉</button>
+                        <button class="category-btn" data-category="白肉">白肉</button>
+                        <button class="category-btn" data-category="蔬菜">蔬菜</button>
+                        <button class="category-btn" data-category="碳水">碳水</button>
+                        <button class="category-btn" data-category="水果">水果</button>
+                    </div>
+                    
+                    <div class="ingredients-grid" id="ingredientsGrid">
+                        <!-- 食材卡片将通过JavaScript动态生成 -->
+                    </div>
+                    
+                    <div class="selected-ingredients" id="selectedIngredients">
+                        <h3>已选择的食材</h3>
+                        <div class="selected-list" id="selectedList">
+                            <p class="no-selection">暂未选择任何食材</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step-actions">
+                        <button class="btn btn-secondary" id="backToStep1">上一步</button>
+                        <button class="btn btn-primary" id="nextToStep3" disabled>下一步</button>
+                    </div>
+                </div>
+
+                <!-- 步骤3: 营养分析 -->
+                <div class="step-content" id="step3" style="display: none;">
+                    <h2>营养成分分析</h2>
+                    <div class="nutrition-analysis">
+                        <div class="nutrition-table">
+                            <table id="nutritionTable">
+                                <thead>
+                                    <tr>
+                                        <th>食材</th>
+                                        <th>推荐重量(g)</th>
+                                        <th>蛋白质(g)</th>
+                                        <th>脂肪(g)</th>
+                                        <th>碳水(g)</th>
+                                        <th>卡路里</th>
+                                        <th>调整重量</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="nutritionTableBody">
+                                    <!-- 营养表格将通过JavaScript动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="nutrition-charts">
+                            <div class="chart-container">
+                                <h3>营养成分比例</h3>
+                                <div class="nutrition-bars">
+                                    <div class="nutrition-bar">
+                                        <div class="bar-label">蛋白质</div>
+                                        <div class="bar-background">
+                                            <div class="bar-fill protein-bar" id="proteinBar"></div>
+                                        </div>
+                                        <div class="bar-value" id="proteinValue">0%</div>
+                                    </div>
+                                    <div class="nutrition-bar">
+                                        <div class="bar-label">脂肪</div>
+                                        <div class="bar-background">
+                                            <div class="bar-fill fat-bar" id="fatBar"></div>
+                                        </div>
+                                        <div class="bar-value" id="fatValue">0%</div>
+                                    </div>
+                                    <div class="nutrition-bar">
+                                        <div class="bar-label">碳水化合物</div>
+                                        <div class="bar-background">
+                                            <div class="bar-fill carbs-bar" id="carbsBar"></div>
+                                        </div>
+                                        <div class="bar-value" id="carbsValue">0%</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="nutrition-summary">
+                                <h3>营养摘要</h3>
+                                <div class="summary-item">
+                                    <span>总热量:</span>
+                                    <span id="totalCalories">0 kcal</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span>推荐热量:</span>
+                                    <span id="targetCalories">0 kcal</span>
+                                </div>
+                                <div class="nutrition-status" id="nutritionStatus">
+                                    <!-- 营养状态将通过JavaScript显示 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-actions">
+                        <button class="btn btn-secondary" id="backToStep2">上一步</button>
+                        <button class="btn btn-primary" id="nextToStep4">查看推荐食谱</button>
+                        <button class="btn btn-outline" id="saveRecipeBtn">保存为自制食谱</button>
+                    </div>
+                </div>
+
+                <!-- 步骤4: 推荐食谱 -->
+                <div class="step-content" id="step4" style="display: none;">
+                    <h2>推荐食谱</h2>
+                    <div class="recommended-recipes" id="recommendedRecipes">
+                        <div class="recipe-card">
+                            <h3>基础均衡食谱</h3>
+                            <div class="recipe-ingredients" id="basicRecipeIngredients">
+                                <!-- 推荐食谱将通过JavaScript生成 -->
+                            </div>
+                            <div class="recipe-actions">
+                                <button class="btn btn-primary" id="saveBasicRecipe">保存食谱</button>
+                                <button class="btn btn-outline" id="favoriteBasicRecipe">收藏</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step-actions">
+                        <button class="btn btn-secondary" id="backToStep3">上一步</button>
+                        <button class="btn btn-primary" id="goToCommunity">前往社区</button>
+                        <button class="btn btn-outline" id="createNewRecipe">创建新食谱</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 食材百科页面 -->
+        <section class="page" id="encyclopedia-page" style="display: none;">
+            <div class="encyclopedia-container">
+                <h2>食材百科</h2>
+                <div class="encyclopedia-categories">
+                    <button class="category-btn active" data-category="all">全部</button>
+                    <button class="category-btn" data-category="红肉">红肉</button>
+                    <button class="category-btn" data-category="白肉">白肉</button>
+                    <button class="category-btn" data-category="蔬菜">蔬菜</button>
+                    <button class="category-btn" data-category="碳水">碳水</button>
+                    <button class="category-btn" data-category="水果">水果</button>
+                </div>
+                
+                <div class="encyclopedia-grid" id="encyclopediaGrid">
+                    <!-- 食材卡片将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 社区页面 -->
+        <section class="page" id="community-page" style="display: none;">
+            <div class="community-container">
+                <div class="community-header">
+                    <h2>社区食谱</h2>
+                    <div class="community-actions">
+                        <button class="btn btn-primary" id="shareRecipeBtn">分享我的食谱</button>
+                        <button class="btn btn-outline" id="createNewRecipeBtn">创建新食谱</button>
+                    </div>
+                </div>
+                
+                <div class="community-filters">
+                    <button class="filter-btn active" data-filter="all">全部</button>
+                    <button class="filter-btn" data-filter="popular">热门</button>
+                    <button class="filter-btn" data-filter="recent">最新</button>
+                </div>
+                
+                <div class="recipes-grid" id="communityRecipes">
+                    <!-- 社区食谱将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 用户中心页面 -->
+        <section class="page" id="profile-page" style="display: none;">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <h2>用户中心</h2>
+                    <div class="profile-tabs">
+                        <button class="tab-btn active" data-tab="recipes">我的食谱</button>
+                        <button class="tab-btn" data-tab="favorites">收藏的食谱</button>
+                        <button class="tab-btn" data-tab="pets">我的宠物</button>
+                    </div>
+                </div>
+                
+                <!-- 我的食谱 -->
+                <div class="tab-content active" id="recipes-tab">
+                    <div class="recipes-section">
+                        <h3>我的食谱</h3>
+                        <div class="recipes-grid" id="userRecipes">
+                            <!-- 用户食谱将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 收藏的食谱 -->
+                <div class="tab-content" id="favorites-tab">
+                    <div class="favorites-section">
+                        <h3>收藏的食谱</h3>
+                        <div class="recipes-grid" id="favoriteRecipes">
+                            <!-- 收藏食谱将通过JavaScript动态生成 -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 我的宠物 -->
+                <div class="tab-content" id="pets-tab">
+                    <div class="pets-section">
+                        <h3>我的宠物</h3>
+                        <div class="pets-grid" id="userPets">
+                            <!-- 宠物信息将通过JavaScript动态生成 -->
+                        </div>
+                        <button class="btn btn-primary" id="addPetBtn">添加宠物</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 模态框 -->
+    <!-- 登录模态框 -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>登录</h3>
+                <button class="close-btn" data-modal="loginModal">&times;</button>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginUsername">用户名</label>
+                    <input type="text" id="loginUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">密码</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">登录</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>注册</h3>
+                <button class="close-btn" data-modal="registerModal">&times;</button>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerUsername">用户名</label>
+                    <input type="text" id="registerUsername" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">邮箱</label>
+                    <input type="email" id="registerEmail" name="email">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">密码</label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">确认密码</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 食材详情模态框 -->
+    <div class="modal" id="ingredientModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="ingredientModalTitle">食材详情</h3>
+                <button class="close-btn" data-modal="ingredientModal">&times;</button>
+            </div>
+            <div class="modal-body" id="ingredientModalBody">
+                <!-- 食材详情将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 保存食谱模态框 -->
+    <div class="modal" id="saveRecipeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>保存食谱</h3>
+                <button class="close-btn" data-modal="saveRecipeModal">&times;</button>
+            </div>
+            <form id="saveRecipeForm">
+                <div class="form-group">
+                    <label for="recipeName">食谱名称</label>
+                    <input type="text" id="recipeName" name="recipeName" required>
+                </div>
+                <div class="form-group">
+                    <label for="recipeInstructions">制作说明</label>
+                    <textarea id="recipeInstructions" name="recipeInstructions" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="shareRecipe" name="shareRecipe">
+                        分享到社区
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary">保存食谱</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 通知消息 -->
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <span id="notificationMessage"></span>
+            <button class="close-btn" id="closeNotification">&times;</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/petForm.js"></script>
+    <script src="/static/js/ingredientSelector.js"></script>
+    <script src="/static/js/nutritionAnalysis.js"></script>
+    <script src="/static/js/community.js"></script>
+    <script src="/static/js/profile.js"></script>
+</body>
+</html>
