@@ -1,0 +1,21 @@
+venv/ 
+# 忽略 Python 编译文件
+__pycache__/
+*.py[cod]
+*.pyo
+
+# 忽略虚拟环境文件夹
+venv/
+
+# 忽略环境配置
+.env
+
+# 忽略数据库文件
+*.db
+
+# 忽略 macOS / Windows 系统文件
+.DS_Store
+Thumbs.db
+
+# VSCode 编辑器文件
+.vscode/
