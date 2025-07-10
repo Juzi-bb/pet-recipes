@@ -1,14 +1,46 @@
 # 需要JWT认证才能访问的示例路由
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request, session
+from app.models.pet_model import Pet
+from app import db
 
-pet_bp = Blueprint('pet', __name__)
+pet_bp = Blueprint('pet_bp', __name__)
 
 # 这是一个示例路由，您需要添加 JWT 认证装饰器来保护它
 # 并且实现完整的 CRUD 逻辑
-@pet_bp.route('/', methods=['GET'])
-def get_user_pets():
-    # 在这里，您需要先验证 JWT，然后获取用户 ID
-    # user_id = ... (from decoded JWT)
-    # pets = Pet.query.filter_by(user_id=user_id).all()
-    # return jsonify([...pet data...])
-    return jsonify({'message': '返回该用户的所有宠物信息 [cite: 86]'})
+@pet_bp.route('/add_pet', methods=['POST'])
+
+def add_pet():
+    if 'user_id' not in session:
+        return jsonify({"message": "Unauthorized"}), 401
+    
+    data = request.get_json()
+    user_id = session['user_id']
+    
+    new_pet = Pet(
+        name=data['name'],
+        species=data['species'],
+        age=data['age'],
+        weight=data['weight'],
+        user_id=user_id
+    )
+    
+    db.session.add(new_pet)
+    db.session.commit()
+    
+    return jsonify({"message": "Pet added successfully"}), 201
+
+
+@pet_bp.route('/get_pets', methods=['GET'])
+def get_pets():
+    if 'user_id' not in session:
+        return jsonify({"message": "Unauthorized"}), 401
+        
+    user_id = session['user_id']
+    pets = Pet.query.filter_by(user_id=user_id).all()
+    
+    return jsonify([{
+        "name": pet.name,
+        "species": pet.species,
+        "age": pet.age,
+        "weight": pet.weight
+    } for pet in pets]), 200

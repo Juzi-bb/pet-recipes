@@ -399,4 +399,35 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.getElementById('add-pet-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+
+        fetch('/pet/add_pet', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Pet added successfully") {
+                alert('宠物添加成功！');
+                window.location.href = '/user_center';
+            } else {
+                alert('添加失败: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('发生错误，请查看控制台');
+        });
+    });
+</script>
+
 {% endblock %}

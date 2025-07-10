@@ -5,7 +5,7 @@ from flask import Blueprint, request, jsonify, current_app, session
 from ..models.user_model import User
 from ..extensions import db, bcrypt
 
-user_bp = Blueprint('user', __name__)
+user_bp = Blueprint('user_bp', __name__)
 
 @user_bp.route('/register', methods=['POST'])
 def register():
