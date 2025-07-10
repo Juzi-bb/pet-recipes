@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}宠物食谱网站{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!------------ 添加数据属性来传递状态信息 ---------->
+    <div id="app-data"
+        data-logged-in="{{ 'true' if session.get('user_id') else 'false' }}"
+        data-user-id="{{ session.get('user_id', '') }}"
+        data-user-nickname="{{ session.get('nickname', '') }}"
+        data-login-url="{{ url_for('user_bp.login_page') }}"
+        data-register-url="{{ url_for('user_bp.register_page') }}"
+        data-home-url="{{ url_for('main.home') }}"
+        data-user-center-url="{{ url_for('main.user_center') }}"
+        style="display: none;">
+    </div>
+    
     <style>
         * {
             margin: 0;
@@ -256,7 +269,7 @@
         /* 头像选择器 */
         .avatar-selector {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* 增加最小宽度 */
             gap: 1rem;
             margin-top: 1rem;
         }
@@ -264,10 +277,15 @@
         .avatar-option {
             text-align: center;
             cursor: pointer;
-            padding: 0.5rem;
+            padding: 0.8rem 0.3rem 0.6rem 0.3rem; /* 调整padding，给头像更多上方空间 */
             border: 2px solid transparent;
             border-radius: 8px;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* 确保内容从顶部开始 */
+            min-height: 140px; /* 设置最小高度 */
         }
 
         .avatar-option:hover {
@@ -285,17 +303,28 @@
         }
 
         .avatar-option img {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
+            width: 100%;                    /* 容器宽度的100% */
+            aspect-ratio: 1;               /* 保证正方形 */
+            border-radius: 15px;       /* 改为圆角正方形 */
             object-fit: cover;
+            border: 2px solid #A1B4B2; /* 添加边框 */
+            transition: all 0.3s ease; /* 添加过渡效果 */
+            display: block;
+            margin: 0 auto;            /* 确保图片居中 */
+        }
+
+        /* 添加选中状态的头像边框样式 */
+        .avatar-option input[type="radio"]:checked + label img {
+            border-color: #510B0B;
+            box-shadow: 0 0 0 3px rgba(81, 11, 11, 0.2);
         }
 
         .avatar-option label {
             display: block;
-            margin-top: 0.5rem;
+            margin-top: 0.3rem;
             font-size: 0.9rem;
             cursor: pointer;
+            width: 100%;
         }
     </style>
 </head>
@@ -346,64 +375,7 @@
         </div>
     </main>
 
-    <!-- --------------- 添加通用JavaScript --------------- -->
-    <script>
-        // -------修正语法(！！！！未改正)-------------------------
-        const isLoggedIn = {{ 'true' if session.get('user_id') else 'false'}};
-        document.addEventListener('DOMContentLoaded', function() {
-            // 检查登录状态的函数
-            function checkLoginStatus() {
-                // 从后端session判断登录状态
-                return isLoggedIn;
-            }
-
-            // 处理创建食谱按钮点击
-            const createRecipeNavBtn = document.getElementById('createRecipeNavBtn');
-            if (createRecipeNavBtn) {
-                createRecipeNavBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (!checkLoginStatus()) {
-                        // 未登录，跳转到登录页面
-                        alert('请先登录后再创建食谱');
-                        window.location.href = "{{ url_for('user_bp.login_page') }}";
-                    } else {
-                        // 已登录，跳转到创建食谱页面
-                        // TODO: 这里需要您后续实现创建食谱页面
-                        alert('功能开发中，敬请期待！');
-                    }
-                });
-            }
-
-            // 处理退出登录
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    if (confirm('确定要退出登录吗？')) {
-                        fetch('/user/logout', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('退出登录成功');
-                                window.location.href = "{{ url_for('main.home') }}";
-                            } else {
-                                alert('退出登录失败');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('退出登录错误:', error);
-                            alert('网络错误，请稍后重试');
-                        });
-                    }
-                });
-            }
-        });
-    </script>
-    <!-- --------------- 结束添加 --------------- -->
+    <!----------- 引入JavaScript文件 ----------->
+    <script src="/static/js/main.js"></script>
 </body>
 </html>

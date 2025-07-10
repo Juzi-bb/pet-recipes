@@ -13,21 +13,11 @@
 {% block title %}宠物食谱网站 - 首页{% endblock %}
 
 {% block content %}
-<style>
-    /* -------- MODIFIED: 新增/修改的样式开始 -------- */
-    /* 字体建议：
-       如果您想使用文档中建议的衬线字体或复古手写风字体作为标题，
-       以及清晰的无衬线体作为正文，您需要从 Google Fonts 等服务导入字体。
-       例如，在 base.html 的 <head> 或此处 <style> 块顶部添加：
-       @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@400;700&display=swap');
-       然后应用到相关元素：
-       h1, h2, h3 { font-family: 'Playfair Display', serif; }
-       body { font-family: 'Lato', sans-serif; }
-    */
 
+<style>
     .hero-section {
         /* 英雄区背景图片和滤镜  */
-        background: linear-gradient(135deg, rgba(85, 128, 173, 0.9) 0%, rgba(161, 180, 178, 0.9) 100%), 
+        background: linear-gradient(135deg, rgba(173, 104, 85, 0.6) 0%, rgba(180, 164, 161, 0.6) 100%), 
                     url('/static/images/hero_pet_bg.png'); /* 请确保您的 /static/images/ 目录下有 hero_pet_bg.png 文件 */
         background-size: cover;
         background-position: center;
@@ -415,82 +405,4 @@
     </section>
 </section>
 
-    <!-- --------------- 添加JavaScript处理逻辑 --------------- -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-        // 检查登录状态的函数
-        function checkLoginStatus() {
-            // -------修正语法(！！！！未改正)-------------------------
-            return {{ 'true' if session.user_id else 'false' }};
-        }
-
-        // 处理"立即创建食谱"按钮点击
-        const startCreateBtn = document.getElementById('startCreateBtn');
-        if (startCreateBtn) {
-            startCreateBtn.addEventListener('click', function() {
-                if (!checkLoginStatus()) {
-                    showLoginPrompt('创建食谱需要先登录，请先登录您的账户。');
-                } else {
-                    // 已登录，跳转到创建食谱页面
-                    // TODO: 这里需要您后续实现创建食谱页面
-                    alert('功能开发中，敬请期待！');
-                }
-            });
-        }
-
-        // 显示登录提示
-        function showLoginPrompt(message) {
-            if (confirm(message + '\n\n点击确定前往登录页面，点击取消留在当前页面。')) {
-                window.location.href = "{{ url_for('user_bp.login_page') }}";
-            }
-        }
-
-        // 滚动到功能介绍区域
-        window.scrollToFeatures = function() {
-            const featuresSection = document.getElementById('features');
-            if (featuresSection) {
-                featuresSection.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        }
-
-        // 处理功能卡片点击事件
-        window.handleFeatureClick = function(feature) {
-            const isLoggedIn = checkLoginStatus();
-            
-            switch(feature) {
-                case 'pet-info':
-                    if (!isLoggedIn) {
-                        showLoginPrompt('查看宠物信息功能需要先登录');
-                    } else {
-                        window.location.href = "{{ url_for('main.user_center') }}";
-                    }
-                    break;
-                case 'ingredients':
-                case 'nutrition':
-                case 'recipes':
-                    if (!isLoggedIn) {
-                        showLoginPrompt('使用此功能需要先登录您的账户');
-                    } else {
-                        // TODO: 这里需要您后续实现相关页面
-                        alert('功能开发中，敬请期待！');
-                    }
-                    break;
-                case 'encyclopedia':
-                    // 食材百科可能不需要登录
-                    alert('食材百科功能开发中，敬请期待！');
-                    break;
-                case 'community':
-                    // 社区功能可能不需要登录就能查看
-                    alert('社区功能开发中，敬请期待！');
-                    break;
-                default:
-                    alert('功能开发中，敬请期待！');
-            }
-        }
-    });
-</script>
-<!-- --------------- 结束添加 --------------- -->
 {% endblock %}
