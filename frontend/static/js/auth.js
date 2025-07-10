@@ -116,7 +116,6 @@ function submitLogin(data) {
     console.log('开始提交登录请求...');
     showMessage('正在登录...', 'info');
     
-    // --------------- 修改API路径 ---------------
     fetch('/user/login', {  // 改为统一的/user路径
         method: 'POST',
         headers: {
@@ -134,6 +133,7 @@ function submitLogin(data) {
         if (result.success) {
             showMessage(result.message || '登录成功！', 'success');
             
+            // --------------- 修改登录成功后的处理逻辑 ---------------
             // 保存用户信息到localStorage（可选）
             if (result.token) {
                 localStorage.setItem('token', result.token);
@@ -144,8 +144,11 @@ function submitLogin(data) {
             
             // 延迟跳转，让用户看到成功消息
             setTimeout(() => {
-                window.location.href = result.redirect_url || '/user_center';
-            }, 1500);
+                // 优先使用后端返回的重定向URL，否则跳转到用户中心
+                const redirectUrl = result.redirect_url || '/user_center';
+                window.location.href = redirectUrl;
+            }, 1000); // 缩短延迟时间
+            // --------------- 结束修改 ---------------
         } else {
             showMessage(result.message || '登录失败', 'error');
         }
@@ -170,7 +173,7 @@ function submitRegister(data) {
         password: data.password
     };
     
-    // --------------- 修改API路径 ---------------
+    //  修改API路径 
     fetch('/user/register', {  // 改为统一的/user路径
         method: 'POST',
         headers: {
@@ -188,10 +191,11 @@ function submitRegister(data) {
         if (result.success) {
             showMessage(result.message || '注册成功！', 'success');
             
+            // --------------- 修改注册成功后的处理逻辑 ---------------
             // 延迟跳转到登录页面
             setTimeout(() => {
                 window.location.href = '/user/login';
-            }, 2000);
+            }, 1500); // 缩短延迟时间
         } else {
             showMessage(result.message || '注册失败', 'error');
         }
@@ -233,6 +237,43 @@ function showMessage(message, type = 'info') {
     const messageElement = document.createElement('div');
     messageElement.className = `message ${type}`;
     messageElement.textContent = message;
+
+    // --------------- 添加消息样式（如果页面没有定义） ---------------
+    if (!document.querySelector('style[data-auth-message-styles]')) {
+        const styleElement = document.createElement('style');
+        styleElement.setAttribute('data-auth-message-styles', 'true');
+        styleElement.textContent = `
+            .message {
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+                border-radius: 8px;
+                text-align: center;
+                border: 2px solid;
+                font-weight: bold;
+                transition: opacity 0.3s ease;
+            }
+            
+            .message.success {
+                background-color: #EDBF9D;
+                border-color: #A1B4B2;
+                color: #510B0B;
+            }
+            
+            .message.error {
+                background-color: #EDBF9D;
+                border-color: #B82F0D;
+                color: #B82F0D;
+            }
+            
+            .message.info {
+                background-color: #EDBF9D;
+                border-color: #5580AD;
+                color: #5580AD;
+            }
+        `;
+        document.head.appendChild(styleElement);
+    }
+    // --------------- 结束添加 ---------------
     
     // 添加消息
     messageContainer.appendChild(messageElement);
@@ -249,5 +290,54 @@ function showMessage(message, type = 'info') {
         }, 3000);
     }
 }
+
+// --------------- 添加全局函数，供其他页面使用 ---------------
+/**
+ * 检查用户登录状态
+ */
+window.checkUserLoginStatus = function() {
+    return fetch('/api/check_login')
+        .then(response => response.json())
+        .then(data => data.logged_in)
+        .catch(error => {
+            console.error('检查登录状态失败:', error);
+            return false;
+        });
+};
+
+/**
+ * 退出登录
+ */
+window.logoutUser = function() {
+    return fetch('/user/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // 清除本地存储的用户信息
+            localStorage.removeItem('token');
+            localStorage.removeItem('nickname');
+            return true;
+        } else {
+            throw new Error(data.message || '退出登录失败');
+        }
+    });
+};
+
+/**
+ * 显示登录提示并跳转
+ */
+window.showLoginPrompt = function(message = '此功能需要登录后使用') {
+    if (confirm(message + '\n\n点击确定前往登录页面，点击取消留在当前页面。')) {
+        window.location.href = '/user/login';
+        return true;
+    }
+    return false;
+};
+// --------------- 结束添加 ---------------
 
 console.log('Auth.js 加载完成');

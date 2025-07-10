@@ -26,14 +26,14 @@
     */
 
     .hero-section {
-        /* -------- MODIFIED: 英雄区背景图片和滤镜 -------- */
+        /* 英雄区背景图片和滤镜  */
         background: linear-gradient(135deg, rgba(85, 128, 173, 0.9) 0%, rgba(161, 180, 178, 0.9) 100%), 
-                    url('/static/images/hero_pet_bg.jpg'); /* 请确保您的 /static/images/ 目录下有 hero_pet_bg.jpg 文件 */
+                    url('/static/images/hero_pet_bg.png'); /* 请确保您的 /static/images/ 目录下有 hero_pet_bg.png 文件 */
         background-size: cover;
         background-position: center;
         background-blend-mode: multiply; /* 混合模式，让渐变覆盖在图片上 */
         filter: grayscale(30%) sepia(20%) brightness(110%) contrast(105%); /* 复古滤镜效果 */
-        /* ------------------------------------------------ */
+        
         color: white;
         padding: 6rem 2rem; /* 增加上下内边距 */
         border-radius: 15px;
@@ -66,7 +66,7 @@
         margin-right: auto;
     }
 
-    /* -------- MODIFIED: 英雄区 CTA 按钮组样式 -------- */
+    /*  英雄区 CTA 按钮组样式  */
     .hero-cta-buttons {
         display: flex;
         gap: 1.5rem; /* 按钮间距 */
@@ -88,7 +88,6 @@
         background-color: #EDBF9D;
         color: #510B0B;
     }
-    /* ------------------------------------------------ */
 
     .hero-image-placeholder {
         width: 180px; /* 增大卡通图标/图片尺寸 */
@@ -118,12 +117,11 @@
     }
 
     .features-section {
-        /* -------- MODIFIED: 核心功能模块网格布局 -------- */
+        /*  核心功能模块网格布局  */
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 保持响应式 */
         gap: 2rem; /* 增大间距 */
         margin-top: 3rem; /* 增大上间距 */
-        /* ------------------------------------------------ */
     }
 
     .feature-card {
@@ -145,9 +143,8 @@
         font-size: 4rem; /* 增大图标大小 */
         color: #5580AD; /* 图标颜色 */
         margin-bottom: 1.5rem; /* 增大间距 */
-        /* -------- MODIFIED: 图标阴影，模拟卡通立体感 -------- */
+        /*  图标阴影，模拟卡通立体感  */
         text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        /* -------------------------------------------------- */
     }
 
     .feature-card h3 {
@@ -162,7 +159,7 @@
         font-size: 1.1rem; /* 增大正文字体 */
     }
 
-    /* -------- MODIFIED: 新增流程说明模块样式 -------- */
+    /*  新增流程说明模块样式  */
     .process-section {
         margin-top: 4rem; /* 大间距 */
         text-align: center;
@@ -331,46 +328,50 @@
             <h1>为您的宠物定制健康食谱</h1>
             <p>基于科学营养配比，为您的爱宠提供个性化的饮食建议</p>
             <div class="hero-cta-buttons">
+                <!-- --------------- 修改按钮，添加登录检测 --------------- -->
                 <button class="btn btn-primary btn-large" id="startCreateBtn">立即创建食谱</button>
-                <button class="btn btn-outline btn-large">了解更多</button> {# 新增了解更多按钮 #}
+                <button class="btn btn-outline btn-large" onclick="scrollToFeatures()">了解更多</button>
+                <!-- --------------- 结束修改 --------------- -->
             </div>
             </div>
         <div class="hero-image-placeholder">
             <i class="fas fa-paw"></i> {# 替换为更通用的宠物脚印图标 #}
-            </div>
+        </div>
     </div>
     
-    <div class="features-section">
-        <div class="feature-card">
-            <i class="fas fa-file-invoice"></i> {# 填写宠物信息图标 #}
+    <div class="features-section" id="features">
+        <!-- --------------- 为每个功能卡片添加点击事件 --------------- -->
+        <div class="feature-card" onclick="handleFeatureClick('pet-info')">
+            <i class="fas fa-file-invoice"></i>
             <h3>填写宠物信息</h3>
             <p>记录爱宠档案，个性化推荐基础</p>
         </div>
-        <div class="feature-card">
-            <i class="fas fa-carrot"></i> {# 选择食材图标 #}
+        <div class="feature-card" onclick="handleFeatureClick('ingredients')">
+            <i class="fas fa-carrot"></i>
             <h3>选择食材</h3>
             <p>从丰富的食材库中挑选搭配</p>
         </div>
-        <div class="feature-card">
-            <i class="fas fa-chart-pie"></i> {# 营养分析图标 #}
+        <div class="feature-card" onclick="handleFeatureClick('nutrition')">
+            <i class="fas fa-chart-pie"></i>
             <h3>营养分析</h3>
             <p>科学配比，确保营养均衡全面</p>
         </div>
-        <div class="feature-card">
-            <i class="fas fa-utensils"></i> {# 查看推荐食谱图标 #}
+        <div class="feature-card" onclick="handleFeatureClick('recipes')">
+            <i class="fas fa-utensils"></i>
             <h3>查看推荐食谱</h3>
             <p>专属食谱，美味与健康兼得</p>
         </div>
-        <div class="feature-card">
-            <i class="fas fa-book-open"></i> {# 食材百科图标 #}
+        <div class="feature-card" onclick="handleFeatureClick('encyclopedia')">
+            <i class="fas fa-book-open"></i>
             <h3>食材百科</h3>
             <p>了解食材详情，掌握宠物营养</p>
         </div>
-        <div class="feature-card">
-            <i class="fas fa-comments"></i> {# 社区分享图标 #}
+        <div class="feature-card" onclick="handleFeatureClick('community')">
+            <i class="fas fa-comments"></i>
             <h3>社区分享</h3>
             <p>交流喂养经验，发现更多灵感</p>
         </div>
+        <!-- --------------- 结束修改 --------------- -->
     </div>
     <section class="process-section">
         <h2>食谱创建三步走</h2>
@@ -392,6 +393,7 @@
             </div>
         </div>
     </section>
+
     <section class="auth-guide-section">
         {% if session.user_id %}
             <h2>欢迎回来，{{ session.nickname }}！</h2>
@@ -404,46 +406,91 @@
             <h2>开启您的宠物健康食谱之旅</h2>
             <p>立即注册，开始为您的爱宠定制专属健康食谱，享受个性化服务！</p>
             <div class="auth-guide-buttons">
-                <a href="#" class="btn" id="registerBtnInGuide">立即注册</a> {# 链接到注册模态框 #}
-                <a href="#" class="btn" id="loginBtnInGuide">立即登录</a> {# 链接到登录模态框 #}
+                <!-- --------------- 修改注册和登录按钮链接 --------------- -->
+                <a href="{{ url_for('user_bp.register_page') }}" class="btn">立即注册</a>
+                <a href="{{ url_for('user_bp.login_page') }}" class="btn">立即登录</a>
+                <!-- --------------- 结束修改 --------------- -->
             </div>
         {% endif %}
     </section>
-    <section class="page" id="create-recipe-page" style="display: none;">
-        </section>
-    <div class="modal" id="loginModal">
-        </div>
+</section>
 
-    <div class="modal" id="registerModal">
-        </div>
-
-    <script src="/static/js/main.js"></script>
-    <script src="/static/js/auth.js"></script>
-    <script src="/static/js/petForm.js"></script>
-    <script src="/static/js/ingredientSelector.js"></script>
-    <script src="/static/js/nutritionAnalysis.js"></script>
-    <script src="/static/js/community.js"></script>
-    <script src="/static/js/profile.js"></script>
-
+    <!-- --------------- 添加JavaScript处理逻辑 --------------- -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const registerBtnInGuide = document.getElementById('registerBtnInGuide');
-            const loginBtnInGuide = document.getElementById('loginBtnInGuide');
-            const registerModal = document.getElementById('registerModal');
-            const loginModal = document.getElementById('loginModal');
+        // 检查登录状态的函数
+        function checkLoginStatus() {
+            // -------修正语法(！！！！未改正)-------------------------
+            return {{ 'true' if session.user_id else 'false' }};
+        }
 
-            if (registerBtnInGuide && registerModal) {
-                registerBtnInGuide.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    registerModal.style.display = 'block';
+        // 处理"立即创建食谱"按钮点击
+        const startCreateBtn = document.getElementById('startCreateBtn');
+        if (startCreateBtn) {
+            startCreateBtn.addEventListener('click', function() {
+                if (!checkLoginStatus()) {
+                    showLoginPrompt('创建食谱需要先登录，请先登录您的账户。');
+                } else {
+                    // 已登录，跳转到创建食谱页面
+                    // TODO: 这里需要您后续实现创建食谱页面
+                    alert('功能开发中，敬请期待！');
+                }
+            });
+        }
+
+        // 显示登录提示
+        function showLoginPrompt(message) {
+            if (confirm(message + '\n\n点击确定前往登录页面，点击取消留在当前页面。')) {
+                window.location.href = "{{ url_for('user_bp.login_page') }}";
+            }
+        }
+
+        // 滚动到功能介绍区域
+        window.scrollToFeatures = function() {
+            const featuresSection = document.getElementById('features');
+            if (featuresSection) {
+                featuresSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
                 });
             }
-            if (loginBtnInGuide && loginModal) {
-                loginBtnInGuide.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    loginModal.style.display = 'block';
-                });
+        }
+
+        // 处理功能卡片点击事件
+        window.handleFeatureClick = function(feature) {
+            const isLoggedIn = checkLoginStatus();
+            
+            switch(feature) {
+                case 'pet-info':
+                    if (!isLoggedIn) {
+                        showLoginPrompt('查看宠物信息功能需要先登录');
+                    } else {
+                        window.location.href = "{{ url_for('main.user_center') }}";
+                    }
+                    break;
+                case 'ingredients':
+                case 'nutrition':
+                case 'recipes':
+                    if (!isLoggedIn) {
+                        showLoginPrompt('使用此功能需要先登录您的账户');
+                    } else {
+                        // TODO: 这里需要您后续实现相关页面
+                        alert('功能开发中，敬请期待！');
+                    }
+                    break;
+                case 'encyclopedia':
+                    // 食材百科可能不需要登录
+                    alert('食材百科功能开发中，敬请期待！');
+                    break;
+                case 'community':
+                    // 社区功能可能不需要登录就能查看
+                    alert('社区功能开发中，敬请期待！');
+                    break;
+                default:
+                    alert('功能开发中，敬请期待！');
             }
-        });
-    </script>
-    {% endblock %}
+        }
+    });
+</script>
+<!-- --------------- 结束添加 --------------- -->
+{% endblock %}

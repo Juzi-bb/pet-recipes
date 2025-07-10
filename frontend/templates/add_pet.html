@@ -225,7 +225,8 @@
     </div>
 
     <div class="form-container">
-        <form method="POST">
+        <!-- --------------- 修改表单，移除JavaScript提交，使用原生表单提交 --------------- -->
+        <form method="POST" action="{{ url_for('main.add_pet') }}">
             <!-- 基本信息 -->
             <div class="form-section">
                 <div class="section-title">📋 基本信息</div>
@@ -400,34 +401,32 @@
     </div>
 </div>
 
+<!-- --------------- 添加JavaScript处理特殊需求的互斥逻辑 --------------- -->
 <script>
-    document.getElementById('add-pet-form').addEventListener('submit', function(event) {
-        event.preventDefault();
+    document.addEventListener('DOMContentLoaded', function() {
+        // 处理"无特殊需求"的互斥逻辑
+        const noneCheckbox = document.getElementById('need_none');
+        const otherCheckboxes = document.querySelectorAll('input[name="special_needs"]:not(#need_none)');
         
-        const formData = new FormData(event.target);
-        const data = Object.fromEntries(formData.entries());
-
-        fetch('/pet/add_pet', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message === "Pet added successfully") {
-                alert('宠物添加成功！');
-                window.location.href = '/user_center';
-            } else {
-                alert('添加失败: ' + data.message);
+        // 当选择"无特殊需求"时，取消其他选项
+        noneCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                otherCheckboxes.forEach(cb => {
+                    cb.checked = false;
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('发生错误，请查看控制台');
+        });
+        
+        // 当选择其他选项时，取消"无特殊需求"
+        otherCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (this.checked) {
+                    noneCheckbox.checked = false;
+                }
+            });
         });
     });
 </script>
+<!-- --------------- 结束添加 --------------- -->
 
 {% endblock %}

@@ -64,6 +64,7 @@
             color: white;
         }
 
+         /* --------------- 修改用户信息区域样式 --------------- */
         .user-info {
             color: #EDBF9D;
             display: flex;
@@ -77,11 +78,44 @@
             padding: 0.5rem 1rem;
             border-radius: 5px;
             transition: all 0.3s ease;
+            border: 1px solid transparent;
         }
 
         .user-info a:hover {
             background-color: #B82F0D;
+            border-color: #EDBF9D;
         }
+
+        .user-info .btn-login {
+            background-color: #5580AD;
+            border-color: #5580AD;
+        }
+
+        .user-info .btn-register {
+            background-color: transparent;
+            border-color: #EDBF9D;
+        }
+
+        .user-info .btn-register:hover {
+            background-color: #EDBF9D;
+            color: #510B0B;
+        }
+
+        .welcome-text {
+            color: #EDBF9D;
+            margin-right: 0.5rem;
+        }
+
+        .logout-btn {
+            background-color: #B82F0D !important;
+            padding: 0.3rem 0.8rem !important;
+            font-size: 0.9rem;
+        }
+
+        .logout-btn:hover {
+            background-color: #510B0B !important;
+        }
+        /* --------------- 结束修改 --------------- */
 
         /* 主内容区域 */
         .main-content {
@@ -272,21 +306,24 @@
             <div class="logo">🐾 宠物食谱</div>
             <ul class="nav-links">
                 <li><a href="{{ url_for('main.home') }}">首页</a></li>
-                <li><a href="#">创建食谱</a></li>
+                <!-- --------------- 修改创建食谱链接，添加登录检测 --------------- -->
+                <li><a href="#" id="createRecipeNavBtn">创建食谱</a></li>
+                <!-- --------------- 结束修改 --------------- -->
                 <li><a href="#">食材百科</a></li>
                 <li><a href="#">社区</a></li>
                 <li><a href="{{ url_for('main.user_center') }}">用户中心</a></li>
             </ul>
             <div class="user-info">
-                <div class="logged-in" style="display: none;"> {# 默认隐藏，由JS控制 #}
-                    <span>欢迎，<span id="usernameDisplay"></span>！</span> {# 添加 id 用于 JS 更新昵称 #}
-                    <a href="#" id="logoutBtn">退出登录</a> {# 添加 id 用于 JS 绑定事件 #}
-                </div>
-                <div class="logged-out" style="display: flex;"> {# 默认显示，由JS控制 #}
-                    <a href="#" id="loginBtn">登录</a> {# 添加 id 用于 JS 绑定事件 #}
-                    <a href="#" id="registerBtn">注册</a> {# 添加 id 用于 JS 绑定事件 #}
-                </div>
-                </div>
+                <!-- --------------- 修改用户信息显示逻辑 --------------- -->
+                {% if session.user_id %}
+                    <span class="welcome-text">欢迎，{{ session.nickname }}！</span>
+                    <a href="#" id="logoutBtn" class="logout-btn">退出登录</a>
+                {% else %}
+                    <a href="{{ url_for('user_bp.login_page') }}" class="btn-login">登录</a>
+                    <a href="{{ url_for('user_bp.register_page') }}" class="btn-register">注册</a>
+                {% endif %}
+                <!-- --------------- 结束修改 --------------- -->
+            </div>
         </div>
     </nav>
 
@@ -308,5 +345,65 @@
             {% block content %}{% endblock %}
         </div>
     </main>
+
+    <!-- --------------- 添加通用JavaScript --------------- -->
+    <script>
+        // -------修正语法(！！！！未改正)-------------------------
+        const isLoggedIn = {{ 'true' if session.get('user_id') else 'false'}};
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查登录状态的函数
+            function checkLoginStatus() {
+                // 从后端session判断登录状态
+                return isLoggedIn;
+            }
+
+            // 处理创建食谱按钮点击
+            const createRecipeNavBtn = document.getElementById('createRecipeNavBtn');
+            if (createRecipeNavBtn) {
+                createRecipeNavBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (!checkLoginStatus()) {
+                        // 未登录，跳转到登录页面
+                        alert('请先登录后再创建食谱');
+                        window.location.href = "{{ url_for('user_bp.login_page') }}";
+                    } else {
+                        // 已登录，跳转到创建食谱页面
+                        // TODO: 这里需要您后续实现创建食谱页面
+                        alert('功能开发中，敬请期待！');
+                    }
+                });
+            }
+
+            // 处理退出登录
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if (confirm('确定要退出登录吗？')) {
+                        fetch('/user/logout', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('退出登录成功');
+                                window.location.href = "{{ url_for('main.home') }}";
+                            } else {
+                                alert('退出登录失败');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('退出登录错误:', error);
+                            alert('网络错误，请稍后重试');
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+    <!-- --------------- 结束添加 --------------- -->
 </body>
 </html>
