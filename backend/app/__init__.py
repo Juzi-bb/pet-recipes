@@ -25,7 +25,9 @@ def create_app(config_class=Config):
     from .routes.pet import pet_bp
     # from .routes.recipe import recipe_bp # 等您实现后再取消注释
 
-    app.register_blueprint(user_bp, url_prefix='/api/user')
+    # --------------- 修改蓝图注册，添加页面路由 ---------------
+    app.register_blueprint(user_bp, url_prefix='/user')       # 页面路由
+    # --------------- 结束修改 ---------------
     app.register_blueprint(pet_bp, url_prefix='/api/pets')
     # app.register_blueprint(recipe_bp, url_prefix='/api/recipes')
 

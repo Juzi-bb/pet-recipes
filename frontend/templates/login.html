@@ -110,6 +110,29 @@
         text-align: center;
         border: 1px solid #A1B4B2;
     }
+
+    /* --------------- 添加消息提示样式 --------------- */
+    .message {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        border: 2px solid;
+        font-weight: bold;
+    }
+    
+    .message.success {
+        background-color: #EDBF9D;
+        border: 1px solid #A1B4B2;
+        color: #510B0B;
+    }
+    
+    .message.error {
+        background-color: #EDBF9D;
+        border: 1px solid #B82F0D;
+        color: #B82F0D;
+    }
+    /* --------------- 结束添加 ---------------*/
 </style>
 
 <div class="login-container">
@@ -124,7 +147,10 @@
             登录后您可以管理宠物信息、创建食谱、参与社区讨论
         </div>
 
-        <form method="POST" id="loginForm">  {# 添加id #}
+        <!-- --------------- 添加消息显示区域 --------------- -->
+        <div id="message-container"></div>
+        <!-- --------------- 修改表单ID和结构 --------------- -->
+        <form id="loginForm" method="POST" action="/user/login">
             <div class="form-group">
                 <label for="username">
                     <span class="icon">👤</span>用户名
@@ -145,8 +171,11 @@
         </form>
 
         <div class="register-link">
-            <p>还没有账户？<a href="{{ url_for('user.register') }}">点击注册</a></p>
+            <!-- --------------- 修改注册链接 --------------- -->
+            <p>还没有账户？<a href="/user/register">点击注册</a></p>
         </div>
     </div>
 </div>
+<!-- --------------- 添加页面专属的JavaScript --------------- -->
+<script src="/static/js/auth.js"></script>
 {% endblock %}

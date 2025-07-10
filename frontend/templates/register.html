@@ -106,6 +106,29 @@
         font-size: 1.2rem;
         margin-right: 0.5rem;
     }
+
+        /* --------------- 添加消息提示样式 --------------- */
+    .message {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        border: 2px solid;
+        font-weight: bold;
+    }
+    
+    .message.success {
+        background-color: #EDBF9D;
+        border: 1px solid #A1B4B2;
+        color: #510B0B;
+    }
+    
+    .message.error {
+        background-color: #EDBF9D;
+        border: 1px solid #B82F0D;
+        color: #B82F0D;
+    }
+    /* --------------- 结束添加 --------------- */
 </style>
 
 <div class="register-container">
@@ -115,7 +138,10 @@
     </div>
 
     <div class="form-container">
-        <form method="POST" id="registerForm">  {# 添加id #}
+        <!-- --------------- 添加消息显示区域 --------------- -->
+        <div id="message-container"></div>
+        <!-- --------------- 修改表单ID和结构 --------------- -->
+        <form id="registerForm" method="POST" action="/user/register">
             <div class="form-group">
                 <label for="username">
                     <span class="icon">👤</span>用户名
@@ -156,7 +182,8 @@
         </form>
 
         <div class="login-link">
-            <p>已有账户？<a href="{{ url_for('user.login') }}">点击登录</a></p>
+            <!-- --------------- 修改登录链接 --------------- -->
+            <p>已有账户？<a href="/user/login">点击登录</a></p>
         </div>
     </div>
 </div>
@@ -173,18 +200,7 @@
             this.setCustomValidity('');
         }
     });
-
-    // 表单提交验证
-    // 主要由auth.js处理，但验证可以保留
-    document.querySelector('form').addEventListener('submit', function(e) {
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirm_password').value;
-        
-        if (password !== confirmPassword) {
-            e.preventDefault();  // 阻止表单提交
-            alert('两次输入的密码不一致，请检查后重试！');
-            return false;
-        }
-    });
 </script>
+<script src="/static/js/auth.js"></script>
+
 {% endblock %}
