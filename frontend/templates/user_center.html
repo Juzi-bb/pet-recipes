@@ -372,31 +372,100 @@
         margin-bottom: 1rem;
     }
 
-    /* 成功消息动画 */
+    /* 成功消息动画 - 【修改】重新设计整个消息框样式 */
     .success-message {
+        /* 【修改】定位方式：固定在用户视窗顶部而非页面顶部 */
         position: fixed;
-        top: -100px;
+        top: -80px;
         left: 50%;
         transform: translateX(-50%);
-        background: #5580AD;
-        color: white;
+        
+        /* 【修改】背景颜色改为主题色系中的暖色调 */
+        background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
+        color: #510B0B;
+        
+        /* 【修改】自适应宽度设置 */
         padding: 1rem 2rem;
-        border-radius: 10px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        z-index: 1001;
+        min-width: 200px;
+        max-width: 80vw;
+        width: auto;
+        display: inline-block;
+        text-align: center;
+        white-space: nowrap;
+        
+        /* 【修改】更精致的圆角和阴影 */
+        border-radius: 25px;
+        box-shadow: 0 8px 32px rgba(81, 11, 11, 0.3);
+        border: 2px solid #510B0B;
+        
+        /* 【修改】层级确保始终在最顶层 */
+        z-index: 9999;
+        
         font-weight: bold;
-        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        font-size: 1rem;
+        
+        /* 【修改】更平滑的动画曲线 */
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         opacity: 0;
+        
+        /* 【新增】文字阴影增强可读性 */
+        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
     }
 
+    /* 【修改】显示状态：出现在视窗顶部 */
     .success-message.show {
-        top: 100px;
+        top: 20px;  /* 距离视窗顶部20px */
         opacity: 1;
+        transform: translateX(-50%) scale(1);
     }
 
+    /* 【修改】隐藏状态：向上消失并缩小 */
     .success-message.hide {
-        top: -100px;
+        top: -80px;
         opacity: 0;
+        transform: translateX(-50%) scale(0.8);
+    }
+
+    /* 【新增】长文本自动换行处理 */
+    .success-message.multiline {
+        white-space: normal;
+        max-width: 400px;
+        line-height: 1.4;
+    }
+
+    /* 【新增】响应式设计：移动端适配 */
+    @media (max-width: 768px) {
+        .success-message {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            max-width: 90vw;
+            margin: 0 1rem;
+        }
+        
+        .success-message.show {
+            top: 15px;
+        }
+    }
+
+    /* 【新增】不同类型消息的颜色变体 */
+    .success-message.type-success {
+        background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
+        color: #510B0B;
+        border-color: #510B0B;
+    }
+
+    .success-message.type-info {
+        background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
+        color: white;
+        border-color: #5580AD;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .success-message.type-warning {
+        background: linear-gradient(135deg, #B82F0D 0%, #EDBF9D 100%);
+        color: white;
+        border-color: #B82F0D;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     /* 快速操作区域 */
@@ -455,6 +524,18 @@
         .pet-basic-stats {
             flex-direction: column;
             gap: 0.5rem;
+        }
+
+        /* 【新增】移动端成功消息样式优化 */
+        .success-message {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            max-width: 90vw;
+            margin: 0 1rem;
+        }
+        
+        .success-message.show {
+            top: 15px;
         }
     }
 </style>
@@ -714,31 +795,55 @@ function getNeedTagClass(need) {
     return 'normal';
 }
 
-// 显示成功消息
-function showSuccessMessage(message) {
+// 【修改】显示成功消息 - 增强版本
+function showSuccessMessage(message, type = 'success', duration = 3000) {
     // 移除已存在的消息
-    const existingMessage = document.querySelector('.success-message');
+    var existingMessage = document.querySelector('.success-message');
     if (existingMessage) {
         existingMessage.remove();
     }
     
-    const messageEl = document.createElement('div');
-    messageEl.className = 'success-message';
+    var messageEl = document.createElement('div');
+    
+    // 【修改】根据消息长度判断是否需要多行显示
+    var isLongMessage = message.length > 20;
+    
+    // 【修改】动态设置CSS类
+    messageEl.className = 'success-message type-' + type;
+    if (isLongMessage) {
+        messageEl.className += ' multiline';
+    }
+    
     messageEl.textContent = message;
-    document.body.appendChild(messageEl);
     
-    // 显示动画
-    setTimeout(() => {
-        messageEl.classList.add('show');
-    }, 10);
+    // 【新增】将消息添加到body的最前面，确保在最顶层
+    document.body.insertBefore(messageEl, document.body.firstChild);
     
-    // 3秒后隐藏
-    setTimeout(() => {
+    // 【修改】显示动画 - 更流畅的时序
+    requestAnimationFrame(function() {
+        setTimeout(function() {
+            messageEl.classList.add('show');
+        }, 50);
+    });
+    
+    // 【修改】自动隐藏 - 可配置持续时间
+    setTimeout(function() {
         messageEl.classList.add('hide');
-        setTimeout(() => {
-            messageEl.remove();
-        }, 400);
-    }, 3000);
+        setTimeout(function() {
+            if (messageEl.parentNode) {
+                messageEl.parentNode.removeChild(messageEl);
+            }
+        }, 500);
+    }, duration);
+}
+
+// 【新增】便捷的消息类型函数
+function showInfoMessage(message, duration) {
+    showSuccessMessage(message, 'info', duration);
+}
+
+function showWarningMessage(message, duration) {
+    showSuccessMessage(message, 'warning', duration);
 }
 
 // 显示开发中提示
