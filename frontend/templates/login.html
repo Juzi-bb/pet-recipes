@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}用户登录 - 宠物食谱网站{% endblock %}
+{% block title %}User Login - Pet Recipe Website{% endblock %}
 
 {% block content %}
 <style>
@@ -137,45 +137,41 @@
 
 <div class="login-container">
     <div class="login-header">
-        <h1>🔐 用户登录</h1>
-        <p>登录您的账户，继续管理您的宠物食谱</p>
+        <h1>🔐 User Login</h1>
+        <p>Log in to your account to continue managing your pet recipes</p>
     </div>
 
     <div class="form-container">
         <div class="welcome-message">
-            <strong>欢迎回来！</strong><br>
-            登录后您可以管理宠物信息、创建食谱、参与社区讨论
+            <strong>Welcome back!</strong><br>
+            After logging in, you can manage pet information, create recipes, and participate in community discussions
         </div>
 
-        <!-- --------------- 添加消息显示区域 --------------- -->
         <div id="message-container"></div>
-        <!-- --------------- 修改表单ID和结构 --------------- -->
         <form id="loginForm" method="POST" action="/user/login">
             <div class="form-group">
                 <label for="username">
-                    <span class="icon">👤</span>用户名
+                    <span class="icon">👤</span>Username
                 </label>
                 <input type="text" id="username" name="username" required 
-                       placeholder="请输入您的用户名">
+                    placeholder="Please enter your username">
             </div>
 
             <div class="form-group">
                 <label for="password">
-                    <span class="icon">🔒</span>密码
+                    <span class="icon">🔒</span>Password
                 </label>
                 <input type="password" id="password" name="password" required 
-                       placeholder="请输入您的密码">
+                    placeholder="Please enter your password">
             </div>
 
-            <button type="submit" class="submit-btn">🚀 立即登录</button>
+            <button type="submit" class="submit-btn">🚀 Login Now</button>
         </form>
 
         <div class="register-link">
-            <!-- --------------- 修改注册链接 --------------- -->
-            <p>还没有账户？<a href="/user/register">点击注册</a></p>
+            <p>Don't have an account yet? <a href="/user/register">Click to register</a></p>
         </div>
     </div>
 </div>
-<!-- --------------- 添加页面专属的JavaScript --------------- -->
 <script src="/static/js/auth.js"></script>
 {% endblock %}

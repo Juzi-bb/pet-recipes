@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>宠物食谱网站</title>
+    <title>Pet Recipe Website</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 
 {% extends "base.html" %}
 
-{% block title %}宠物食谱网站 - 首页{% endblock %}
+{% block title %}Pet Recipe Website - Home{% endblock %}
 
 {% block content %}
 
@@ -56,7 +56,7 @@
         margin-right: auto;
     }
 
-    /*  英雄区 CTA 按钮组样式  */
+    /* 英雄区 CTA 按钮组样式  */
     .hero-cta-buttons {
         display: flex;
         gap: 1.5rem; /* 按钮间距 */
@@ -107,7 +107,7 @@
     }
 
     .features-section {
-        /*  核心功能模块网格布局  */
+        /* 核心功能模块网格布局  */
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 保持响应式 */
         gap: 2rem; /* 增大间距 */
@@ -133,7 +133,7 @@
         font-size: 4rem; /* 增大图标大小 */
         color: #5580AD; /* 图标颜色 */
         margin-bottom: 1.5rem; /* 增大间距 */
-        /*  图标阴影，模拟卡通立体感  */
+        /* 图标阴影，模拟卡通立体感  */
         text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
     }
 
@@ -149,7 +149,7 @@
         font-size: 1.1rem; /* 增大正文字体 */
     }
 
-    /*  新增流程说明模块样式  */
+    /* 新增流程说明模块样式  */
     .process-section {
         margin-top: 4rem; /* 大间距 */
         text-align: center;
@@ -315,14 +315,12 @@
 <section class="page" id="home-page">
     <div class="hero-section">
         <div class="hero-content">
-            <h1>为您的宠物定制健康食谱</h1>
-            <p>基于科学营养配比，为您的爱宠提供个性化的饮食建议</p>
+            <h1>Custom Healthy Recipes for Your Pet</h1>
+            <p>Provide personalized dietary advice for your pet based on scientific nutritional ratios</p>
             <div class="hero-cta-buttons">
-                <!-- --------------- 修改按钮，添加登录检测 --------------- -->
-                <button class="btn btn-primary btn-large" id="startCreateBtn">立即创建食谱</button>
-                <button class="btn btn-outline btn-large" onclick="scrollToFeatures()">了解更多</button>
-                <!-- --------------- 结束修改 --------------- -->
-            </div>
+                <button class="btn btn-primary btn-large" id="startCreateBtn">Create Recipe Now</button>
+                <button class="btn btn-outline btn-large" onclick="scrollToFeatures()">Learn More</button>
+                </div>
             </div>
         <div class="hero-image-placeholder">
             <i class="fas fa-paw"></i> {# 替换为更通用的宠物脚印图标 #}
@@ -330,77 +328,73 @@
     </div>
     
     <div class="features-section" id="features">
-        <!-- --------------- 为每个功能卡片添加点击事件 --------------- -->
         <div class="feature-card" onclick="handleFeatureClick('pet-info')">
             <i class="fas fa-file-invoice"></i>
-            <h3>填写宠物信息</h3>
-            <p>记录爱宠档案，个性化推荐基础</p>
+            <h3>Enter Pet Information</h3>
+            <p>Record pet files, the basis for personalized recommendations</p>
         </div>
         <div class="feature-card" onclick="handleFeatureClick('ingredients')">
             <i class="fas fa-carrot"></i>
-            <h3>选择食材</h3>
-            <p>从丰富的食材库中挑选搭配</p>
+            <h3>Select Ingredients</h3>
+            <p>Choose and match from a rich ingredient library</p>
         </div>
         <div class="feature-card" onclick="handleFeatureClick('nutrition')">
             <i class="fas fa-chart-pie"></i>
-            <h3>营养分析</h3>
-            <p>科学配比，确保营养均衡全面</p>
+            <h3>Nutritional Analysis</h3>
+            <p>Scientific proportioning to ensure comprehensive and balanced nutrition</p>
         </div>
         <div class="feature-card" onclick="handleFeatureClick('recipes')">
             <i class="fas fa-utensils"></i>
-            <h3>查看推荐食谱</h3>
-            <p>专属食谱，美味与健康兼得</p>
+            <h3>View Recommended Recipes</h3>
+            <p>Exclusive recipes, delicious and healthy</p>
         </div>
         <div class="feature-card" onclick="handleFeatureClick('encyclopedia')">
             <i class="fas fa-book-open"></i>
-            <h3>食材百科</h3>
-            <p>了解食材详情，掌握宠物营养</p>
+            <h3>Ingredient Encyclopedia</h3>
+            <p>Understand ingredient details and master pet nutrition</p>
         </div>
         <div class="feature-card" onclick="handleFeatureClick('community')">
             <i class="fas fa-comments"></i>
-            <h3>社区分享</h3>
-            <p>交流喂养经验，发现更多灵感</p>
+            <h3>Community Sharing</h3>
+            <p>Exchange feeding experiences and discover more inspiration</p>
         </div>
-        <!-- --------------- 结束修改 --------------- -->
-    </div>
+        </div>
     <section class="process-section">
-        <h2>食谱创建三步走</h2>
+        <h2>Three Steps to Create a Recipe</h2>
         <div class="process-steps">
             <div class="step-card">
                 <div class="step-number-circle">1</div>
-                <h3>填写信息</h3>
-                <p>告诉我们您的爱宠的种类、体重、年龄和特殊需求。</p>
+                <h3>Fill in Information</h3>
+                <p>Tell us your pet's species, weight, age, and special needs.</p>
             </div>
             <div class="step-card">
                 <div class="step-number-circle">2</div>
-                <h3>选择食材</h3>
-                <p>从我们精心准备的食材库中，为您的爱宠挑选心仪的食物。</p>
+                <h3>Select Ingredients</h3>
+                <p>Choose your desired food for your pet from our carefully prepared ingredient library.</p>
             </div>
             <div class="step-card">
                 <div class="step-number-circle">3</div>
-                <h3>获取食谱</h3>
-                <p>系统将智能分析并为您生成营养均衡的定制食谱。</p>
+                <h3>Get Recipe</h3>
+                <p>The system will intelligently analyze and generate a nutritionally balanced custom recipe for you.</p>
             </div>
         </div>
     </section>
 
     <section class="auth-guide-section">
         {% if session.user_id %}
-            <h2>欢迎回来，{{ session.nickname }}！</h2>
-            <p>继续管理您的爱宠，探索更多定制食谱和社区内容。</p>
+            <h2>Welcome back, {{ session.nickname }}!</h2>
+            <p>Continue to manage your pets, explore more custom recipes and community content.</p>
             <div class="auth-quick-links">
-                <a href="{{ url_for('main.user_center') }}" class="btn">我的宠物</a>
-                <a href="#" class="btn">我的食谱</a>
+                <a href="{{ url_for('main.user_center') }}" class="btn">My Pets</a>
+                <a href="#" class="btn">My Recipes</a>
             </div>
         {% else %}
-            <h2>开启您的宠物健康食谱之旅</h2>
-            <p>立即注册，开始为您的爱宠定制专属健康食谱，享受个性化服务！</p>
+            <h2>Start Your Pet's Healthy Recipe Journey</h2>
+            <p>Register now to start customizing exclusive healthy recipes for your pet and enjoy personalized services!</p>
             <div class="auth-guide-buttons">
-                <!-- --------------- 修改注册和登录按钮链接 --------------- -->
-                <a href="{{ url_for('user_bp.register_page') }}" class="btn">立即注册</a>
-                <a href="{{ url_for('user_bp.login_page') }}" class="btn">立即登录</a>
-                <!-- --------------- 结束修改 --------------- -->
-            </div>
+                <a href="{{ url_for('user_bp.register_page') }}" class="btn">Register Now</a>
+                <a href="{{ url_for('user_bp.login_page') }}" class="btn">Login Now</a>
+                </div>
         {% endif %}
     </section>
 </section>

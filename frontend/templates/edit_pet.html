@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}编辑宠物信息 - 宠物食谱网站{% endblock %}
+{% block title %}Edit Pet Information - Pet Recipe Website{% endblock %}
 
 {% block content %}
 <style>
@@ -217,141 +217,141 @@
 </style>
 
 <div class="edit-pet-container">
-    <a href="{{ url_for('main.user_center') }}" class="back-link">← 返回用户中心</a>
+    <a href="{{ url_for('main.user_center') }}" class="back-link">← Back to User Center</a>
     
     <div class="page-header">
-        <h1>✏️ 编辑宠物信息</h1>
-        <p>更新您爱宠的资料，获得更精准的食谱推荐</p>
+        <h1>✏️ Edit Pet Information</h1>
+        <p>Update your pet's information for more accurate recipe recommendations</p>
     </div>
 
     <div class="form-container">
         <form method="POST" action="{{ url_for('main.edit_pet', pet_id=pet.id) }}">
             <!-- 基本信息 -->
             <div class="form-section">
-                <div class="section-title">📋 基本信息</div>
+                <div class="section-title">📋 Basic Information</div>
                 
                 <div class="form-group">
                     <label for="name">
-                        <span style="margin-right: 0.5rem;">🏷️</span>宠物名字
+                        <span style="margin-right: 0.5rem;">🏷️</span>Pet Name
                     </label>
-                    <input type="text" id="name" name="name" required maxlength="50" 
-                        value="{{ pet.name }}" placeholder="请输入宠物的名字">
+                    <input type="text" id="name" name="name" required maxlength="50"
+                        value="{{ pet.name }}" placeholder="Please enter the pet's name">
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="species">
-                            <span style="margin-right: 0.5rem;">🐕</span>宠物种类
+                            <span style="margin-right: 0.5rem;">🐕</span>Pet Species
                         </label>
                         <select id="species" name="species" required>
-                            <option value="">请选择种类</option>
-                            <option value="狗" {{ 'selected' if pet.species == '狗' else '' }}>狗</option>
-                            <option value="猫" {{ 'selected' if pet.species == '猫' else '' }}>猫</option>
+                            <option value="">Please select a species</option>
+                            <option value="Dog" {{ 'selected' if pet.species == 'Dog' else '' }}>Dog</option>
+                            <option value="Cat" {{ 'selected' if pet.species == 'Cat' else '' }}>Cat</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label for="breed">
-                            <span style="margin-right: 0.5rem;">📝</span>品种（可选）
+                            <span style="margin-right: 0.5rem;">📝</span>Breed (optional)
                         </label>
-                        <input type="text" id="breed" name="breed" maxlength="50" 
-                            value="{{ pet.breed or '' }}" placeholder="如：金毛、英短等">
+                        <input type="text" id="breed" name="breed" maxlength="50"
+                            value="{{ pet.breed or '' }}" placeholder="e.g., Golden Retriever, British Shorthair Cat">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="weight">
-                            <span style="margin-right: 0.5rem;">⚖️</span>体重（kg）
+                            <span style="margin-right: 0.5rem;">⚖️</span>Weight (kg)
                         </label>
-                        <input type="number" id="weight" name="weight" required 
-                            min="0.5" max="80" step="0.1" value="{{ pet.weight }}" placeholder="请输入体重">
-                        <div class="form-help">范围：0.5-80kg</div>
+                        <input type="number" id="weight" name="weight" required
+                            min="0.5" max="80" step="0.1" value="{{ pet.weight }}" placeholder="Please enter weight">
+                        <div class="form-help">Range: 0.5-80kg</div>
                     </div>
 
                     <div class="form-group">
                         <label for="age">
-                            <span style="margin-right: 0.5rem;">🎂</span>年龄（岁）
+                            <span style="margin-right: 0.5rem;">🎂</span>Age (years)
                         </label>
-                        <input type="number" id="age" name="age" required 
-                            min="0" max="25" value="{{ pet.age }}" placeholder="请输入年龄">
-                        <div class="form-help">范围：0-25岁</div>
+                        <input type="number" id="age" name="age" required
+                            min="0" max="25" value="{{ pet.age }}" placeholder="Please enter age">
+                        <div class="form-help">Range: 0-25 years</div>
                     </div>
                 </div>
             </div>
 
             <!-- 特殊需求 -->
             <div class="form-section">
-                <div class="section-title">🏥 特殊需求</div>
+                <div class="section-title">🏥 Special Needs</div>
                 <div class="form-group">
-                    <label>请选择您宠物的特殊需求（可多选）：</label>
+                    <label>Please select your pet's special needs (multiple selections allowed): </label>
                     <div class="checkbox-group">
                         {% set current_needs = pet.special_needs.split(', ') if pet.special_needs else [] %}
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_none" name="special_needs" value="无特殊需求"
-                                {{ 'checked' if '无特殊需求' in current_needs else '' }}>
-                            <label for="need_none">无特殊需求</label>
+                            <input type="checkbox" id="need_none" name="special_needs" value="No special needs"
+                                {{ 'checked' if 'No special needs' in current_needs else '' }}>
+                            <label for="need_none">No special needs</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_seafood" name="special_needs" value="海鲜过敏"
-                                {{ 'checked' if '海鲜过敏' in current_needs else '' }}>
-                            <label for="need_seafood">海鲜过敏</label>
+                            <input type="checkbox" id="need_seafood" name="special_needs" value="Seafood Allergy"
+                                {{ 'checked' if 'Seafood Allergy' in current_needs else '' }}>
+                            <label for="need_seafood">Seafood Allergy</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_nuts" name="special_needs" value="坚果过敏"
-                                {{ 'checked' if '坚果过敏' in current_needs else '' }}>
-                            <label for="need_nuts">坚果过敏</label>
+                            <input type="checkbox" id="need_nuts" name="special_needs" value="Nut Allergy"
+                                {{ 'checked' if 'Nut Allergy' in current_needs else '' }}>
+                            <label for="need_nuts">Nut Allergy</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_obesity" name="special_needs" value="肥胖"
-                                {{ 'checked' if '肥胖' in current_needs else '' }}>
-                            <label for="need_obesity">肥胖</label>
+                            <input type="checkbox" id="need_obesity" name="special_needs" value="Obesity"
+                                {{ 'checked' if 'Obesity' in current_needs else '' }}>
+                            <label for="need_obesity">Obesity</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_diabetes" name="special_needs" value="糖尿病"
-                                {{ 'checked' if '糖尿病' in current_needs else '' }}>
-                            <label for="need_diabetes">糖尿病</label>
+                            <input type="checkbox" id="need_diabetes" name="special_needs" value="Diabetes"
+                                {{ 'checked' if 'Diabetes' in current_needs else '' }}>
+                            <label for="need_diabetes">Diabetes</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_kidney" name="special_needs" value="肾脏疾病"
-                                {{ 'checked' if '肾脏疾病' in current_needs else '' }}>
-                            <label for="need_kidney">肾脏疾病</label>
+                            <input type="checkbox" id="need_kidney" name="special_needs" value="Kidney Disease"
+                                {{ 'checked' if 'Kidney Disease' in current_needs else '' }}>
+                            <label for="need_kidney">Kidney Disease</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_sensitive" name="special_needs" value="肠胃敏感"
-                                {{ 'checked' if '肠胃敏感' in current_needs else '' }}>
-                            <label for="need_sensitive">肠胃敏感</label>
+                            <input type="checkbox" id="need_sensitive" name="special_needs" value="Sensitive Stomach"
+                                {{ 'checked' if 'Sensitive Stomach' in current_needs else '' }}>
+                            <label for="need_sensitive">Sensitive Stomach</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_fur" name="special_needs" value="美毛需求"
-                                {{ 'checked' if '美毛需求' in current_needs else '' }}>
-                            <label for="need_fur">美毛需求</label>
+                            <input type="checkbox" id="need_fur" name="special_needs" value="Hair-beautifying Needs"
+                                {{ 'checked' if 'Hair-beautifying Needs' in current_needs else '' }}>
+                            <label for="need_fur">Hair-beautifying Needs</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_joint" name="special_needs" value="关节问题"
-                                {{ 'checked' if '关节问题' in current_needs else '' }}>
-                            <label for="need_joint">关节问题</label>
+                            <input type="checkbox" id="need_joint" name="special_needs" value="Joint Problems"
+                                {{ 'checked' if 'Joint Problems' in current_needs else '' }}>
+                            <label for="need_joint">Joint Problems</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="need_dental" name="special_needs" value="牙齿健康"
-                                {{ 'checked' if '牙齿健康' in current_needs else '' }}>
-                            <label for="need_dental">牙齿健康</label>
+                            <input type="checkbox" id="need_dental" name="special_needs" value="Dental Health"
+                                {{ 'checked' if 'Dental Health' in current_needs else '' }}>
+                            <label for="need_dental">Dental Health</label>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="form-section">
-                <div class="section-title">✨ 选择头像</div>
+                <div class="section-title">✨ Select Avatar</div>
                 <div class="form-group">
-                    <label>请为您的宠物选择一个可爱的头像：</label>
+                    <label>Please choose a cute avatar for your pet: </label>
                     <div class="avatar-selector">
                         <div class="avatar-option">
                             <input type="radio" id="avatar_dog1" name="avatar" value="dog1.png" 
                                 {{ 'checked' if pet.avatar == 'dog1.png' else '' }} required>
                             <label for="avatar_dog1">
                                 <img src="{{ url_for('static', filename='images/avatars/dog1.png') }}" alt="狗头像1" class="avatar-img">
-                                <span class="avatar-label">狗狗1</span>
+                                <span class="avatar-label">Dog 1</span>
                             </label>
                         </div>
                         <div class="avatar-option">
@@ -359,7 +359,7 @@
                                 {{ 'checked' if pet.avatar == 'dog2.png' else '' }}>
                             <label for="avatar_dog2">
                                 <img src="{{ url_for('static', filename='images/avatars/dog2.png') }}" alt="狗头像2" class="avatar-img">
-                                <span class="avatar-label">狗狗2</span>
+                                <span class="avatar-label">Dog 2</span>
                             </label>
                         </div>
                         <div class="avatar-option">
@@ -367,7 +367,7 @@
                                 {{ 'checked' if pet.avatar == 'dog3.png' else '' }}>
                             <label for="avatar_dog3">
                                 <img src="{{ url_for('static', filename='images/avatars/dog3.png') }}" alt="狗头像3" class="avatar-img">
-                                <span class="avatar-label">狗狗3</span>
+                                <span class="avatar-label">Dog 3</span>
                             </label>
                         </div>
                         <div class="avatar-option">
@@ -375,7 +375,7 @@
                                 {{ 'checked' if pet.avatar == 'dog4.png' else '' }}>
                             <label for="avatar_dog4">
                                 <img src="{{ url_for('static', filename='images/avatars/dog4.png') }}" alt="狗头像4" class="avatar-img">
-                                <span class="avatar-label">狗狗4</span>
+                                <span class="avatar-label">Dog 4</span>
                             </label>
                         </div>
                         <div class="avatar-option">
@@ -383,7 +383,7 @@
                                 {{ 'checked' if pet.avatar == 'cat1.png' else '' }}>
                             <label for="avatar_cat1">
                                 <img src="{{ url_for('static', filename='images/avatars/cat1.png') }}" alt="猫头像1" class="avatar-img">
-                                <span class="avatar-label">猫猫1</span>
+                                <span class="avatar-label">Cat 1</span>
                             </label>
                         </div>
                         <div class="avatar-option">
@@ -391,7 +391,7 @@
                                 {{ 'checked' if pet.avatar == 'cat2.png' else '' }}>
                             <label for="avatar_cat2">
                                 <img src="{{ url_for('static', filename='images/avatars/cat2.png') }}" alt="猫头像2" class="avatar-img">
-                                <span class="avatar-label">猫猫2</span>
+                                <span class="avatar-label">Cat 2</span>
                             </label>
                         </div>
                         <div class="avatar-option">
@@ -399,7 +399,7 @@
                                 {{ 'checked' if pet.avatar == 'cat3.png' else '' }}>
                             <label for="avatar_cat3">
                                 <img src="{{ url_for('static', filename='images/avatars/cat3.png') }}" alt="猫头像3" class="avatar-img">
-                                <span class="avatar-label">猫猫3</span>
+                                <span class="avatar-label">Cat 3</span>
                             </label>
                         </div>
                         <div class="avatar-option">
@@ -407,14 +407,14 @@
                                 {{ 'checked' if pet.avatar == 'cat4.png' else '' }}>
                             <label for="avatar_cat4">
                                 <img src="{{ url_for('static', filename='images/avatars/cat4.png') }}" alt="猫头像4" class="avatar-img">
-                                <span class="avatar-label">猫猫4</span>
+                                <span class="avatar-label">Cat 4</span>
                             </label>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="submit-btn">💾 保存修改</button>
+            <button type="submit" class="submit-btn">💾 Save Changes</button>
         </form>
     </div>
 </div>

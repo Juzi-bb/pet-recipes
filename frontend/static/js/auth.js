@@ -1,16 +1,16 @@
 // 登录和注册表单
 
-console.log('Auth.js 开始加载...');
+console.log('Auth.js loading...');
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM 已加载，开始初始化认证功能...');
+    console.log('DOM loaded, initializing authentication functions...');
     
     // 获取表单元素
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     
-    console.log('登录表单:', loginForm ? '已找到' : '未找到');
-    console.log('注册表单:', registerForm ? '已找到' : '未找到');
+    console.log('Login Form:', loginForm ? 'Found' : 'Not found');
+    console.log('Register Form:', registerForm ? 'Found' : 'Not found');
     
     // 初始化登录表单
     if (loginForm) {
@@ -27,11 +27,11 @@ document.addEventListener('DOMContentLoaded', function() {
  * 初始化登录表单
  */
 function initLoginForm(form) {
-    console.log('初始化登录表单...');
+    console.log('Initializing login form...');
     
     form.addEventListener('submit', function(event) {
         event.preventDefault(); // 阻止默认提交
-        console.log('登录表单提交事件触发');
+        console.log('Login form submission event triggered');
         
         // 获取表单数据
         const formData = new FormData(form);
@@ -40,11 +40,11 @@ function initLoginForm(form) {
             password: formData.get('password')
         };
         
-        console.log('登录数据:', data);
+        console.log('Login data:', data);
         
         // 验证数据
         if (!data.username || !data.password) {
-            showMessage('请填写用户名和密码', 'error');
+            showMessage('Please fill in username and password', 'error');
             return;
         }
         
@@ -57,11 +57,11 @@ function initLoginForm(form) {
  * 初始化注册表单
  */
 function initRegisterForm(form) {
-    console.log('初始化注册表单...');
+    console.log('Initializing register form...');
     
     form.addEventListener('submit', function(event) {
         event.preventDefault(); // 阻止默认提交
-        console.log('注册表单提交事件触发');
+        console.log('Register form submission event triggered');
         
         // 获取表单数据
         const formData = new FormData(form);
@@ -72,7 +72,7 @@ function initRegisterForm(form) {
             confirm_password: formData.get('confirm_password')
         };
         
-        console.log('注册数据:', data);
+        console.log('Register data:', data);
         
         // 验证数据
         if (!validateRegisterData(data)) {
@@ -90,19 +90,19 @@ function initRegisterForm(form) {
 function validateRegisterData(data) {
     // 检查必填字段
     if (!data.username || !data.nickname || !data.password) {
-        showMessage('请填写所有必填字段', 'error');
+        showMessage('Please fill in all required fields', 'error');
         return false;
     }
     
     // 检查密码长度
     if (data.password.length < 6) {
-        showMessage('密码至少需要6个字符', 'error');
+        showMessage('Password must be at least 6 characters long', 'error');
         return false;
     }
     
     // 检查密码确认
     if (data.password !== data.confirm_password) {
-        showMessage('两次输入的密码不一致', 'error');
+        showMessage('The two entered passwords do not match', 'error');
         return false;
     }
     
@@ -113,8 +113,8 @@ function validateRegisterData(data) {
  * 提交登录请求
  */
 function submitLogin(data) {
-    console.log('开始提交登录请求...');
-    showMessage('正在登录...', 'info');
+    console.log('Submitting login request...');
+    showMessage('Logging in...', 'info');
     
     fetch('/user/login', {  // 改为统一的/user路径
         method: 'POST',
@@ -124,14 +124,14 @@ function submitLogin(data) {
         body: JSON.stringify(data)
     })
     .then(response => {
-        console.log('登录响应状态:', response.status);
+        console.log('Login response status:', response.status);
         return response.json();
     })
     .then(result => {
-        console.log('登录响应数据:', result);
+        console.log('Login response data:', result);
         
         if (result.success) {
-            showMessage(result.message || '登录成功！', 'success');
+            showMessage(result.message || 'Login successful！', 'success');
             
             // --------------- 修改登录成功后的处理逻辑 ---------------
             // 保存用户信息到localStorage（可选）
@@ -150,12 +150,12 @@ function submitLogin(data) {
             }, 1000); // 缩短延迟时间
             // --------------- 结束修改 ---------------
         } else {
-            showMessage(result.message || '登录失败', 'error');
+            showMessage(result.message || 'Login failed', 'error');
         }
     })
     .catch(error => {
-        console.error('登录请求错误:', error);
-        showMessage('网络错误，请稍后重试', 'error');
+        console.error('Login request error:', error);
+        showMessage('Network error, please try again later', 'error');
     });
 }
 
@@ -163,8 +163,8 @@ function submitLogin(data) {
  * 提交注册请求
  */
 function submitRegister(data) {
-    console.log('开始提交注册请求...');
-    showMessage('正在注册...', 'info');
+    console.log('Submitting registration request...');
+    showMessage('Registering...', 'info');
     
     // 移除确认密码字段，不发送到后端
     const submitData = {
@@ -182,14 +182,14 @@ function submitRegister(data) {
         body: JSON.stringify(submitData)
     })
     .then(response => {
-        console.log('注册响应状态:', response.status);
+        console.log('Registration response status:', response.status);
         return response.json();
     })
     .then(result => {
-        console.log('注册响应数据:', result);
+        console.log('Registration response data:', result);
         
         if (result.success) {
-            showMessage(result.message || '注册成功！', 'success');
+            showMessage(result.message || 'Registration successful！', 'success');
             
             // --------------- 修改注册成功后的处理逻辑 ---------------
             // 延迟跳转到登录页面
@@ -197,12 +197,12 @@ function submitRegister(data) {
                 window.location.href = '/user/login';
             }, 1500); // 缩短延迟时间
         } else {
-            showMessage(result.message || '注册失败', 'error');
+            showMessage(result.message || 'Registration failed', 'error');
         }
     })
     .catch(error => {
-        console.error('注册请求错误:', error);
-        showMessage('网络错误，请稍后重试', 'error');
+        console.error('Registration request error:', error);
+        showMessage('Network error, please try again later', 'error');
     });
 }
 
@@ -210,7 +210,7 @@ function submitRegister(data) {
  * 显示消息提示
  */
 function showMessage(message, type = 'info') {
-    console.log('显示消息:', message, '类型:', type);
+    console.log('Show message:', message, 'Type:', type);
     
     // 获取消息容器
     let messageContainer = document.getElementById('message-container');
@@ -300,7 +300,7 @@ window.checkUserLoginStatus = function() {
         .then(response => response.json())
         .then(data => data.logged_in)
         .catch(error => {
-            console.error('检查登录状态失败:', error);
+            console.error('Failed to check login status:', error);
             return false;
         });
 };
@@ -323,7 +323,7 @@ window.logoutUser = function() {
             localStorage.removeItem('nickname');
             return true;
         } else {
-            throw new Error(data.message || '退出登录失败');
+            throw new Error(data.message || 'Logout failed');
         }
     });
 };
@@ -331,8 +331,8 @@ window.logoutUser = function() {
 /**
  * 显示登录提示并跳转
  */
-window.showLoginPrompt = function(message = '此功能需要登录后使用') {
-    if (confirm(message + '\n\n点击确定前往登录页面，点击取消留在当前页面。')) {
+window.showLoginPrompt = function(message = 'This feature requires login to use') {
+    if (confirm(message + '\n\nClick OK to go to the login page, or click Cancel to stay on the current page')) {
         window.location.href = '/user/login';
         return true;
     }
@@ -340,4 +340,4 @@ window.showLoginPrompt = function(message = '此功能需要登录后使用') {
 };
 // --------------- 结束添加 ---------------
 
-console.log('Auth.js 加载完成');
+console.log('Auth.js loaded');

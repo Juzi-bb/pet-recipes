@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}用户中心 - 宠物食谱网站{% endblock %}
+{% block title %}User Center - Pet Recipe Website{% endblock %}
 
 {% block content %}
 <style>
@@ -541,22 +541,20 @@
 </style>
 
 <div class="user-welcome">
-    <h1>👋 欢迎回来，{{ session.nickname }}！</h1>
-    <p>管理您的宠物信息，为它们创建专属的健康食谱</p>
+    <h1>👋 Welcome back, {{ session.nickname }}!</h1>
+    <p>Manage your pet's information and create exclusive healthy recipes for them</p>
 </div>
 
 <div class="section-title">
-    🐾 我的宠物们
+    🐾 My Pets
 </div>
 
 <div class="pets-grid">
-    <!-- 添加新宠物卡片 -->
     <a href="{{ url_for('main.add_pet') }}" class="pet-card add-pet-card">
         <div class="add-pet-icon">➕</div>
-        <div class="add-pet-text">添加新宠物</div>
+        <div class="add-pet-text">Add New Pet</div>
     </a>
 
-    <!----------- 宠物迷你卡片列表 ----------->
     {% if pets %}
         {% for pet in pets %}
         <div class="pet-card-mini" data-pet-id="{{ pet.id }}" onclick="showPetModal(this.dataset.petId)">
@@ -575,7 +573,7 @@
                     </div>
                     <div class="pet-stat">
                         <span>🎂</span>
-                        <span>{{ pet.age }} 岁</span>
+                        <span>{{ pet.age }} years</span>
                     </div>
                 </div>
             </div>
@@ -591,38 +589,37 @@
 {% if not pets %}
 <div class="empty-state">
     <div class="empty-state-icon">🐕</div>
-    <h3>还没有添加宠物信息</h3>
-    <p>点击上方的"添加新宠物"按钮，开始为您的爱宠创建专属档案吧！</p>
+    <h3>No pet information has been added yet</h3>
+    <p>Click the "Add New Pet" button above to start creating an exclusive profile for your pet!</p>
 </div>
 {% endif %}
 
 <div class="section-title">
-    🍽️ 快速操作
+    🍽️ Quick Actions
 </div>
 
 <div class="quick-actions-grid">
     <a href="{{ url_for('main.add_pet') }}" class="quick-action-card">
         <div class="quick-action-icon">🐾</div>
-        <div class="quick-action-text">添加宠物信息</div>
+        <div class="quick-action-text">Add Pet Information</div>
     </a>
     
-    <a href="#" class="quick-action-card" onclick="showComingSoon('创建食谱功能')">
+    <a href="#" class="quick-action-card" onclick="showComingSoon('Create Recipe feature')">
         <div class="quick-action-icon">🍖</div>
-        <div class="quick-action-text">创建食谱</div>
+        <div class="quick-action-text">Create Recipe</div>
     </a>
     
-    <a href="#" class="quick-action-card" onclick="showComingSoon('食材百科功能')">
+    <a href="#" class="quick-action-card" onclick="showComingSoon('Ingredient Encyclopedia feature')">
         <div class="quick-action-icon">📚</div>
-        <div class="quick-action-text">浏览食材百科</div>
+        <div class="quick-action-text">Browse Ingredient Encyclopedia</div>
     </a>
 </div>
 
-<!------------ 宠物详情模态框 ------------->
 <div class="modal-overlay" id="petModal" onclick="closePetModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
             <div class="modal-title">
-                <span id="modalPetName">宠物详情</span>
+                <span id="modalPetName">Pet Details</span>
             </div>
             <button class="close-btn" onclick="closePetModal()">&times;</button>
         </div>
@@ -632,27 +629,27 @@
             
             <div class="modal-details">
                 <div class="detail-row">
-                    <span class="detail-label">🏷️ 宠物名字</span>
+                    <span class="detail-label">🏷️ Pet Name</span>
                     <span class="detail-value" id="modalPetNameValue"></span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">🐕 种类</span>
+                    <span class="detail-label">🐕 Species</span>
                     <span class="detail-value" id="modalPetSpecies"></span>
                 </div>
                 <div class="detail-row" id="modalBreedRow" style="display: none;">
-                    <span class="detail-label">📝 品种</span>
+                    <span class="detail-label">📝 Breed</span>
                     <span class="detail-value" id="modalPetBreed"></span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">⚖️ 体重</span>
+                    <span class="detail-label">⚖️ Weight</span>
                     <span class="detail-value" id="modalPetWeight"></span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">🎂 年龄</span>
+                    <span class="detail-label">🎂 Age</span>
                     <span class="detail-value" id="modalPetAge"></span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">📅 添加时间</span>
+                    <span class="detail-label">📅 Added Time</span>
                     <span class="detail-value" id="modalPetCreated"></span>
                 </div>
             </div>
@@ -660,26 +657,24 @@
         
         <div class="special-needs-section">
             <div class="special-needs-title">
-                🏥 特殊需求
+                🏥 Special Needs
             </div>
             <div class="needs-tags" id="modalSpecialNeeds">
-                <!-- 特殊需求标签将在这里动态生成 -->
-            </div>
+                </div>
         </div>
         
         <div class="modal-actions">
             <a href="#" class="btn-modal btn-edit-modal" id="editPetLink">
-                ✏️ 编辑信息
+                ✏️ Edit Information
             </a>
             <a href="#" class="btn-modal btn-delete-modal" id="deletePetLink"
-                onclick="return confirm('确定要删除这只宠物的信息吗？此操作无法撤销。')">
-                🗑️ 删除宠物
+                onclick="return confirm('Are you sure you want to delete this pet\'s information? This action cannot be undone.')">
+                🗑️ Delete Pet
             </a>
         </div>
     </div>
 </div>
 
-<!----------- 隐藏的数据容器 ---------->
 <div id="pet-data-container" style="display: none;">
     {% for pet in pets %}
     <div class="pet-data"
@@ -728,13 +723,13 @@ function showPetModal(petId) {
     if (!pet) return;
     
     // 填充模态框数据
-    document.getElementById('modalPetName').textContent = pet.name + ' 的详细信息';
+    document.getElementById('modalPetName').textContent = pet.name + '\'s Details';
     document.getElementById('modalPetNameValue').textContent = pet.name;
     document.getElementById('modalPetAvatar').src = '/static/images/avatars/' + pet.avatar;
     document.getElementById('modalPetAvatar').alt = pet.name;
     document.getElementById('modalPetSpecies').textContent = pet.species;
     document.getElementById('modalPetWeight').textContent = pet.weight + ' kg';
-    document.getElementById('modalPetAge').textContent = pet.age + ' 岁';
+    document.getElementById('modalPetAge').textContent = pet.age + ' years';
     document.getElementById('modalPetCreated').textContent = pet.created_at.split(' ')[0];
     
     // 处理品种显示
@@ -749,7 +744,7 @@ function showPetModal(petId) {
     const needsContainer = document.getElementById('modalSpecialNeeds');
     needsContainer.innerHTML = '';
     
-    if (pet.special_needs && pet.special_needs !== '无特殊需求') {
+    if (pet.special_needs && pet.special_needs !== 'No special needs') {
         const needs = pet.special_needs.split(', ');
         needs.forEach(need => {
             const tag = document.createElement('span');
@@ -760,7 +755,7 @@ function showPetModal(petId) {
     } else {
         const tag = document.createElement('span');
         tag.className = 'need-tag normal';
-        tag.textContent = '无特殊需求';
+        tag.textContent = 'No special needs';
         needsContainer.appendChild(tag);
     }
     
@@ -789,9 +784,9 @@ function closePetModal(event) {
 
 // 获取特殊需求标签的CSS类
 function getNeedTagClass(need) {
-    if (need.includes('过敏')) return 'allergy';
-    if (need.includes('肥胖') || need.includes('糖尿病') || need.includes('肾脏') || need.includes('肠胃') || need.includes('关节')) return 'health';
-    if (need.includes('美毛') || need.includes('牙齿')) return 'beauty';
+    if (need.includes('Allergy')) return 'allergy';
+    if (need.includes('Obesity') || need.includes('Diabetes') || need.includes('Kidney') || need.includes('Stomach') || need.includes('Joint')) return 'health';
+    if (need.includes('Hair') || need.includes('Dental')) return 'beauty';
     return 'normal';
 }
 
@@ -848,7 +843,7 @@ function showWarningMessage(message, duration) {
 
 // 显示开发中提示
 function showComingSoon(feature) {
-    alert(feature + '开发中，敬请期待！');
+    alert(feature + ' is under development, stay tuned!');
 }
 
 // 监听ESC键关闭模态框

@@ -25,15 +25,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 显示登录提示
         showLoginPrompt(message) {
-            const fullMessage = message + '\n\n点击确定前往登录页面，点击取消留在当前页面。';
+            const fullMessage = message + '\n\nClick OK to go to the login page, or click Cancel to stay on the current page.';
             if (confirm(fullMessage)) {
                 window.location.href = AppState.urls.login;
             }
         },
 
         // 显示开发中提示
-        showComingSoon(feature = '此功能') {
-            alert(feature + '开发中，敬请期待！');
+        showComingSoon(feature = 'This feature') {
+            alert(feature + ' is under development, stay tuned!');
         }
     };
 
@@ -51,9 +51,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 createRecipeNavBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     if (!Utils.checkLoginStatus()) {
-                        Utils.showLoginPrompt('请先登录后再创建食谱');
+                        Utils.showLoginPrompt('Please log in before creating a recipe');
                     } else {
-                        Utils.showComingSoon('创建食谱功能');
+                        Utils.showComingSoon('Create Recipe feature');
                     }
                 });
             }
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    if (confirm('确定要退出登录吗？')) {
+                    if (confirm('Are you sure you want to log out?')) {
                         NavHandler.performLogout();
                     }
                 });
@@ -85,14 +85,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const data = await response.json();
                 
                 if (data.success) {
-                    alert('退出登录成功');
+                    alert('Logged out successfully');
                     window.location.href = AppState.urls.home;
                 } else {
-                    alert('退出登录失败');
+                    alert('Logout failed');
                 }
             } catch (error) {
-                console.error('退出登录错误:', error);
-                alert('网络错误，请稍后重试');
+                console.error('Logout error:', error);
+                alert('Network error, please try again later');
             }
         }
     };
@@ -111,9 +111,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (startCreateBtn) {
                 startCreateBtn.addEventListener('click', function() {
                     if (!Utils.checkLoginStatus()) {
-                        Utils.showLoginPrompt('创建食谱需要先登录，请先登录您的账户。');
+                        Utils.showLoginPrompt('Creating a recipe requires logging in first. Please log in to your account.');
                     } else {
-                        Utils.showComingSoon('创建食谱功能');
+                        Utils.showComingSoon('Create Recipe feature');
                     }
                 });
             }
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 switch(feature) {
                     case 'pet-info':
                         if (!isLoggedIn) {
-                            Utils.showLoginPrompt('查看宠物信息功能需要先登录');
+                            Utils.showLoginPrompt('Viewing pet information requires logging in first');
                         } else {
                             window.location.href = AppState.urls.userCenter;
                         }
@@ -137,16 +137,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     case 'nutrition':
                     case 'recipes':
                         if (!isLoggedIn) {
-                            Utils.showLoginPrompt('使用此功能需要先登录您的账户');
+                            Utils.showLoginPrompt('Using this feature requires logging in to your account first');
                         } else {
-                            Utils.showComingSoon('此功能');
+                            Utils.showComingSoon('This feature');
                         }
                         break;
                     case 'encyclopedia':
-                        Utils.showComingSoon('食材百科功能');
+                        Utils.showComingSoon('Ingredient Encyclopedia feature');
                         break;
                     case 'community':
-                        Utils.showComingSoon('社区功能');
+                        Utils.showComingSoon('Community feature');
                         break;
                     default:
                         Utils.showComingSoon();
@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
             HomePageHandler.init();
         }
         
-        console.log('宠物食谱网站初始化完成', {
+        console.log('Pet Recipe Website initialization complete', {
             isLoggedIn: AppState.isLoggedIn,
             userId: AppState.userId
         });
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 全局错误处理
     window.addEventListener('error', function(e) {
-        console.error('JavaScript错误:', e.error);
+        console.error('JavaScript error:', e.error);
     });
 
     // 暴露一些全局函数供其他页面使用

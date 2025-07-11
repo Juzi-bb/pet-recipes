@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}宠物食谱网站{% endblock %}</title>
+    <title>{% block title %}Pet Recipe Website{% endblock %}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!------------ 添加数据属性来传递状态信息 ---------->
     <div id="app-data"
         data-logged-in="{{ 'true' if session.get('user_id') else 'false' }}"
         data-user-id="{{ session.get('user_id', '') }}"
@@ -35,7 +34,7 @@
         /* 导航栏样式 */
         .navbar {
             background-color: #510B0B;
-            padding: 1rem 0;
+            padding: 0 2rem; /* 修改内边距 */
             position: fixed;
             width: 100%;
             top: 0;
@@ -49,27 +48,32 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 2rem;
+            height: 80px; /* 设置固定高度 */
         }
 
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
             color: #EDBF9D;
+            flex-shrink: 0; /* 防止logo被压缩 */
         }
 
         .nav-links {
             display: flex;
             list-style: none;
-            gap: 2rem;
+            justify-content: center; /* 居中导航链接 */
+            flex-grow: 1; /* 占据剩余空间 */
+            gap: 0.5rem; /* 减小gap，主要靠padding控制间距 */
         }
 
         .nav-links a {
             color: #EDBF9D;
             text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
+            padding: 0.8rem 1.5rem; /* 调整padding，提供更多空间 */
+            border-radius: 8px; /* 增大圆角 */
             transition: all 0.3s ease;
+            white-space: nowrap; /* 防止文字换行 */
+            font-weight: 500;
         }
 
         .nav-links a:hover {
@@ -83,6 +87,7 @@
             display: flex;
             align-items: center;
             gap: 1rem;
+            flex-shrink: 0; /* 防止用户区域被压缩 */
         }
 
         .user-info a {
@@ -92,6 +97,7 @@
             border-radius: 5px;
             transition: all 0.3s ease;
             border: 1px solid transparent;
+            white-space: nowrap;
         }
 
         .user-info a:hover {
@@ -117,6 +123,7 @@
         .welcome-text {
             color: #EDBF9D;
             margin-right: 0.5rem;
+            white-space: nowrap;
         }
 
         .logout-btn {
@@ -225,20 +232,36 @@
         }
 
         /* 响应式设计 */
+        @media (max-width: 992px) { /* 针对平板的断点 */
+            .nav-links a {
+                padding: 0.8rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+        
         @media (max-width: 768px) {
             .nav-container {
                 flex-direction: column;
-                gap: 1rem;
+                height: auto;
+                padding: 1rem;
             }
 
             .nav-links {
                 flex-direction: column;
-                gap: 1rem;
+                gap: 0.5rem;
                 text-align: center;
+                width: 100%;
+                margin-top: 1rem;
+            }
+
+            .user-info {
+                margin-top: 1rem;
+                width: 100%;
+                justify-content: center;
             }
 
             .main-content {
-                margin-top: 120px;
+                margin-top: 180px; /* 增加顶部边距以适应更高的移动端导航栏 */
                 padding: 1rem;
             }
 
@@ -329,37 +352,30 @@
     </style>
 </head>
 <body>
-    <!-- 导航栏 -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">🐾 宠物食谱</div>
+            <div class="logo">🐾 Pet Recipes</div>
             <ul class="nav-links">
-                <li><a href="{{ url_for('main.home') }}">首页</a></li>
-                <!-- --------------- 修改创建食谱链接，添加登录检测 --------------- -->
-                <li><a href="#" id="createRecipeNavBtn">创建食谱</a></li>
-                <!-- --------------- 结束修改 --------------- -->
-                <li><a href="#">食材百科</a></li>
-                <li><a href="#">社区</a></li>
-                <li><a href="{{ url_for('main.user_center') }}">用户中心</a></li>
+                <li><a href="{{ url_for('main.home') }}">Home</a></li>
+                <li><a href="#" id="createRecipeNavBtn">Create Recipe</a></li>
+                <li><a href="#">Encyclopedia</a></li>
+                <li><a href="#">Community</a></li>
+                <li><a href="{{ url_for('main.user_center') }}">User Center</a></li>
             </ul>
             <div class="user-info">
-                <!-- --------------- 修改用户信息显示逻辑 --------------- -->
                 {% if session.user_id %}
-                    <span class="welcome-text">欢迎，{{ session.nickname }}！</span>
-                    <a href="#" id="logoutBtn" class="logout-btn">退出登录</a>
+                    <span class="welcome-text">Welcome, {{ session.nickname }}!</span>
+                    <a href="#" id="logoutBtn" class="logout-btn">Logout</a>
                 {% else %}
-                    <a href="{{ url_for('user_bp.login_page') }}" class="btn-login">登录</a>
-                    <a href="{{ url_for('user_bp.register_page') }}" class="btn-register">注册</a>
+                    <a href="{{ url_for('user_bp.login_page') }}" class="btn-login">Login</a>
+                    <a href="{{ url_for('user_bp.register_page') }}" class="btn-register">Register</a>
                 {% endif %}
-                <!-- --------------- 结束修改 --------------- -->
-            </div>
+                </div>
         </div>
     </nav>
 
-    <!-- 主内容区域 -->
     <main class="main-content">
         <div class="container">
-            <!-- 消息提示 -->
             {% with messages = get_flashed_messages() %}
                 {% if messages %}
                     <div class="flash-messages">
@@ -370,12 +386,10 @@
                 {% endif %}
             {% endwith %}
 
-            <!-- 页面内容 -->
             {% block content %}{% endblock %}
         </div>
     </main>
 
-    <!----------- 引入JavaScript文件 ----------->
     <script src="/static/js/main.js"></script>
 </body>
 </html>

@@ -10,12 +10,12 @@ user_bp = Blueprint('user_bp', __name__)
 # --------------- 添加页面渲染路由 ---------------
 @user_bp.route('/login', methods=['GET'])
 def login_page():
-    """渲染登录页面"""
+    """Render login page"""
     return render_template('login.html')
 
 @user_bp.route('/register', methods=['GET'])
 def register_page():
-    """渲染注册页面"""
+    """Render register page"""
     return render_template('register.html')
 
 @user_bp.route('/register', methods=['POST'])
@@ -29,10 +29,10 @@ def register():
         data = request.form.to_dict()  # 转换表单数据为字典
     #data = request.get_json()
     if not data or not data.get('username') or not data.get('password') or not data.get('nickname'):
-        return jsonify({'success':False, 'message': '缺少用户名、昵称或密码'}), 400
+        return jsonify({'success':False, 'message': 'Missing username, nickname or password'}), 400
 
     if User.query.filter_by(username=data['username']).first():
-        return jsonify({'success':False, 'message': '用户名已存在'}), 400
+        return jsonify({'success':False, 'message': 'Username already exists'}), 400
 
     new_user = User(username=data['username'], nickname=data['nickname']) # 保存昵称
     new_user.set_password(data['password'])
@@ -41,10 +41,10 @@ def register():
     try:
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({'success': True, 'message': '用户注册成功'}), 201
+        return jsonify({'success': True, 'message': 'User registered successfully'}), 201
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': '注册失败，请重试'}), 500
+        return jsonify({'success': False, 'message': 'Registration failed, please try again'}), 500
     # --------------- 结束添加 ---------------
 
 @user_bp.route('/login', methods=['POST'])
@@ -59,12 +59,12 @@ def login():
     # --------------- 结束修改 ---------------
 
     if not data or not data.get('username') or not data.get('password'):
-        return jsonify({'success':False, 'message': '缺少用户名或密码'}), 400
+        return jsonify({'success':False, 'message': 'Missing username or password'}), 400
 
     user = User.query.filter_by(username=data['username']).first()
 
     if not user or not user.check_password(data['password']):
-        return jsonify({'success': False, 'message': '用户名或密码错误'}), 401
+        return jsonify({'success': False, 'message': 'Incorrect username or password'}), 401
 
     # 生成 JWT
     token = jwt.encode({
@@ -79,7 +79,7 @@ def login():
     # 可以同时返回 token 和一些用户信息，前端选择如何使用
     return jsonify({
         'success': True, 
-        'message': '登录成功', 
+        'message': 'Login successful', 
         'token': token, 
         'nickname': user.nickname,
         'redirect_url': '/user_center'  # 添加重定向URL
@@ -91,4 +91,4 @@ def login():
 def logout():
     session.pop('user_id', None)
     session.pop('nickname', None)
-    return jsonify({'success': True, 'message': '退出登录成功'}), 200
+    return jsonify({'success': True, 'message': 'Logout successful'}), 200
