@@ -1,0 +1,448 @@
+{% extends "base.html" %}
+
+{% block title %}编辑宠物信息 - 宠物食谱网站{% endblock %}
+
+{% block content %}
+<style>
+    .edit-pet-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-header h1 {
+        color: #510B0B;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #B82F0D;
+        font-size: 1.1rem;
+    }
+
+    .form-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border: 2px solid #A1B4B2;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        color: #510B0B;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #EDBF9D;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+        color: #510B0B;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid #A1B4B2;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #5580AD;
+        box-shadow: 0 0 0 3px rgba(85, 128, 173, 0.1);
+    }
+
+    .form-help {
+        font-size: 0.9rem;
+        color: #B82F0D;
+        margin-top: 0.5rem;
+    }
+
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem;
+        border: 1px solid #A1B4B2;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .checkbox-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        margin-right: 0.5rem;
+        width: auto;
+    }
+
+    .checkbox-item input[type="checkbox"]:checked + label {
+        color: #510B0B;
+        font-weight: bold;
+    }
+
+    .avatar-selector {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .avatar-option {
+        text-align: center;
+        cursor: pointer;
+        padding: 1rem;
+        border: 2px solid #A1B4B2;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-option:hover {
+        border-color: #5580AD;
+        background-color: #f8f9fa;
+    }
+
+    .avatar-option input[type="radio"] {
+        display: none;
+    }
+
+    .avatar-option input[type="radio"]:checked + label {
+        color: #510B0B;
+        font-weight: bold;
+    }
+
+    .avatar-option input[type="radio"]:checked + label .avatar-img {
+        border-color: #510B0B;
+        box-shadow: 0 0 0 3px rgba(81, 11, 11, 0.2);
+    }
+
+    .avatar-img {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #A1B4B2;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-label {
+        display: block;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background-color: #5580AD;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+    }
+
+    .submit-btn:hover {
+        background-color: #A1B4B2;
+        transform: translateY(-2px);
+    }
+
+    .back-link {
+        display: inline-block;
+        color: #5580AD;
+        text-decoration: none;
+        margin-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    .back-link:hover {
+        color: #510B0B;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .checkbox-group {
+            grid-template-columns: 1fr;
+        }
+        
+        .avatar-selector {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+</style>
+
+<div class="edit-pet-container">
+    <a href="{{ url_for('main.user_center') }}" class="back-link">← 返回用户中心</a>
+    
+    <div class="page-header">
+        <h1>✏️ 编辑宠物信息</h1>
+        <p>更新您爱宠的资料，获得更精准的食谱推荐</p>
+    </div>
+
+    <div class="form-container">
+        <form method="POST" action="{{ url_for('main.edit_pet', pet_id=pet.id) }}">
+            <!-- 基本信息 -->
+            <div class="form-section">
+                <div class="section-title">📋 基本信息</div>
+                
+                <div class="form-group">
+                    <label for="name">
+                        <span style="margin-right: 0.5rem;">🏷️</span>宠物名字
+                    </label>
+                    <input type="text" id="name" name="name" required maxlength="50" 
+                        value="{{ pet.name }}" placeholder="请输入宠物的名字">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="species">
+                            <span style="margin-right: 0.5rem;">🐕</span>宠物种类
+                        </label>
+                        <select id="species" name="species" required>
+                            <option value="">请选择种类</option>
+                            <option value="狗" {{ 'selected' if pet.species == '狗' else '' }}>狗</option>
+                            <option value="猫" {{ 'selected' if pet.species == '猫' else '' }}>猫</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="breed">
+                            <span style="margin-right: 0.5rem;">📝</span>品种（可选）
+                        </label>
+                        <input type="text" id="breed" name="breed" maxlength="50" 
+                            value="{{ pet.breed or '' }}" placeholder="如：金毛、英短等">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="weight">
+                            <span style="margin-right: 0.5rem;">⚖️</span>体重（kg）
+                        </label>
+                        <input type="number" id="weight" name="weight" required 
+                            min="0.5" max="80" step="0.1" value="{{ pet.weight }}" placeholder="请输入体重">
+                        <div class="form-help">范围：0.5-80kg</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="age">
+                            <span style="margin-right: 0.5rem;">🎂</span>年龄（岁）
+                        </label>
+                        <input type="number" id="age" name="age" required 
+                            min="0" max="25" value="{{ pet.age }}" placeholder="请输入年龄">
+                        <div class="form-help">范围：0-25岁</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 特殊需求 -->
+            <div class="form-section">
+                <div class="section-title">🏥 特殊需求</div>
+                <div class="form-group">
+                    <label>请选择您宠物的特殊需求（可多选）：</label>
+                    <div class="checkbox-group">
+                        {% set current_needs = pet.special_needs.split(', ') if pet.special_needs else [] %}
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_none" name="special_needs" value="无特殊需求"
+                                {{ 'checked' if '无特殊需求' in current_needs else '' }}>
+                            <label for="need_none">无特殊需求</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_seafood" name="special_needs" value="海鲜过敏"
+                                {{ 'checked' if '海鲜过敏' in current_needs else '' }}>
+                            <label for="need_seafood">海鲜过敏</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_nuts" name="special_needs" value="坚果过敏"
+                                {{ 'checked' if '坚果过敏' in current_needs else '' }}>
+                            <label for="need_nuts">坚果过敏</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_obesity" name="special_needs" value="肥胖"
+                                {{ 'checked' if '肥胖' in current_needs else '' }}>
+                            <label for="need_obesity">肥胖</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_diabetes" name="special_needs" value="糖尿病"
+                                {{ 'checked' if '糖尿病' in current_needs else '' }}>
+                            <label for="need_diabetes">糖尿病</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_kidney" name="special_needs" value="肾脏疾病"
+                                {{ 'checked' if '肾脏疾病' in current_needs else '' }}>
+                            <label for="need_kidney">肾脏疾病</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_sensitive" name="special_needs" value="肠胃敏感"
+                                {{ 'checked' if '肠胃敏感' in current_needs else '' }}>
+                            <label for="need_sensitive">肠胃敏感</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_fur" name="special_needs" value="美毛需求"
+                                {{ 'checked' if '美毛需求' in current_needs else '' }}>
+                            <label for="need_fur">美毛需求</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_joint" name="special_needs" value="关节问题"
+                                {{ 'checked' if '关节问题' in current_needs else '' }}>
+                            <label for="need_joint">关节问题</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="need_dental" name="special_needs" value="牙齿健康"
+                                {{ 'checked' if '牙齿健康' in current_needs else '' }}>
+                            <label for="need_dental">牙齿健康</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">✨ 选择头像</div>
+                <div class="form-group">
+                    <label>请为您的宠物选择一个可爱的头像：</label>
+                    <div class="avatar-selector">
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_dog1" name="avatar" value="dog1.png" 
+                                {{ 'checked' if pet.avatar == 'dog1.png' else '' }} required>
+                            <label for="avatar_dog1">
+                                <img src="{{ url_for('static', filename='images/avatars/dog1.png') }}" alt="狗头像1" class="avatar-img">
+                                <span class="avatar-label">狗狗1</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_dog2" name="avatar" value="dog2.png"
+                                {{ 'checked' if pet.avatar == 'dog2.png' else '' }}>
+                            <label for="avatar_dog2">
+                                <img src="{{ url_for('static', filename='images/avatars/dog2.png') }}" alt="狗头像2" class="avatar-img">
+                                <span class="avatar-label">狗狗2</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_dog3" name="avatar" value="dog3.png"
+                                {{ 'checked' if pet.avatar == 'dog3.png' else '' }}>
+                            <label for="avatar_dog3">
+                                <img src="{{ url_for('static', filename='images/avatars/dog3.png') }}" alt="狗头像3" class="avatar-img">
+                                <span class="avatar-label">狗狗3</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_dog4" name="avatar" value="dog4.png"
+                                {{ 'checked' if pet.avatar == 'dog4.png' else '' }}>
+                            <label for="avatar_dog4">
+                                <img src="{{ url_for('static', filename='images/avatars/dog4.png') }}" alt="狗头像4" class="avatar-img">
+                                <span class="avatar-label">狗狗4</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_cat1" name="avatar" value="cat1.png"
+                                {{ 'checked' if pet.avatar == 'cat1.png' else '' }}>
+                            <label for="avatar_cat1">
+                                <img src="{{ url_for('static', filename='images/avatars/cat1.png') }}" alt="猫头像1" class="avatar-img">
+                                <span class="avatar-label">猫猫1</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_cat2" name="avatar" value="cat2.png"
+                                {{ 'checked' if pet.avatar == 'cat2.png' else '' }}>
+                            <label for="avatar_cat2">
+                                <img src="{{ url_for('static', filename='images/avatars/cat2.png') }}" alt="猫头像2" class="avatar-img">
+                                <span class="avatar-label">猫猫2</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_cat3" name="avatar" value="cat3.png"
+                                {{ 'checked' if pet.avatar == 'cat3.png' else '' }}>
+                            <label for="avatar_cat3">
+                                <img src="{{ url_for('static', filename='images/avatars/cat3.png') }}" alt="猫头像3" class="avatar-img">
+                                <span class="avatar-label">猫猫3</span>
+                            </label>
+                        </div>
+                        <div class="avatar-option">
+                            <input type="radio" id="avatar_cat4" name="avatar" value="cat4.png"
+                                {{ 'checked' if pet.avatar == 'cat4.png' else '' }}>
+                            <label for="avatar_cat4">
+                                <img src="{{ url_for('static', filename='images/avatars/cat4.png') }}" alt="猫头像4" class="avatar-img">
+                                <span class="avatar-label">猫猫4</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">💾 保存修改</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 处理"无特殊需求"的互斥逻辑
+        const noneCheckbox = document.getElementById('need_none');
+        const otherCheckboxes = document.querySelectorAll('input[name="special_needs"]:not(#need_none)');
+        
+        // 当选择"无特殊需求"时，取消其他选项
+        noneCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                otherCheckboxes.forEach(cb => {
+                    cb.checked = false;
+                });
+            }
+        });
+        
+        // 当选择其他选项时，取消"无特殊需求"
+        otherCheckboxes.forEach(cb => {
+            cb.addEventListener('change', function() {
+                if (this.checked) {
+                    noneCheckbox.checked = false;
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

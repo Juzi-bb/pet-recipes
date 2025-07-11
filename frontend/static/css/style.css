@@ -674,3 +674,501 @@ body {
     margin: 0 auto;
     padding: 2rem;
 }
+
+/* ===============================
+    新增：用户中心宠物卡片样式
+   =============================== */
+
+/* 用户欢迎区域 */
+.user-welcome {
+    background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.user-welcome h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.user-welcome p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    color: #510B0B;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #EDBF9D;
+}
+
+/* 宠物卡片网格 */
+.pets-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* 迷你宠物卡片 */
+.pet-card-mini {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    border: 2px solid;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.pet-card-mini:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* 五种主题色轮换 */
+.pet-card-mini:nth-child(2n+1) { 
+    border-color: #510B0B; 
+    background: linear-gradient(135deg, rgba(81, 11, 11, 0.05) 0%, rgba(81, 11, 11, 0.1) 100%); 
+}
+.pet-card-mini:nth-child(2n+2) { 
+    border-color: #B82F0D; 
+    background: linear-gradient(135deg, rgba(184, 47, 13, 0.05) 0%, rgba(184, 47, 13, 0.1) 100%); 
+}
+.pet-card-mini:nth-child(3n+1) { 
+    border-color: #5580AD; 
+    background: linear-gradient(135deg, rgba(85, 128, 173, 0.05) 0%, rgba(85, 128, 173, 0.1) 100%); 
+}
+.pet-card-mini:nth-child(4n+1) { 
+    border-color: #A1B4B2; 
+    background: linear-gradient(135deg, rgba(161, 180, 178, 0.05) 0%, rgba(161, 180, 178, 0.1) 100%); 
+}
+.pet-card-mini:nth-child(5n+1) { 
+    border-color: #EDBF9D; 
+    background: linear-gradient(135deg, rgba(237, 191, 157, 0.15) 0%, rgba(237, 191, 157, 0.25) 100%); 
+}
+
+.pet-avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 15px;
+    object-fit: cover;
+    border: 3px solid #EDBF9D;
+    flex-shrink: 0;
+}
+
+.pet-basic-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.pet-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #510B0B;
+    margin: 0;
+}
+
+.pet-species-breed {
+    color: #B82F0D;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.pet-basic-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.5rem;
+}
+
+.pet-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #5580AD;
+    font-weight: 500;
+}
+
+.expand-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: #A1B4B2;
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.pet-card-mini:hover .expand-icon {
+    transform: scale(1.1);
+}
+
+/* 添加新宠物卡片 */
+.add-pet-card {
+    background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
+    border: 2px dashed #5580AD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+    padding: 2rem;
+    color: #510B0B;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+    min-height: 120px;
+}
+
+.add-pet-card:hover {
+    background: linear-gradient(135deg, #A1B4B2 0%, #5580AD 100%);
+    color: white;
+    transform: translateY(-3px);
+}
+
+.add-pet-icon {
+    font-size: 2.5rem;
+}
+
+.add-pet-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* 模态框样式 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+    transform: scale(0.7) translateY(-50px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-overlay.show .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #EDBF9D;
+}
+
+.modal-title {
+    font-size: 1.8rem;
+    color: #510B0B;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #B82F0D;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+    background: #B82F0D;
+    color: white;
+    transform: rotate(90deg);
+}
+
+.modal-pet-info {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.modal-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    object-fit: cover;
+    border: 4px solid #EDBF9D;
+}
+
+.modal-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: bold;
+    color: #510B0B;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detail-value {
+    color: #B82F0D;
+    font-weight: 500;
+}
+
+/* 特殊需求标签 */
+.special-needs-section {
+    margin-top: 1.5rem;
+}
+
+.special-needs-title {
+    font-weight: bold;
+    color: #510B0B;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.needs-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.need-tag {
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid;
+}
+
+/* 不同类型的标签颜色 */
+.need-tag.allergy { 
+    background: #ffebee; 
+    color: #c62828; 
+    border-color: #ef5350; 
+}
+.need-tag.health { 
+    background: #e8f5e8; 
+    color: #2e7d32; 
+    border-color: #66bb6a; 
+}
+.need-tag.diet { 
+    background: #e3f2fd; 
+    color: #1565c0; 
+    border-color: #42a5f5; 
+}
+.need-tag.beauty { 
+    background: #f3e5f5; 
+    color: #7b1fa2; 
+    border-color: #ab47bc; 
+}
+.need-tag.normal { 
+    background: #f5f5f5; 
+    color: #616161; 
+    border-color: #bdbdbd; 
+}
+
+/* 模态框操作按钮 */
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.btn-modal {
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    justify-content: center;
+}
+
+.btn-edit-modal {
+    background-color: #5580AD;
+    color: white;
+}
+
+.btn-edit-modal:hover {
+    background-color: #A1B4B2;
+    transform: translateY(-2px);
+}
+
+.btn-delete-modal {
+    background-color: #B82F0D;
+    color: white;
+}
+
+.btn-delete-modal:hover {
+    background-color: #510B0B;
+    transform: translateY(-2px);
+}
+
+/* 空状态样式 */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #B82F0D;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    color: #510B0B;
+    margin-bottom: 1rem;
+}
+
+/* 成功消息动画 */
+.success-message {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #5580AD;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    z-index: 1001;
+    font-weight: bold;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    opacity: 0;
+}
+
+.success-message.show {
+    top: 100px;
+    opacity: 1;
+}
+
+.success-message.hide {
+    top: -100px;
+    opacity: 0;
+}
+
+/* 快速操作区域 */
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.quick-action-card {
+    background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
+    border: 2px solid #5580AD;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    color: #510B0B;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quick-action-card:hover {
+    background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
+    color: white;
+    transform: translateY(-3px);
+}
+
+.quick-action-icon {
+    font-size: 2rem;
+}
+
+.quick-action-text {
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        padding: 1.5rem;
+    }
+    
+    .modal-pet-info {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+    }
+    
+    .pet-basic-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .quick-actions-grid {
+        grid-template-columns: 1fr;
+    }
+}

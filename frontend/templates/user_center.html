@@ -31,146 +31,331 @@
         border-bottom: 2px solid #EDBF9D;
     }
 
+    /* -------宠物卡片网格 -------*/
     .pets-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: 1fr;
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
 
-    .pet-card {
+    /* ---------迷你宠物卡片 ----------*/
+    .pet-card-mini {
         background: white;
         border-radius: 15px;
         padding: 1.5rem;
         box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        border: 2px solid #A1B4B2;
+        border: 2px solid;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pet-card-mini:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    /* 五种主题色轮换 */
+    .pet-card-mini:nth-child(2n+1) { border-color: #510B0B; background: linear-gradient(135deg, #510B0B05 0%, #510B0B10 100%); }
+    .pet-card-mini:nth-child(2n+2) { border-color: #B82F0D; background: linear-gradient(135deg, #B82F0D05 0%, #B82F0D10 100%); }
+    .pet-card-mini:nth-child(3n+1) { border-color: #5580AD; background: linear-gradient(135deg, #5580AD05 0%, #5580AD10 100%); }
+    .pet-card-mini:nth-child(4n+1) { border-color: #A1B4B2; background: linear-gradient(135deg, #A1B4B205 0%, #A1B4B210 100%); }
+    .pet-card-mini:nth-child(5n+1) { border-color: #EDBF9D; background: linear-gradient(135deg, #EDBF9D15 0%, #EDBF9D25 100%); }
+
+    .pet-avatar-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 15px;
+        object-fit: cover;
+        border: 3px solid #EDBF9D;
+        flex-shrink: 0;
+    }
+
+    .pet-basic-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .pet-name {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #510B0B;
+        margin: 0;
+    }
+
+    .pet-species-breed {
+        color: #B82F0D;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .pet-basic-stats {
+        display: flex;
+        gap: 2rem;
+        margin-top: 0.5rem;
+    }
+
+    .pet-stat {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        color: #5580AD;
+        font-weight: 500;
+    }
+
+    .expand-icon {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        color: #A1B4B2;
+        font-size: 1.2rem;
         transition: transform 0.3s ease;
     }
 
-    .pet-card:hover {
-        transform: translateY(-5px);
+    .pet-card-mini:hover .expand-icon {
+        transform: scale(1.1);
     }
 
-    .pet-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .pet-avatar {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-right: 1rem;
-        border: 3px solid #EDBF9D;
-    }
-
-    .pet-info h3 {
-        color: #510B0B;
-        margin-bottom: 0.5rem;
-        font-size: 1.3rem;
-    }
-
-    .pet-species {
-        color: #B82F0D;
-        font-weight: bold;
-        font-size: 0.9rem;
-    }
-
-    .pet-details {
-        margin-bottom: 1rem;
-    }
-
-    .detail-item {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.5rem;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .detail-label {
-        font-weight: bold;
-        color: #510B0B;
-    }
-
-    .detail-value {
-        color: #B82F0D;
-    }
-
-    .special-needs {
-        background-color: #EDBF9D;
-        padding: 0.5rem;
-        border-radius: 8px;
-        margin-top: 1rem;
-        color: #510B0B;
-        font-size: 0.9rem;
-    }
-
-    .pet-actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-
-    .btn-small {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-        border-radius: 6px;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.3s ease;
-    }
-
-    .btn-edit {
-        background-color: #5580AD;
-        color: white;
-    }
-
-    .btn-edit:hover {
-        background-color: #A1B4B2;
-    }
-
-    .btn-delete {
-        background-color: #B82F0D;
-        color: white;
-    }
-
-    .btn-delete:hover {
-        background-color: #510B0B;
-    }
-
+    /* ------------添加新宠物卡片 ----------------*/
     .add-pet-card {
         background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
         border: 2px dashed #5580AD;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 1rem;
         text-align: center;
         padding: 2rem;
         color: #510B0B;
         text-decoration: none;
         transition: all 0.3s ease;
+        border-radius: 15px;
+        min-height: 120px;
     }
 
     .add-pet-card:hover {
         background: linear-gradient(135deg, #A1B4B2 0%, #5580AD 100%);
         color: white;
-        transform: translateY(-5px);
+        transform: translateY(-3px);
     }
 
     .add-pet-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
+        font-size: 2.5rem;
     }
 
     .add-pet-text {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
         font-weight: bold;
     }
 
+    /* 模态框样式 */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 1;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+        transform: scale(0.7) translateY(-50px);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-overlay.show .modal-content {
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #EDBF9D;
+    }
+
+    .modal-title {
+        font-size: 1.8rem;
+        color: #510B0B;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: #B82F0D;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .close-btn:hover {
+        background: #B82F0D;
+        color: white;
+        transform: rotate(90deg);
+    }
+
+    .modal-pet-info {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .modal-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 20px;
+        object-fit: cover;
+        border: 4px solid #EDBF9D;
+    }
+
+    .modal-details {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: bold;
+        color: #510B0B;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-value {
+        color: #B82F0D;
+        font-weight: 500;
+    }
+
+    /* 特殊需求标签 */
+    .special-needs-section {
+        margin-top: 1.5rem;
+    }
+
+    .special-needs-title {
+        font-weight: bold;
+        color: #510B0B;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .needs-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .need-tag {
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border: 1px solid;
+    }
+
+    /* 不同类型的标签颜色 */
+    .need-tag.allergy { background: #ffebee; color: #c62828; border-color: #ef5350; }
+    .need-tag.health { background: #e8f5e8; color: #2e7d32; border-color: #66bb6a; }
+    .need-tag.diet { background: #e3f2fd; color: #1565c0; border-color: #42a5f5; }
+    .need-tag.beauty { background: #f3e5f5; color: #7b1fa2; border-color: #ab47bc; }
+    .need-tag.normal { background: #f5f5f5; color: #616161; border-color: #bdbdbd; }
+
+    /* 模态框操作按钮 */
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .btn-modal {
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-edit-modal {
+        background-color: #5580AD;
+        color: white;
+    }
+
+    .btn-edit-modal:hover {
+        background-color: #A1B4B2;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete-modal {
+        background-color: #B82F0D;
+        color: white;
+    }
+
+    .btn-delete-modal:hover {
+        background-color: #510B0B;
+        transform: translateY(-2px);
+    }
+
+    /* 空状态样式 */
     .empty-state {
         text-align: center;
         padding: 3rem;
@@ -187,13 +372,89 @@
         margin-bottom: 1rem;
     }
 
+    /* 成功消息动画 */
+    .success-message {
+        position: fixed;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #5580AD;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        z-index: 1001;
+        font-weight: bold;
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        opacity: 0;
+    }
+
+    .success-message.show {
+        top: 100px;
+        opacity: 1;
+    }
+
+    .success-message.hide {
+        top: -100px;
+        opacity: 0;
+    }
+
+    /* 快速操作区域 */
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .quick-action-card {
+        background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
+        border: 2px solid #5580AD;
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        text-decoration: none;
+        color: #510B0B;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .quick-action-card:hover {
+        background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    .quick-action-icon {
+        font-size: 2rem;
+    }
+
+    .quick-action-text {
+        font-weight: bold;
+        font-size: 1rem;
+    }
+
+    /* 响应式设计 */
     @media (max-width: 768px) {
-        .pets-grid {
-            grid-template-columns: 1fr;
+        .modal-content {
+            width: 95%;
+            padding: 1.5rem;
         }
         
-        .pet-actions {
+        .modal-pet-info {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+        
+        .modal-actions {
             flex-direction: column;
+        }
+        
+        .pet-basic-stats {
+            flex-direction: column;
+            gap: 0.5rem;
         }
     }
 </style>
@@ -214,54 +475,38 @@
         <div class="add-pet-text">添加新宠物</div>
     </a>
 
-    <!-- 宠物列表 -->
+    <!----------- 宠物迷你卡片列表 ----------->
     {% if pets %}
         {% for pet in pets %}
-        <div class="pet-card">
-            <div class="pet-header">
-                <img src="{{ url_for('static', filename='images/avatars/' + pet.avatar) }}" 
-                     alt="{{ pet.name }}" class="pet-avatar">
-                <div class="pet-info">
-                    <h3>{{ pet.name }}</h3>
-                    <div class="pet-species">{{ pet.species }}{% if pet.breed %} - {{ pet.breed }}{% endif %}</div>
+        <div class="pet-card-mini" data-pet-id="{{ pet.id }}" onclick="showPetModal(this.dataset.petId)">
+            <img src="{{ url_for('static', filename='images/avatars/' + pet.avatar) }}"
+                alt="{{ pet.name }}" class="pet-avatar-large">
+            
+            <div class="pet-basic-info">
+                <h3 class="pet-name">{{ pet.name }}</h3>
+                <div class="pet-species-breed">
+                    {{ pet.species }}{% if pet.breed %} - {{ pet.breed }}{% endif %}
+                </div>
+                <div class="pet-basic-stats">
+                    <div class="pet-stat">
+                        <span>⚖️</span>
+                        <span>{{ pet.weight }} kg</span>
+                    </div>
+                    <div class="pet-stat">
+                        <span>🎂</span>
+                        <span>{{ pet.age }} 岁</span>
+                    </div>
                 </div>
             </div>
             
-            <div class="pet-details">
-                <div class="detail-item">
-                    <span class="detail-label">⚖️ 体重</span>
-                    <span class="detail-value">{{ pet.weight }} kg</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">🎂 年龄</span>
-                    <span class="detail-value">{{ pet.age }} 岁</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">📅 添加时间</span>
-                    <span class="detail-value">{{ pet.created_at.split(' ')[0] }}</span>
-                </div>
-            </div>
-            
-            {% if pet.special_needs and pet.special_needs != '无特殊需求' %}
-            <div class="special-needs">
-                <strong>特殊需求：</strong>{{ pet.special_needs }}
-            </div>
-            {% endif %}
-            
-            <div class="pet-actions">
-                <a href="{{ url_for('edit_pet', pet_id=pet.id) }}" class="btn-small btn-edit">
-                    ✏️ 编辑
-                </a>
-                <a href="{{ url_for('delete_pet', pet_id=pet.id) }}" class="btn-small btn-delete"
-                   onclick="return confirm('确定要删除宠物 {{ pet.name }} 的信息吗？')">
-                    🗑️ 删除
-                </a>
+            <div class="expand-icon">
+                <i class="fas fa-chevron-right"></i>
             </div>
         </div>
         {% endfor %}
     {% endif %}
 </div>
-
+            
 {% if not pets %}
 <div class="empty-state">
     <div class="empty-state-icon">🐕</div>
@@ -274,20 +519,251 @@
     🍽️ 快速操作
 </div>
 
-<div class="pets-grid">
-    <a href="{{ url_for('main.add_pet') }}" class="pet-card add-pet-card">
-        <div class="add-pet-icon">🐾</div>
-        <div class="add-pet-text">添加宠物信息</div>
+<div class="quick-actions-grid">
+    <a href="{{ url_for('main.add_pet') }}" class="quick-action-card">
+        <div class="quick-action-icon">🐾</div>
+        <div class="quick-action-text">添加宠物信息</div>
     </a>
     
-    <a href="#" class="pet-card add-pet-card">
-        <div class="add-pet-icon">🍖</div>
-        <div class="add-pet-text">创建食谱</div>
+    <a href="#" class="quick-action-card" onclick="showComingSoon('创建食谱功能')">
+        <div class="quick-action-icon">🍖</div>
+        <div class="quick-action-text">创建食谱</div>
     </a>
     
-    <a href="#" class="pet-card add-pet-card">
-        <div class="add-pet-icon">📚</div>
-        <div class="add-pet-text">浏览食材百科</div>
+    <a href="#" class="quick-action-card" onclick="showComingSoon('食材百科功能')">
+        <div class="quick-action-icon">📚</div>
+        <div class="quick-action-text">浏览食材百科</div>
     </a>
 </div>
+
+<!------------ 宠物详情模态框 ------------->
+<div class="modal-overlay" id="petModal" onclick="closePetModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title">
+                <span id="modalPetName">宠物详情</span>
+            </div>
+            <button class="close-btn" onclick="closePetModal()">&times;</button>
+        </div>
+        
+        <div class="modal-pet-info">
+            <img id="modalPetAvatar" src="" alt="" class="modal-avatar">
+            
+            <div class="modal-details">
+                <div class="detail-row">
+                    <span class="detail-label">🏷️ 宠物名字</span>
+                    <span class="detail-value" id="modalPetNameValue"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">🐕 种类</span>
+                    <span class="detail-value" id="modalPetSpecies"></span>
+                </div>
+                <div class="detail-row" id="modalBreedRow" style="display: none;">
+                    <span class="detail-label">📝 品种</span>
+                    <span class="detail-value" id="modalPetBreed"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">⚖️ 体重</span>
+                    <span class="detail-value" id="modalPetWeight"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">🎂 年龄</span>
+                    <span class="detail-value" id="modalPetAge"></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">📅 添加时间</span>
+                    <span class="detail-value" id="modalPetCreated"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="special-needs-section">
+            <div class="special-needs-title">
+                🏥 特殊需求
+            </div>
+            <div class="needs-tags" id="modalSpecialNeeds">
+                <!-- 特殊需求标签将在这里动态生成 -->
+            </div>
+        </div>
+        
+        <div class="modal-actions">
+            <a href="#" class="btn-modal btn-edit-modal" id="editPetLink">
+                ✏️ 编辑信息
+            </a>
+            <a href="#" class="btn-modal btn-delete-modal" id="deletePetLink"
+                onclick="return confirm('确定要删除这只宠物的信息吗？此操作无法撤销。')">
+                🗑️ 删除宠物
+            </a>
+        </div>
+    </div>
+</div>
+
+<!----------- 隐藏的数据容器 ---------->
+<div id="pet-data-container" style="display: none;">
+    {% for pet in pets %}
+    <div class="pet-data"
+        data-id="{{ pet.id }}"
+        data-name="{{ pet.name }}"
+        data-species="{{ pet.species }}"
+        data-breed="{{ pet.breed or '' }}"
+        data-weight="{{ pet.weight }}"
+        data-age="{{ pet.age }}"
+        data-special-needs="{{ pet.special_needs }}"
+        data-avatar="{{ pet.avatar }}"
+        data-created="{{ pet.created_at }}">
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+// 从隐藏的DOM元素中读取宠物数据
+function getPetData() {
+    var petElements = document.querySelectorAll('.pet-data');
+    var petData = [];
+    
+    petElements.forEach(function(element) {
+        petData.push({
+            id: parseInt(element.dataset.id),
+            name: element.dataset.name,
+            species: element.dataset.species,
+            breed: element.dataset.breed,
+            weight: parseFloat(element.dataset.weight),
+            age: parseInt(element.dataset.age),
+            special_needs: element.dataset.specialNeeds,
+            avatar: element.dataset.avatar,
+            created_at: element.dataset.created
+        });
+    });
+    
+    return petData;
+}
+
+// 获取宠物数据
+var petData = getPetData();
+
+// 显示宠物详情模态框
+function showPetModal(petId) {
+    var pet = petData.find(function(p) { return p.id == petId; });
+    if (!pet) return;
+    
+    // 填充模态框数据
+    document.getElementById('modalPetName').textContent = pet.name + ' 的详细信息';
+    document.getElementById('modalPetNameValue').textContent = pet.name;
+    document.getElementById('modalPetAvatar').src = '/static/images/avatars/' + pet.avatar;
+    document.getElementById('modalPetAvatar').alt = pet.name;
+    document.getElementById('modalPetSpecies').textContent = pet.species;
+    document.getElementById('modalPetWeight').textContent = pet.weight + ' kg';
+    document.getElementById('modalPetAge').textContent = pet.age + ' 岁';
+    document.getElementById('modalPetCreated').textContent = pet.created_at.split(' ')[0];
+    
+    // 处理品种显示
+    if (pet.breed) {
+        document.getElementById('modalPetBreed').textContent = pet.breed;
+        document.getElementById('modalBreedRow').style.display = 'flex';
+    } else {
+        document.getElementById('modalBreedRow').style.display = 'none';
+    }
+    
+    // 处理特殊需求标签
+    const needsContainer = document.getElementById('modalSpecialNeeds');
+    needsContainer.innerHTML = '';
+    
+    if (pet.special_needs && pet.special_needs !== '无特殊需求') {
+        const needs = pet.special_needs.split(', ');
+        needs.forEach(need => {
+            const tag = document.createElement('span');
+            tag.className = 'need-tag ' + getNeedTagClass(need);
+            tag.textContent = need;
+            needsContainer.appendChild(tag);
+        });
+    } else {
+        const tag = document.createElement('span');
+        tag.className = 'need-tag normal';
+        tag.textContent = '无特殊需求';
+        needsContainer.appendChild(tag);
+    }
+    
+    // 设置编辑和删除链接
+    document.getElementById('editPetLink').href = '/edit_pet/' + pet.id;
+    document.getElementById('deletePetLink').href = '/delete_pet/' + pet.id;
+    
+    // 显示模态框
+    const modal = document.getElementById('petModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+        modal.classList.add('show');
+    }, 10);
+}
+
+// 关闭模态框
+function closePetModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    
+    const modal = document.getElementById('petModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 300);
+}
+
+// 获取特殊需求标签的CSS类
+function getNeedTagClass(need) {
+    if (need.includes('过敏')) return 'allergy';
+    if (need.includes('肥胖') || need.includes('糖尿病') || need.includes('肾脏') || need.includes('肠胃') || need.includes('关节')) return 'health';
+    if (need.includes('美毛') || need.includes('牙齿')) return 'beauty';
+    return 'normal';
+}
+
+// 显示成功消息
+function showSuccessMessage(message) {
+    // 移除已存在的消息
+    const existingMessage = document.querySelector('.success-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+    
+    const messageEl = document.createElement('div');
+    messageEl.className = 'success-message';
+    messageEl.textContent = message;
+    document.body.appendChild(messageEl);
+    
+    // 显示动画
+    setTimeout(() => {
+        messageEl.classList.add('show');
+    }, 10);
+    
+    // 3秒后隐藏
+    setTimeout(() => {
+        messageEl.classList.add('hide');
+        setTimeout(() => {
+            messageEl.remove();
+        }, 400);
+    }, 3000);
+}
+
+// 显示开发中提示
+function showComingSoon(feature) {
+    alert(feature + '开发中，敬请期待！');
+}
+
+// 监听ESC键关闭模态框
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closePetModal();
+    }
+});
+
+// 检查是否有成功消息需要显示
+document.addEventListener('DOMContentLoaded', function() {
+    // 检查URL参数或session中的成功消息
+    const urlParams = new URLSearchParams(window.location.search);
+    const successMsg = urlParams.get('success');
+    if (successMsg) {
+        showSuccessMessage(decodeURIComponent(successMsg));
+        // 清除URL参数
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+});
+</script>
 {% endblock %}
