@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(project_root, 'backend'))
 from app import create_app, db
 from app.models.user_model import User
 from app.models.pet_model import Pet
+from app.models.ingredient_model import Ingredient, IngredientCategory
 
 def init_database():
     """初始化数据库"""
@@ -55,10 +56,27 @@ def init_database():
             db.session.add(test_pet)
             db.session.commit()
             
+            # 测试添加食材
+            if Ingredient.query.count() == 0:
+                test_ingredient = Ingredient(
+                    name='鸡胸肉',
+                    category=IngredientCategory.WHITE_MEAT,
+                    calories=165,
+                    protein=31.0,
+                    fat=3.6,
+                    carbohydrate=0.0,
+                    is_safe_for_dogs=True,
+                    is_safe_for_cats=True,
+                    image_filename='chicken_breast.jpg'
+                )
+                db.session.add(test_ingredient)
+                db.session.commit()
+
             print("✅ Database initialization complete！")
             print(f"✅ Test user created: username=testuser, password=123456")
             print(f"✅ Test pet created: Da Huang (Golden Retriever)")
-            
+            print(f"✅ Test ingredients created: {len(test_ingredients)} items")
+
         except Exception as e:
             print(f"❌ Database initialization failed：{str(e)}")
             db.session.rollback()

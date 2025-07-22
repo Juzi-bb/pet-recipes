@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!Utils.checkLoginStatus()) {
                         Utils.showLoginPrompt('Please log in before creating a recipe');
                     } else {
-                        Utils.showComingSoon('Create Recipe feature');
+                        window.location.href = '/recipe/create_recipe';
                     }
                 });
             }
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (!Utils.checkLoginStatus()) {
                         Utils.showLoginPrompt('Creating a recipe requires logging in first. Please log in to your account.');
                     } else {
-                        Utils.showComingSoon('Create Recipe feature');
+                        window.location.href = '/recipe/create_recipe';
                     }
                 });
             }

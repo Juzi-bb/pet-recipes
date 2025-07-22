@@ -1,5 +1,4 @@
 # 主路由文件
-# --------------- 修改主路由文件 ---------------
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from app.models.pet_model import Pet
 from app.models.user_model import User
@@ -17,7 +16,7 @@ def base():
     """Base Template Route (for testing)"""
     return render_template('base.html')
 
-# --------------- 修改用户中心路由，添加登录检测和宠物数据 ---------------
+# 修改用户中心路由，添加登录检测和宠物数据 
 @main_bp.route('/user_center')
 def user_center():
     """User Center Route - Login Required"""
@@ -53,7 +52,7 @@ def user_center():
         flash(f'Error getting pet information: {str(e)}', 'error')
         return render_template('user_center.html', pets=[])
 
-# --------------- 修改添加宠物路由，添加登录检测 ---------------
+# 修改添加宠物路由，添加登录检测
 @main_bp.route('/add_pet', methods=['GET', 'POST'])
 def add_pet():
     """Add Pet Route - Login Required"""
@@ -118,7 +117,7 @@ def add_pet():
     # GET请求，显示添加宠物表单
     return render_template('add_pet.html')
 
-# --------------- 添加编辑宠物路由 ---------------
+# 添加编辑宠物路由
 @main_bp.route('/edit_pet/<int:pet_id>', methods=['GET', 'POST'])
 def edit_pet(pet_id):
     """Edit Pet Route - Login Required"""
@@ -175,7 +174,7 @@ def edit_pet(pet_id):
     # GET请求，显示编辑表单
     return render_template('edit_pet.html', pet=pet)
 
-# --------------- 添加删除宠物路由 ---------------
+# 添加删除宠物路由
 @main_bp.route('/delete_pet/<int:pet_id>')
 def delete_pet(pet_id):
     """Delete Pet Route - Login Required"""
@@ -203,7 +202,7 @@ def delete_pet(pet_id):
     
     return redirect(url_for('main.user_center'))
 
-# --------------- 添加登录状态检查API ---------------
+# 添加登录状态检查API
 @main_bp.route('/api/check_login')
 def check_login():
     """API for checking user login status"""
@@ -212,3 +211,96 @@ def check_login():
         'user_id': session.get('user_id'),
         'nickname': session.get('nickname')
     }
+
+# 添加食谱相关路由
+@main_bp.route('/create_recipe')
+def create_recipe_redirect():
+    """重定向到食谱创建页面"""
+    if 'user_id' not in session:
+        flash('请先登录再创建食谱')
+        return redirect(url_for('user_bp.login_page'))
+    return redirect(url_for('recipe_bp.create_recipe'))
+
+@main_bp.route('/recipe/<int:recipe_id>')
+def recipe_detail(recipe_id):
+    """食谱详情页面"""
+    if 'user_id' not in session:
+        flash('请先登录')
+        return redirect(url_for('user_bp.login_page'))
+    
+    recipe = Recipe.query.filter_by(id=recipe_id).first()
+    if not recipe:
+        flash('食谱不存在')
+        return redirect(url_for('main.user_center'))
+    
+    # 检查权限 - 只有创建者或公开食谱可以查看
+    if recipe.user_id != session['user_id'] and not recipe.is_public:
+        flash('没有权限查看此食谱')
+        return redirect(url_for('main.user_center'))
+    
+    return render_template('recipe_detail.html', recipe=recipe)
+
+@main_bp.route('/my_recipes')
+def my_recipes():
+    """我的食谱列表"""
+    if 'user_id' not in session:
+        flash('请先登录')
+        return redirect(url_for('user_bp.login_page'))
+    
+    recipes = Recipe.query.filter_by(user_id=session['user_id']).order_by(Recipe.updated_at.desc()).all()
+    return render_template('my_recipes.html', recipes=recipes)
+
+@main_bp.route('/delete_recipe/<int:recipe_id>', methods=['POST'])
+def delete_recipe(recipe_id):
+    """删除食谱"""
+    if 'user_id' not in session:
+        flash('请先登录')
+        return redirect(url_for('user_bp.login_page'))
+    
+    recipe = Recipe.query.filter_by(id=recipe_id, user_id=session['user_id']).first()
+    if not recipe:
+        flash('食谱不存在')
+        return redirect(url_for('main.user_center'))
+    
+    try:
+        recipe_name = recipe.name
+        db.session.delete(recipe)
+        db.session.commit()
+        flash(f'已删除食谱 {recipe_name}')
+    except Exception as e:
+        db.session.rollback()
+        flash('删除失败，请重试')
+    
+    return redirect(url_for('main.user_center'))
+
+# API路由用于AJAX请求
+@main_bp.route('/api/pet/<int:pet_id>/info')
+def api_pet_info(pet_id):
+    """获取宠物信息API"""
+    if 'user_id' not in session:
+        return {'error': '未登录'}, 401
+    
+    pet = Pet.query.filter_by(id=pet_id, user_id=session['user_id']).first()
+    if not pet:
+        return {'error': '宠物不存在'}, 404
+    
+    return {
+        'id': pet.id,
+        'name': pet.name,
+        'species': pet.species,
+        'breed': pet.breed,
+        'weight': pet.weight,
+        'age': pet.age,
+        'avatar': pet.avatar,
+        'special_needs': pet.special_needs.split(',') if pet.special_needs else []
+    }
+
+@main_bp.route('/encyclopedia')
+def encyclopedia():
+    """食材百科页面"""
+    return render_template('encyclopedia.html')
+
+@main_bp.route('/community')
+def community():
+    """社区页面"""
+    return render_template('community.html')
