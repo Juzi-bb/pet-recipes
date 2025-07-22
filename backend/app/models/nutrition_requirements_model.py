@@ -1,9 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, Text, DateTime, Enum
-from sqlalchemy.ext.declarative import declarative_base
+from ..extensions import db  # 使用相对导入
 from datetime import datetime
 import enum
-
-Base = declarative_base()
 
 class PetType(enum.Enum):
     DOG = "dog"
@@ -22,7 +20,7 @@ class ActivityLevel(enum.Enum):
     MODERATE = "moderate"  # 中等活动量
     HIGH = "high"         # 高活动量
 
-class NutritionRequirement(Base):
+class NutritionRequirement(db.Model):
     __tablename__ = 'nutrition_requirements'
     
     # 基础信息

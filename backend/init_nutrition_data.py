@@ -2,14 +2,22 @@
 营养数据初始化脚本
 基于AAFCO标准创建基础的食材数据和营养需求标准
 """
+import os
+import sys
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from ingredient_model import Ingredient, IngredientCategory
-from nutrition_requirements_model import NutritionRequirement, PetType, LifeStage, ActivityLevel
+# 添加项目路径
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, project_root)
+
+from app import create_app
+from app.extensions import db
+from app.models.ingredient_model import Ingredient, IngredientCategory
+from app.models.user_model import User
+from app.models.pet_model import Pet
+from app.models.nutrition_requirements_model import NutritionRequirement, PetType, LifeStage, ActivityLevel
 from datetime import datetime
 
-def init_basic_ingredients(session):
+def init_basic_ingredients():
     """初始化基础食材数据"""
     
     # 基础食材数据 (营养成分基于USDA数据库和宠物食品资料)
@@ -528,21 +536,25 @@ def init_basic_ingredients(session):
         }
     ]
     
+    added_count = 0
+
     # 创建食材记录
     for ing_data in basic_ingredients:
         # 检查是否已存在
-        existing = session.query(Ingredient).filter_by(name=ing_data['name']).first()
+        existing = Ingredient.query.filter_by(name=ing_data['name']).first()
         if not existing:
             ingredient = Ingredient(**ing_data)
             ingredient.data_source = "USDA + Pet Nutrition Database"
             ingredient.last_verified = datetime.utcnow()
-            session.add(ingredient)
+            db.session.add(ingredient)
+            added_count += 1
     
-    session.commit()
+    db.session.commit()
     print(f"已添加 {len(basic_ingredients)} 种基础食材")
+    return added_count
 
 
-def init_nutrition_requirements(session):
+def init_nutrition_requirements():
     """初始化营养需求标准 (基于AAFCO 2016标准)"""
     
     requirements = [
@@ -741,7 +753,7 @@ def init_nutrition_requirements(session):
     # 创建营养需求记录
     for req_data in requirements:
         # 检查是否已存在
-        existing = session.query(NutritionRequirement).filter_by(
+        existing = db.session.query(NutritionRequirement).filter_by(
             pet_type=req_data['pet_type'],
             life_stage=req_data['life_stage'],
             activity_level=req_data['activity_level']
@@ -749,38 +761,59 @@ def init_nutrition_requirements(session):
         
         if not existing:
             requirement = NutritionRequirement(**req_data)
-            session.add(requirement)
+            db.session.add(requirement)
     
-    session.commit()
+    db.session.commit()
     print(f"已添加 {len(requirements)} 套营养需求标准")
 
 
-def main():
-    """主函数 - 初始化营养数据库"""
-    # 创建数据库连接
-    engine = create_engine('sqlite:///pet_nutrition.db')  # 根据你的数据库配置修改
-    Session = sessionmaker(bind=engine)
-    session = Session()
-    
+def init_database():
+    """初始化数据库的主函数"""
     try:
-        print("开始初始化营养数据库...")
+        # 创建Flask应用上下文
+        app = create_app()
         
-        # 初始化食材数据
-        print("正在添加基础食材...")
-        init_basic_ingredients(session)
-        
-        # 初始化营养需求标准
-        print("正在添加营养需求标准...")
-        init_nutrition_requirements(session)
-        
-        print("营养数据库初始化完成！")
-        
+        with app.app_context():
+            print("开始初始化营养数据库...")
+            
+            # 创建所有数据库表
+            db.create_all()
+            print("数据库表创建完成")
+            
+            # 初始化食材数据
+            print("正在添加基础食材...")
+            ingredient_count = init_basic_ingredients()
+            
+            # 初始化营养需求标准
+            print("正在添加营养需求标准...")
+            requirement_count = init_nutrition_requirements()
+            
+            print("=" * 50)
+            print("🎉 营养数据库初始化完成！")
+            print(f"📋 添加了 {ingredient_count} 种食材")
+            print(f"📊 添加了 {requirement_count} 套营养标准")
+            print("=" * 50)
+            
+            return True
+            
     except Exception as e:
-        print(f"初始化过程中发生错误: {e}")
-        session.rollback()
-    finally:
-        session.close()
+        print(f"❌ 初始化过程中发生错误: {e}")
+        if 'db' in locals():
+            db.session.rollback()
+        return False
 
+def main():
+    """兼容原有调用方式的函数"""
+    return init_database()
 
 if __name__ == "__main__":
-    main()
+    print("宠物食谱网站 - 数据库初始化")
+    print("=" * 40)
+    
+    if init_database():
+        print("\n🎉 初始化成功！你现在可以启动应用了。")
+        print("\n启动命令:")
+        print("python run.py")
+        print("\n然后在浏览器中访问: http://localhost:5001")
+    else:
+        print("\n❌ 初始化失败，请检查错误信息。")

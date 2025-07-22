@@ -6,7 +6,7 @@ from app.models.recipe_model import Recipe, RecipeStatus
 from app.models.recipe_ingredient_model import RecipeIngredient
 from app.models.nutrition_requirements_model import NutritionRequirement, PetType, LifeStage, ActivityLevel
 from app.models.pet_model import Pet
-from app import db
+from app.extensions import db
 from sqlalchemy import func
 import json
 
@@ -30,52 +30,63 @@ def create_recipe():
 @recipe_bp.route('/api/ingredients')
 def get_ingredients():
     """获取食材列表API"""
-    category = request.args.get('category')
-    search = request.args.get('search', '')
+    try:
+        category = request.args.get('category')
+        search = request.args.get('search', '')
     
-    query = db.session.query(Ingredient).filter(Ingredient.is_active == True)
+        query = db.session.query(Ingredient).filter(Ingredient.is_active == True)
     
-    # 分类过滤
-    if category:
-        try:
-            category_enum = IngredientCategory(category)
-            query = query.filter(Ingredient.category == category_enum)
-        except ValueError:
-            pass
+        # 分类过滤
+        if category:
+            try:
+                category_enum = IngredientCategory(category)
+                query = query.filter(Ingredient.category == category_enum)
+            except ValueError:
+                pass
     
-    # 搜索过滤
-    if search:
+        # 搜索过滤
+        if search:
+            query = query.filter(
+                db.or_(
+                    Ingredient.name.contains(search),
+                    Ingredient.name_en.contains(search)
+                )
+            )
+    
+        # 安全性过滤 - 只返回安全的食材
         query = query.filter(
-            db.or_(
-                Ingredient.name.contains(search),
-                Ingredient.name_en.contains(search)
+            db.and_(
+                Ingredient.is_safe_for_dogs == True,
+                Ingredient.is_safe_for_cats == True
             )
         )
-    
-    # 安全性过滤 - 只返回安全的食材
-    query = query.filter(
-        db.and_(
-            Ingredient.is_safe_for_dogs == True,
-            Ingredient.is_safe_for_cats == True
-        )
-    )
-    
-    ingredients = query.all()
-    
-    return jsonify([{
-        'id': ing.id,
-        'name': ing.name,
-        'name_en': ing.name_en,
-        'category': ing.category.value,
-        'image_filename': ing.image_filename,
-        'seasonality': ing.seasonality,
-        'calories': ing.calories,
-        'protein': ing.protein,
-        'fat': ing.fat,
-        'carbohydrate': ing.carbohydrate,
-        'is_common_allergen': ing.is_common_allergen,
-        'nutrition_summary': f"蛋白质{ing.protein}g, 脂肪{ing.fat}g, 碳水{ing.carbohydrate}g (每100g)"
-    } for ing in ingredients])
+        
+        ingredients = query.all()
+        
+        # ------- 修改：确保返回完整的营养信息 -------
+        result = []
+        for ing in ingredients:
+            ingredient_data = {
+                'id': ing.id,
+                'name': ing.name,
+                'name_en': ing.name_en,
+                'category': ing.category.value,
+                'image_filename': ing.image_filename,
+                'seasonality': ing.seasonality,
+                'calories': float(ing.calories) if ing.calories else 0,
+                'protein': float(ing.protein) if ing.protein else 0,
+                'fat': float(ing.fat) if ing.fat else 0,
+                'carbohydrate': float(ing.carbohydrate) if ing.carbohydrate else 0,
+                'is_common_allergen': ing.is_common_allergen,
+                'nutrition_summary': f"蛋白质{ing.protein or 0}g, 脂肪{ing.fat or 0}g, 碳水{ing.carbohydrate or 0}g (每100g)"
+            }
+            result.append(ingredient_data)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"获取食材列表失败: {str(e)}")  # 用于调试
+        return jsonify({'error': '获取食材列表失败'}), 500
 
 @recipe_bp.route('/api/categories')
 def get_categories():
@@ -109,15 +120,16 @@ def calculate_nutrition():
     data = request.get_json()
     ingredients_data = data.get('ingredients', [])
     pet_id = data.get('pet_id')
-    
+        
     if not ingredients_data:
         return jsonify({'error': '请选择食材'}), 400
     
     # 获取宠物信息
     pet = None
     if pet_id:
-        pet = db.session.query(Pet).filter_by(id=pet_id, user_id=session['user_id']).first()
-    
+        from app.models.pet_model import Pet
+        pet = Pet.query.filter_by(id=pet_id, user_id=session['user_id']).first()
+        
     # 计算总营养成分
     total_nutrition = {
         'total_weight': 0.0,
@@ -167,7 +179,7 @@ def calculate_nutrition():
         }
         
         ingredient_details.append(ingredient_nutrition)
-        
+    
         # 累加到总营养
         total_nutrition['total_weight'] += weight
         total_nutrition['calories'] += ingredient_nutrition['calories']
@@ -183,45 +195,46 @@ def calculate_nutrition():
         total_nutrition['omega_3'] += ingredient_nutrition['omega_3']
         total_nutrition['omega_6'] += ingredient_nutrition['omega_6']
     
-    # 计算营养比例 (每100g干物质基础)
-    if total_nutrition['total_weight'] > 0:
-        nutrition_ratios = {
-            'protein_percent': (total_nutrition['protein'] / total_nutrition['total_weight']) * 100,
-            'fat_percent': (total_nutrition['fat'] / total_nutrition['total_weight']) * 100,
-            'carbohydrate_percent': (total_nutrition['carbohydrate'] / total_nutrition['total_weight']) * 100,
-            'fiber_percent': (total_nutrition['fiber'] / total_nutrition['total_weight']) * 100
-        }
-    else:
-        nutrition_ratios = {'protein_percent': 0, 'fat_percent': 0, 'carbohydrate_percent': 0, 'fiber_percent': 0}
-    
-    # 营养需求对比
-    nutrition_analysis = {'status': 'unknown', 'warnings': [], 'recommendations': []}
-    
-    if pet:
-        # 获取营养需求标准
-        pet_type = PetType.DOG if pet.species.lower() == 'dog' else PetType.CAT
-        life_stage = determine_life_stage(pet.age, pet.species)
+        # 计算营养比例 (每100g干物质基础)
+        if total_nutrition['total_weight'] > 0:
+            nutrition_ratios = {
+                'protein_percent': (total_nutrition['protein'] / total_nutrition['total_weight']) * 100,
+                'fat_percent': (total_nutrition['fat'] / total_nutrition['total_weight']) * 100,
+                'carbohydrate_percent': (total_nutrition['carbohydrate'] / total_nutrition['total_weight']) * 100,
+                'fiber_percent': (total_nutrition['fiber'] / total_nutrition['total_weight']) * 100
+            }
+        else:
+            nutrition_ratios = {'protein_percent': 0, 'fat_percent': 0, 'carbohydrate_percent': 0, 'fiber_percent': 0}
         
-        requirement = NutritionRequirement.query.filter_by(
-            pet_type=pet_type,
-            life_stage=life_stage,
-            activity_level=ActivityLevel.MODERATE
-        ).filter(
-            NutritionRequirement.min_weight <= pet.weight,
-            NutritionRequirement.max_weight >= pet.weight
-        ).first()
+        # 营养需求对比
+        nutrition_analysis = {'status': 'unknown', 'warnings': [], 'recommendations': []}
         
-        if requirement:
-            # 分析营养状况
-            analysis = analyze_nutrition_status(nutrition_ratios, requirement, total_nutrition, pet.weight)
-            nutrition_analysis.update(analysis)
+        if pet:
+            # 获取营养需求标准
+            from app.models.nutrition_requirements_model import NutritionRequirement, PetType, LifeStage, ActivityLevel
+            pet_type = PetType.DOG if pet.species.lower() == 'dog' else PetType.CAT
+            life_stage = determine_life_stage(pet.age, pet.species)
+            
+            requirement = NutritionRequirement.query.filter_by(
+                pet_type=pet_type,
+                life_stage=life_stage,
+                activity_level=ActivityLevel.MODERATE
+            ).filter(
+                NutritionRequirement.min_weight <= pet.weight,
+                NutritionRequirement.max_weight >= pet.weight
+            ).first()
+            
+            if requirement:
+                # 分析营养状况
+                analysis = analyze_nutrition_status(nutrition_ratios, requirement, total_nutrition, pet.weight)
+                nutrition_analysis.update(analysis)
     
-    return jsonify({
-        'total_nutrition': total_nutrition,
-        'nutrition_ratios': nutrition_ratios,
-        'ingredient_details': ingredient_details,
-        'nutrition_analysis': nutrition_analysis
-    })
+        return jsonify({
+            'total_nutrition': total_nutrition,
+            'nutrition_ratios': nutrition_ratios,
+            'ingredient_details': ingredient_details,
+            'nutrition_analysis': nutrition_analysis
+        })
 
 @recipe_bp.route('/api/suggest_weights', methods=['POST'])
 def suggest_weights():
@@ -376,6 +389,9 @@ def save_recipe():
 # 辅助函数
 def get_category_name(category):
     """获取分类中文名称"""
+    if isinstance(category, str):
+        category = IngredientCategory(category)
+    
     category_names = {
         IngredientCategory.RED_MEAT: '红肉类',
         IngredientCategory.WHITE_MEAT: '白肉类',
@@ -388,10 +404,13 @@ def get_category_name(category):
         IngredientCategory.SUPPLEMENTS: '营养补充剂',
         IngredientCategory.OILS: '油脂类'
     }
-    return category_names.get(category, category.value)
+    return category_names.get(category, category.value if hasattr(category, 'value') else str(category))
 
 def get_category_icon(category):
     """获取分类图标"""
+    if isinstance(category, str):
+        category = IngredientCategory(category)
+
     category_icons = {
         IngredientCategory.RED_MEAT: 'fas fa-drumstick-bite',
         IngredientCategory.WHITE_MEAT: 'fas fa-drumstick-bite',

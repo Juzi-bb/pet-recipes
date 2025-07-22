@@ -20,18 +20,30 @@ def create_app(config_class=Config):
     # 在这里初始化 CORS，允许来自所有源的请求，可根据需要调整
     cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
 
+    # 导入模型（重要！确保数据库表被创建）
+    from .models import (
+        user_model,
+        pet_model,
+        ingredient_model,
+        recipe_model,
+        nutrition_requirements_model,
+        recipe_ingredient_model
+    )
+
+    # 创建数据库表
+    with app.app_context():
+        db.create_all()
+
     # 注册蓝图
     from .routes.user import user_bp
     from .routes.pet import pet_bp
     from .routes.recipe import recipe_bp
+    from .routes.main import main_bp
 
     # 修改蓝图注册，添加页面路由
     app.register_blueprint(user_bp, url_prefix='/user')       # 页面路由
     app.register_blueprint(pet_bp, url_prefix='/api/pets')
     app.register_blueprint(recipe_bp, url_prefix='/recipe')
-
-    # 添加main
-    from .routes.main import main_bp
     app.register_blueprint(main_bp)
 
     return app

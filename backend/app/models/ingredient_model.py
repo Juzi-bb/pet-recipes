@@ -4,8 +4,6 @@ from datetime import datetime
 from ..extensions import db
 import enum
 
-Base = declarative_base()
-
 class IngredientCategory(enum.Enum):
     RED_MEAT = "red_meat"           # 红肉
     WHITE_MEAT = "white_meat"       # 白肉
@@ -18,7 +16,7 @@ class IngredientCategory(enum.Enum):
     SUPPLEMENTS = "supplements"     # 营养补充剂
     OILS = "oils"                   # 油脂类
 
-class Ingredient(Base):
+class Ingredient(db.Model):  # ------- 修改：继承db.Model而不是Base -------
     __tablename__ = 'ingredients'
     
     # 基础信息
@@ -27,6 +25,10 @@ class Ingredient(Base):
     name_en = Column(String(100), nullable=True)
     category = Column(Enum(IngredientCategory), nullable=False)
     description = Column(Text, nullable=True)
+
+    # ------- 新增：缺失的字段 -------
+    image_filename = Column(String(255), nullable=True)  # 图片文件名
+    seasonality = Column(String(100), nullable=True)     # 季节性
     
     # 基本营养成分 (每100g)
     # 基础宏量营养素

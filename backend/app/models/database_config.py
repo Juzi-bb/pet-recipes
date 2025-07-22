@@ -74,7 +74,7 @@ def init_database():
     create_tables()
     
     # 运行初始化数据脚本
-    from init_nutrition_data import main as init_data
+    from backend.init_nutrition_data import main as init_data
     init_data()
 
 if __name__ == "__main__":
