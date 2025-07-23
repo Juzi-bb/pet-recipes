@@ -365,8 +365,8 @@ def example_usage():
             
             est_nutrition = rec['estimated_nutrition']
             print(f"预估营养: {est_nutrition['calories']:.1f} kcal, "
-                  f"{est_nutrition['protein']:.1f}g蛋白质, "
-                  f"{est_nutrition['fat']:.1f}g脂肪")
+                f"{est_nutrition['protein']:.1f}g蛋白质, "
+                f"{est_nutrition['fat']:.1f}g脂肪")
         
         # 示例5: 修改食谱
         print("\n=== 修改食谱 ===")

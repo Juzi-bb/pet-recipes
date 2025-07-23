@@ -8,10 +8,10 @@ import sys
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(project_root, 'backend'))
 
-from app import create_app, db
-from app.models.user_model import User
-from app.models.pet_model import Pet
-from app.models.ingredient_model import Ingredient, IngredientCategory
+from backend.app import create_app, db
+from backend.app.models.user_model import User
+from backend.app.models.pet_model import Pet
+from backend.app.models.ingredient_model import Ingredient, IngredientCategory
 
 def init_database():
     """初始化数据库"""

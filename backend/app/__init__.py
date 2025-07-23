@@ -1,8 +1,17 @@
 # 创建和配置Flask应用
 import os
+import sys
 from flask import Flask
+
+# 添加backend目录到Python路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+backend_dir = os.path.dirname(current_dir)
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
+# 现在可以使用绝对导入
 from config import Config
-from .extensions import db, bcrypt, cors
+from app.extensions import db, bcrypt, cors
 
 def create_app(config_class=Config):
     # 添加template和static路径
