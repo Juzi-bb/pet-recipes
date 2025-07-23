@@ -365,7 +365,7 @@
             <div class="user-info">
                 {% if session.user_id %}
                     <span class="welcome-text">Welcome, {{ session.nickname }}!</span>
-                    <a href="#" id="logoutBtn" class="logout-btn">Logout</a>
+                    <a href="#" id="logoutBtn" class="logout-btn">Log Out</a>
                 {% else %}
                     <a href="{{ url_for('user_bp.login_page') }}" class="btn-login">Login</a>
                     <a href="{{ url_for('user_bp.register_page') }}" class="btn-register">Register</a>

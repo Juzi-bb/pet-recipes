@@ -220,8 +220,8 @@
     <a href="{{ url_for('main.user_center') }}" class="back-link">← Back to User Center</a>
     
     <div class="page-header">
-        <h1>🐾 Add Pet Information</h1>
-        <p>Create an exclusive profile for your pet to get personalized recipe recommendations</p>
+        <h1>🐾 Add a Pet</h1>
+        <p>Create an exclusive profile for your pet to get personalized recipe recommendations.</p>
     </div>
 
     <div class="form-container">
@@ -236,7 +236,7 @@
                         <span style="margin-right: 0.5rem;">🏷️</span>Pet Name
                     </label>
                     <input type="text" id="name" name="name" required maxlength="50"
-                        placeholder="Please enter the pet's name">
+                        placeholder="Enter your pet's name">
                 </div>
 
                 <div class="form-row">
@@ -245,7 +245,7 @@
                             <span style="margin-right: 0.5rem;">🐕</span>Pet Species
                         </label>
                         <select id="species" name="species" required>
-                            <option value="">Please select a species</option>
+                            <option value="">Select a species</option>
                             <option value="Dog">Dog</option>
                             <option value="Cat">Cat</option>
                         </select>
@@ -266,7 +266,7 @@
                             <span style="margin-right: 0.5rem;">⚖️</span>Weight (kg)
                         </label>
                         <input type="number" id="weight" name="weight" required
-                            min="0.5" max="80" step="0.1" placeholder="Please enter weight">
+                            min="0.5" max="80" step="0.1" placeholder="Enter weight">
                         <div class="form-help">Range: 0.5-80kg</div>
                     </div>
 
@@ -275,7 +275,7 @@
                             <span style="margin-right: 0.5rem;">🎂</span>Age (years)
                         </label>
                         <input type="number" id="age" name="age" required
-                            min="0" max="25" placeholder="Please enter age">
+                            min="0" max="25" placeholder="Enter age">
                         <div class="form-help">Range: 0-25 years</div>
                     </div>
                 </div>
@@ -285,11 +285,11 @@
             <div class="form-section">
                 <div class="section-title">🏥 Special Needs</div>
                 <div class="form-group">
-                    <label>Please select your pet's special needs (multiple selections allowed): </label>
+                    <label>Select any special needs (optional): </label>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
                             <input type="checkbox" id="need_none" name="special_needs" value="No special needs">
-                            <label for="need_none">No special needs</label>
+                            <label for="need_none">None</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="need_seafood" name="special_needs" value="Seafood Allergy">
@@ -317,11 +317,11 @@
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="need_fur" name="special_needs" value="Hair-beautifying Needs">
-                            <label for="need_fur">Hair-beautifying Needs</label>
+                            <label for="need_fur">Coat Health</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="need_joint" name="special_needs" value="Joint Problems">
-                            <label for="need_joint">Joint Problems</label>
+                            <label for="need_joint">Joint Issues</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="need_dental" name="special_needs" value="Dental Health">
@@ -334,7 +334,7 @@
             <div class="form-section">
                 <div class="section-title">✨ Select Avatar</div>
                 <div class="form-group">
-                    <label>Please choose a cute avatar for your pet:</label>
+                    <label>Choose an avatar for your pet:</label>
                     <div class="avatar-selector">
                         <div class="avatar-option">
                             <input type="radio" id="avatar_dog1" name="avatar" value="dog1.png" required>

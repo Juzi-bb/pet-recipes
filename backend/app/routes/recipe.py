@@ -16,13 +16,13 @@ recipe_bp = Blueprint('recipe_bp', __name__)
 def create_recipe():
     """渲染创建食谱页面"""
     if 'user_id' not in session:
-        flash('请先登录再创建食谱')
+        flash('Please log in to create a recipe')
         return redirect(url_for('user_bp.login_page'))
     
     # 获取用户的宠物
     user_pets = Pet.query.filter_by(user_id=session['user_id']).all()
     if not user_pets:
-        flash('请先添加宠物信息再创建食谱')
+        flash('Please add a pet before creating a recipe')
         return redirect(url_for('main.add_pet'))
     
     return render_template('create_recipe.html', pets=user_pets)
@@ -63,7 +63,7 @@ def get_ingredients():
         
         ingredients = query.all()
         
-        # ------- 修改：确保返回完整的营养信息 -------
+        # 确保返回完整的营养信息
         result = []
         for ing in ingredients:
             ingredient_data = {
@@ -78,15 +78,15 @@ def get_ingredients():
                 'fat': float(ing.fat) if ing.fat else 0,
                 'carbohydrate': float(ing.carbohydrate) if ing.carbohydrate else 0,
                 'is_common_allergen': ing.is_common_allergen,
-                'nutrition_summary': f"蛋白质{ing.protein or 0}g, 脂肪{ing.fat or 0}g, 碳水{ing.carbohydrate or 0}g (每100g)"
+                'nutrition_summary': f"Protein {ing.protein or 0}g, Fat {ing.fat or 0}g, Carbs {ing.carbohydrate or 0}g (per 100g)"
             }
             result.append(ingredient_data)
         
         return jsonify(result)
         
     except Exception as e:
-        print(f"获取食材列表失败: {str(e)}")  # 用于调试
-        return jsonify({'error': '获取食材列表失败'}), 500
+        print(f"Failed to load ingredients: {str(e)}")  # 用于调试
+        return jsonify({'error': 'Failed to load ingredients'}), 500
 
 @recipe_bp.route('/api/categories')
 def get_categories():
@@ -378,31 +378,31 @@ def save_recipe():
         
         return jsonify({
             'success': True,
-            'message': '食谱保存成功' if is_draft else '食谱发布成功',
+            'message': 'Recipe saved as a draft' if is_draft else 'Recipe published successfully',
             'recipe_id': recipe.id
         })
         
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': f'保存失败: {str(e)}'}), 500
+        return jsonify({'error': f'Save failed: {str(e)}'}), 500
 
 # 辅助函数
 def get_category_name(category):
-    """获取分类中文名称"""
+    """获取分类英文名称"""
     if isinstance(category, str):
         category = IngredientCategory(category)
     
     category_names = {
-        IngredientCategory.RED_MEAT: '红肉类',
-        IngredientCategory.WHITE_MEAT: '白肉类',
-        IngredientCategory.FISH: '鱼类',
-        IngredientCategory.ORGANS: '内脏类',
-        IngredientCategory.VEGETABLES: '蔬菜类',
-        IngredientCategory.FRUITS: '水果类',
-        IngredientCategory.GRAINS: '谷物类',
-        IngredientCategory.DAIRY: '乳制品',
-        IngredientCategory.SUPPLEMENTS: '营养补充剂',
-        IngredientCategory.OILS: '油脂类'
+        IngredientCategory.RED_MEAT: 'Red Meat',
+        IngredientCategory.WHITE_MEAT: 'White Meat',
+        IngredientCategory.FISH: 'Fish',
+        IngredientCategory.ORGANS: 'Organs',
+        IngredientCategory.VEGETABLES: 'Vegetables',
+        IngredientCategory.FRUITS: 'Fruits',
+        IngredientCategory.GRAINS: 'Grains',
+        IngredientCategory.DAIRY: 'Dairy',
+        IngredientCategory.SUPPLEMENTS: 'Supplements',
+        IngredientCategory.OILS: 'Oils'
     }
     return category_names.get(category, category.value if hasattr(category, 'value') else str(category))
 

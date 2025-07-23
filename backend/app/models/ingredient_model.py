@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, Text, DateTime, Enum
-from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 from ..extensions import db
 import enum
@@ -24,7 +23,6 @@ class Ingredient(db.Model):  # ------- 修改：继承db.Model而不是Base ----
     name = Column(String(100), nullable=False, unique=True)
     name_en = Column(String(100), nullable=True)
     category = Column(Enum(IngredientCategory), nullable=False)
-    description = Column(Text, nullable=True)
 
     # ------- 新增：缺失的字段 -------
     image_filename = Column(String(255), nullable=True)  # 图片文件名
@@ -103,7 +101,11 @@ class Ingredient(db.Model):  # ------- 修改：继承db.Model而不是Base ----
     is_common_allergen = Column(Boolean, nullable=False, default=False)
     
     # 食材处理和保存信息
-    preparation_notes = Column(Text, nullable=True)  # 制备说明
+    description = Column(Text, nullable=True)        # 描述
+    benefits = Column(Text, nullable=True)           # 功效
+    preparation_method = Column(Text, nullable=True) # 处理方式
+    pro_tip = Column(Text, nullable=True)            # 温馨提示 (Good to know)
+    allergy_alert = Column(Text, nullable=True)      # 过敏提示
     storage_notes = Column(Text, nullable=True)      # 储存说明
     
     # 数据来源和验证
@@ -126,6 +128,8 @@ class Ingredient(db.Model):  # ------- 修改：继承db.Model而不是Base ----
             'name_en': self.name_en,
             'category': self.category.value if self.category else None,
             'description': self.description,
+            'image_filename': self.image_filename,
+            'seasonality': self.seasonality,
             'nutrition': {
                 'basic': {
                     'calories': self.calories,
@@ -192,8 +196,16 @@ class Ingredient(db.Model):  # ------- 修改：继承db.Model而不是Base ----
                 'is_safe_for_cats': self.is_safe_for_cats,
                 'is_common_allergen': self.is_common_allergen
             },
-            'preparation_notes': self.preparation_notes,
-            'storage_notes': self.storage_notes,
+            # 新增：食材百科相关信息
+            'food_guide': {
+                'benefits': self.benefits,
+                'preparation_method': self.preparation_method,
+                'pro_tip': self.pro_tip,
+                'allergy_alert': self.allergy_alert,
+                'storage_notes': self.storage_notes
+            },
+
+            # 修复字段名
             'data_source': self.data_source,
             'last_verified': self.last_verified.isoformat() if self.last_verified else None,
             'created_at': self.created_at.isoformat(),

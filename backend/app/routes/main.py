@@ -22,7 +22,7 @@ def user_center():
     """User Center Route - Login Required"""
     # 检查用户是否已登录
     if 'user_id' not in session:
-        flash('Please log in before accessing the user center', 'error')
+        flash('Please log in before accessing the user center.', 'error')
         return redirect(url_for('user_bp.login_page'))
     
     try:
@@ -42,7 +42,7 @@ def user_center():
                 'age': pet.age,
                 'special_needs': pet.special_needs or 'No special needs',
                 'avatar': getattr(pet, 'avatar', 'dog1.png'),  # 默认头像
-                'created_at': pet.created_at.strftime('%Y-%m-%d %H:%M:%S') if hasattr(pet, 'created_at') else '未知时间'
+                'created_at': pet.created_at.strftime('%Y-%m-%d %H:%M:%S') if hasattr(pet, 'created_at') else 'Unknown'
             }
             pets_data.append(pet_data)
         
@@ -58,7 +58,7 @@ def add_pet():
     """Add Pet Route - Login Required"""
     # 检查用户是否已登录
     if 'user_id' not in session:
-        flash('Please log in before adding pet information', 'error')
+        flash('Please log in to add a pet profile.', 'error')
         return redirect(url_for('user_bp.login_page'))
     
     if request.method == 'POST':
@@ -73,19 +73,19 @@ def add_pet():
             
             # 处理特殊需求（多选框）
             special_needs_list = request.form.getlist('special_needs')
-            special_needs = ', '.join(special_needs_list) if special_needs_list else '无特殊需求'
+            special_needs = ', '.join(special_needs_list) if special_needs_list else 'None'
             
             # 数据验证
             if not name or not species:
-                flash('Pet name and species are required', 'error')
+                flash('Pet name and species are required.', 'error')
                 return render_template('add_pet.html')
             
             if weight < 0.5 or weight > 80:
-                flash('Weight should be between 0.5-80kg', 'error')
+                flash('Weight should be between 0.5 and 80 kg.', 'error')
                 return render_template('add_pet.html')
             
             if age < 0 or age > 25:
-                flash('Age should be between 0-25', 'error')
+                flash('Age should be between 0 and 25.', 'error')
                 return render_template('add_pet.html')
             
             # 创建新宠物记录
@@ -103,15 +103,15 @@ def add_pet():
             db.session.add(new_pet)
             db.session.commit()
             
-            flash(f'Successfully added pet {name}\'s information!', 'success')
+            flash(f'Successfully added pet {name}\'s profile!', 'success')
             return redirect(url_for('main.user_center'))
             
         except ValueError as e:
-            flash('Please enter a valid number format', 'error')
+            flash('Please enter a valid number.', 'error')
             return render_template('add_pet.html')
         except Exception as e:
             db.session.rollback()
-            flash(f'Error adding pet information: {str(e)}', 'error')
+            flash(f'Error adding pet: {str(e)}', 'error')
             return render_template('add_pet.html')
     
     # GET请求，显示添加宠物表单
@@ -123,13 +123,13 @@ def edit_pet(pet_id):
     """Edit Pet Route - Login Required"""
     # 检查用户是否已登录
     if 'user_id' not in session:
-        flash('Please log in before editing pet information', 'error')
+        flash('Please log in to edit pet information.', 'error')
         return redirect(url_for('user_bp.login_page'))
     
     # 查找宠物记录
     pet = Pet.query.filter_by(id=pet_id, user_id=session['user_id']).first()
     if not pet:
-        flash('Could not find the specified pet information', 'error')
+        flash('Pet profile not found.', 'error')
         return redirect(url_for('main.user_center'))
     
     if request.method == 'POST':
@@ -144,31 +144,31 @@ def edit_pet(pet_id):
             
             # 处理特殊需求
             special_needs_list = request.form.getlist('special_needs')
-            pet.special_needs = ', '.join(special_needs_list) if special_needs_list else '无特殊需求'
+            pet.special_needs = ', '.join(special_needs_list) if special_needs_list else 'None'
             
             # 数据验证
             if not pet.name or not pet.species:
-                flash('Pet name and species are required', 'error')
+                flash('Pet name and species are required.', 'error')
                 return render_template('edit_pet.html', pet=pet)
             
             if pet.weight < 0.5 or pet.weight > 80:
-                flash('Weight should be between 0.5-80kg', 'error')
+                flash('Weight should be between 0.5 and 80 kg.', 'error')
                 return render_template('edit_pet.html', pet=pet)
             
             if pet.age < 0 or pet.age > 25:
-                flash('Age should be between 0-25', 'error')
+                flash('Age should be between 0 and 25.', 'error')
                 return render_template('edit_pet.html', pet=pet)
             
             db.session.commit()
-            flash(f'Successfully updated pet {pet.name}\'s information!', 'success')
+            flash(f'Successfully updated pet {pet.name}\'s profile!', 'success')
             return redirect(url_for('main.user_center'))
             
         except ValueError as e:
-            flash('Please enter a valid number format', 'error')
+            flash('Please enter a valid number.', 'error')
             return render_template('edit_pet.html', pet=pet)
         except Exception as e:
             db.session.rollback()
-            flash(f'Error updating pet information: {str(e)}', 'error')
+            flash(f'Error updating pet profile: {str(e)}', 'error')
             return render_template('edit_pet.html', pet=pet)
     
     # GET请求，显示编辑表单
@@ -180,25 +180,25 @@ def delete_pet(pet_id):
     """Delete Pet Route - Login Required"""
     # 检查用户是否已登录
     if 'user_id' not in session:
-        flash('Please log in before deleting pet information', 'error')
+        flash('Please log in to delete a pet profile.', 'error')
         return redirect(url_for('user_bp.login_page'))
     
     try:
         # 查找宠物记录
         pet = Pet.query.filter_by(id=pet_id, user_id=session['user_id']).first()
         if not pet:
-            flash('Could not find the specified pet information', 'error')
+            flash('Pet profile not found.', 'error')
             return redirect(url_for('main.user_center'))
         
         pet_name = pet.name
         db.session.delete(pet)
         db.session.commit()
         
-        flash(f'Successfully deleted pet {pet_name}\'s information', 'success')
+        flash(f'Successfully deleted pet {pet_name}\'s profile.', 'success')
         
     except Exception as e:
         db.session.rollback()
-        flash(f'Error deleting pet information: {str(e)}', 'error')
+        flash(f'Error deleting pet profile: {str(e)}', 'error')
     
     return redirect(url_for('main.user_center'))
 

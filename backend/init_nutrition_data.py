@@ -4,6 +4,8 @@
 """
 import os
 import sys
+import logging
+from datetime import datetime
 
 # 添加项目路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -12,10 +14,7 @@ sys.path.insert(0, project_root)
 from app import create_app
 from app.extensions import db
 from app.models.ingredient_model import Ingredient, IngredientCategory
-from app.models.user_model import User
-from app.models.pet_model import Pet
 from app.models.nutrition_requirements_model import NutritionRequirement, PetType, LifeStage, ActivityLevel
-from datetime import datetime
 
 def init_basic_ingredients(force_reinit=False):
     """初始化基础食材数据"""
@@ -45,8 +44,14 @@ def init_basic_ingredients(force_reinit=False):
             'methionine': 680, 'phenylalanine': 1060, 'threonine': 1150, 'tryptophan': 280, 'valine': 1360,
             'taurine': 5, 'alpha_linolenic_acid': 0.02, 'eicosapentaenoic_acid': 0.01,
             'docosahexaenoic_acid': 0.002, 'arachidonic_acid': 0.03, 'omega_3_fatty_acids': 0.05, 'omega_6_fatty_acids': 0.8,
-            'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '切成小块，煮熟或烤制', 'storage_notes': '冷藏保存，3-5天内使用',
+            'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': True,
+            
+            'description': 'A high-quality protein source, rich in iron, zinc, and B vitamins, essential for muscle development and energy.',
+            'benefits': 'Excellent for muscle growth, energy metabolism, and supporting a healthy immune system. Iron content helps prevent anemia.',
+            'preparation_method': 'Cook thoroughly (boil, steam, or bake) without any seasoning. Ensure all bones are removed. Cut into bite-sized pieces.',
+            'pro_tip': 'Choose lean cuts like sirloin or round to control fat intake. Excessive fat can lead to pancreatitis.',
+            'allergy_alert': 'Beef is a common protein allergen for some pets. When introducing for the first time, monitor for signs of itching, digestive upset, or skin issues.',
+            'storage_notes': 'Refrigerate cooked beef in an airtight container for up to 3 days. Freeze for up to 3 months.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -63,7 +68,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 8, 'alpha_linolenic_acid': 0.15, 'eicosapentaenoic_acid': 0.02,
             'docosahexaenoic_acid': 0.005, 'arachidonic_acid': 0.08, 'omega_3_fatty_acids': 0.2, 'omega_6_fatty_acids': 1.2,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去骨切块，慢炖或烤制', 'storage_notes': '冷藏保存，2-3天内使用',
+            
+            'description': 'A nutrient-dense red meat, often used as a novel protein for dogs with food sensitivities.',
+            'benefits': 'Great source of high-quality protein and essential amino acids. Often well-tolerated by pets with allergies to more common proteins like beef or chicken.',
+            'preparation_method': 'Serve cooked and unseasoned. Remove all bones as cooked bones can splinter and cause choking or internal injury.',
+            'pro_tip': 'Lamb is higher in fat than chicken or turkey. Be mindful of portion sizes, especially for overweight pets.',
+            'allergy_alert': 'While considered a novel protein, allergies are still possible. Monitor your pet upon introduction.',
+            'storage_notes': 'Store cooked lamb in the fridge for 3 days or freeze for future use.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -80,8 +91,27 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.08, 'eicosapentaenoic_acid': 0.01,
             'docosahexaenoic_acid': 0.003, 'arachidonic_acid': 0.06, 'omega_3_fatty_acids': 0.1, 'omega_6_fatty_acids': 1.7,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '必须完全煮熟，去除多余脂肪', 'storage_notes': '冷藏保存，2-3天内使用',
+            
+            'description': 'A highly palatable protein source, rich in B vitamins, especially Thiamine (B1).',
+            'benefits': 'Excellent source of amino acids for muscle maintenance. Thiamine is crucial for glucose metabolism and neural function.',
+            'preparation_method': 'Must be cooked thoroughly to an internal temperature of 145°F (63°C) to eliminate Trichinella parasites. Serve plain and boneless.',
+            'pro_tip': 'Avoid processed pork like bacon or ham, which are high in sodium and nitrates. Choose lean cuts like tenderloin.',
+            'allergy_alert': 'Pork can be an allergen for some pets. Monitor for reactions when introducing it.',
+            'storage_notes': 'Refrigerate cooked pork for 3 days. Freezes well.',
             'data_source': 'USDA Food Database'
+        },
+        {
+            'name': '鹿肉', 'name_en': 'Venison (Deer Meat)','category': IngredientCategory.RED_MEAT,
+            'image_filename': 'deer.png', 'seasonality': 'all_year',
+            'calories': 158, 'protein': 30.2, 'fat': 3.2, 'fiber': 0, 'carbohydrate': 0,
+            'is_common_allergen': False,
+
+            'description': 'A lean, novel protein source, low in fat and cholesterol, making it an excellent choice for pets.',
+            'benefits': 'Ideal for pets with food sensitivities or allergies. Its lean nature supports weight management while providing essential B vitamins and minerals like zinc and iron.',
+            'preparation_method': 'Must be cooked thoroughly to eliminate potential parasites. Serve plain and boneless.',
+            'pro_tip': 'Ensure the venison is from a reputable source, free from chronic wasting disease (CWD). Never feed raw venison.',
+            'allergy_alert': 'Excellent hypoallergenic alternative, but as with any protein, monitor for rare allergic reactions.',
+            'storage_notes': 'Refrigerate cooked venison for 2-3 days. Freezes very well.'
         },
         
         # 白肉类
@@ -99,7 +129,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 15, 'alpha_linolenic_acid': 0.03, 'eicosapentaenoic_acid': 0.01,
             'docosahexaenoic_acid': 0.008, 'arachidonic_acid': 0.08, 'omega_3_fatty_acids': 0.05, 'omega_6_fatty_acids': 0.8,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去皮去骨，蒸煮或烤制', 'storage_notes': '冷藏保存，1-2天内使用',
+            
+            'description': 'A highly digestible, lean protein source. A versatile and popular base for homemade pet meals.',
+            'benefits': 'Supports lean muscle mass and is gentle on the digestive system. Ideal for pets recovering from stomach upset when served boiled and plain.',
+            'preparation_method': 'Always serve boneless and skinless. Boil, steam, or bake until fully cooked. No seasonings. Shred or dice for serving.',
+            'pro_tip': 'Avoid raw chicken due to the risk of Salmonella. Cooked chicken bones are extremely dangerous and must be removed.',
+            'allergy_alert': 'Chicken is one of the most common food allergens in dogs and cats. Watch for itching or digestive issues.',
+            'storage_notes': 'Refrigerate cooked chicken for 3-4 days. Can be frozen for several months.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -116,7 +152,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 18, 'alpha_linolenic_acid': 0.08, 'eicosapentaenoic_acid': 0.01,
             'docosahexaenoic_acid': 0.01, 'arachidonic_acid': 0.15, 'omega_3_fatty_acids': 0.1, 'omega_6_fatty_acids': 2.0,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去皮去骨，慢炖或烤制', 'storage_notes': '冷藏保存，1-2天内使用',
+            
+            'description': 'A more flavorful and fattier cut of chicken compared to breast meat.',
+            'benefits': 'Higher fat content can be beneficial for active pets needing more calories. Rich in iron and zinc.',
+            'preparation_method': 'Cook thoroughly, and always serve boneless and skinless to control fat intake.',
+            'pro_tip': 'Excellent for picky eaters due to its richer taste. Be mindful of the higher calorie count for pets prone to weight gain.',
+            'allergy_alert': 'Carries the same allergy risk as chicken breast.',
+            'storage_notes': 'Store cooked meat in the fridge for 3-4 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -133,7 +175,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 12, 'alpha_linolenic_acid': 0.06, 'eicosapentaenoic_acid': 0.01,
             'docosahexaenoic_acid': 0.01, 'arachidonic_acid': 0.09, 'omega_3_fatty_acids': 0.08, 'omega_6_fatty_acids': 1.8,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去皮切块，烤制或蒸煮', 'storage_notes': '冷藏保存，2-3天内使用',
+            
+            'description': 'A lean and easily digestible protein, similar to chicken but often used as an alternative.',
+            'benefits': 'Excellent source of lean protein, niacin, and vitamin B6. Can be a great alternative for pets with chicken sensitivities.',
+            'preparation_method': 'Serve cooked, unseasoned, and boneless. Opt for plain ground turkey or turkey breast.',
+            'pro_tip': 'Avoid feeding processed turkey (like deli meat) or seasoned holiday turkey, which contain harmful additives and high sodium.',
+            'allergy_alert': 'Generally well-tolerated, but allergies are possible. Monitor if it\'s a new protein for your pet.',
+            'storage_notes': 'Cooked turkey can be refrigerated for 3-4 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -150,7 +198,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 50, 'alpha_linolenic_acid': 0.02, 'eicosapentaenoic_acid': 0.02,
             'docosahexaenoic_acid': 0.04, 'arachidonic_acid': 0.35, 'omega_3_fatty_acids': 0.08, 'omega_6_fatty_acids': 1.2,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '煮熟切小块，不宜过量', 'storage_notes': '冷藏保存，当天使用',
+            
+            'description': 'A rich, flavorful poultry option that serves as a great novel protein source.',
+            'benefits': 'Rich in iron and amino acids, supporting strong muscles. Often recommended for pets with allergies to chicken or beef.',
+            'preparation_method': 'Cook thoroughly. Duck is high in fat, so removing the skin and excess fat is crucial before serving. Ensure it is boneless.',
+            'pro_tip': 'Due to its high fat content, duck should be fed in moderation to prevent weight gain or pancreatitis.',
+            'allergy_alert': 'A good hypoallergenic choice, but individual sensitivities can occur.',
+            'storage_notes': 'Store cooked duck in the fridge for up to 3 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -167,7 +221,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 25, 'alpha_linolenic_acid': 0.08, 'eicosapentaenoic_acid': 0.02,
             'docosahexaenoic_acid': 0.06, 'arachidonic_acid': 0.45, 'omega_3_fatty_acids': 0.16, 'omega_6_fatty_acids': 3.2,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '高蛋白质密度，优质蛋白质来源', 'storage_notes': '冷藏保存，1-2天内使用',
+            
+            'description': 'A small game bird that serves as an excellent novel protein source for pets with food sensitivities.',
+            'benefits': 'A great hypoallergenic protein choice, less likely to cause allergic reactions. The small, soft bones can be edible if ground or if the pet is a raw-fed, experienced chewer (requires supervision).',
+            'preparation_method': 'Cook thoroughly if not feeding raw. The meat is lean and nutritious.',
+            'pro_tip': 'Quail eggs are also a nutritious topper for pet food.',
+            'allergy_alert': 'Very low risk of allergies, making it ideal for elimination diets.',
+            'storage_notes': 'Refrigerate cooked quail for 2-3 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -184,7 +244,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 4, 'alpha_linolenic_acid': 0.04, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.04, 'arachidonic_acid': 0.15, 'omega_3_fatty_acids': 0.1, 'omega_6_fatty_acids': 1.4,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': True,
-            'preparation_notes': '完全煮熟，营养丰富的完整蛋白质', 'storage_notes': '冷藏保存，3周内使用',
+            
+            'description': 'A nearly perfect food, providing a complete source of amino acids, vitamins, and minerals.',
+            'benefits': 'Boosts skin, coat, and muscle health. High in choline for brain and liver function, and lutein for eye health.',
+            'preparation_method': 'Always serve cooked (scrambled, boiled) without salt or oil. This prevents Salmonella risk and avoids biotin deficiency linked to raw egg whites.',
+            'pro_tip': 'One large egg is about 70-80 calories. Factor this into your pet\'s daily intake to avoid overfeeding.',
+            'allergy_alert': 'Egg allergies are possible, though less common than meat allergies.',
+            'storage_notes': 'Keep eggs refrigerated.',
             'data_source': 'USDA Food Database'
         },
         
@@ -203,7 +269,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 130, 'alpha_linolenic_acid': 0.44, 'eicosapentaenoic_acid': 0.69,
             'docosahexaenoic_acid': 1.1, 'arachidonic_acid': 0.09, 'omega_3_fatty_acids': 2.3, 'omega_6_fatty_acids': 0.9,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': True,
-            'preparation_notes': '去骨去皮，蒸煮或烤制，避免生食', 'storage_notes': '冷藏保存，当天使用',
+            
+            'description': 'An oily fish packed with omega-3 fatty acids (EPA & DHA), vital for overall health.',
+            'benefits': 'Promotes a healthy, shiny coat, reduces inflammation, supports joint health, and aids cognitive function, especially in puppies and senior pets.',
+            'preparation_method': 'Must be cooked thoroughly (baked, steamed, or boiled) to kill potential flukes and bacteria. Remove all bones.',
+            'pro_tip': 'Never feed raw salmon from the Pacific Northwest due to the risk of "Salmon Poisoning Disease". Choose wild-caught over farmed for a better fatty acid profile.',
+            'allergy_alert': 'Fish allergies are possible. Introduce in small amounts to check for tolerance.',
+            'storage_notes': 'Store cooked salmon in the refrigerator for up to 2 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -220,7 +292,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 120, 'alpha_linolenic_acid': 0.004, 'eicosapentaenoic_acid': 0.15,
             'docosahexaenoic_acid': 0.15, 'arachidonic_acid': 0.007, 'omega_3_fatty_acids': 0.4, 'omega_6_fatty_acids': 0.01,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': True,
-            'preparation_notes': '去骨蒸煮，肉质细嫩', 'storage_notes': '冷藏保存，当天使用',
+            
+            'description': 'A low-fat, white fish that is a good source of protein, phosphorus, and niacin.',
+            'benefits': 'An excellent, low-calorie protein source for pets on a weight management plan. Easily digestible and good for sensitive stomachs.',
+            'preparation_method': 'Cook plain (steamed or baked) and ensure all bones, including tiny pin bones, are removed.',
+            'pro_tip': 'While lower in omega-3s than salmon, it\'s a great way to add high-quality, lean protein to a diet.',
+            'allergy_alert': 'Generally safe, but monitor for signs of a fish allergy.',
+            'storage_notes': 'Cooked cod is best consumed within 1-2 days of refrigeration.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -237,7 +315,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 160, 'alpha_linolenic_acid': 0.02, 'eicosapentaenoic_acid': 0.28,
             'docosahexaenoic_acid': 1.14, 'arachidonic_acid': 0.04, 'omega_3_fatty_acids': 1.6, 'omega_6_fatty_acids': 0.2,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': True,
-            'preparation_notes': '选择低汞品种，适量食用', 'storage_notes': '冷藏保存，当天使用',
+            
+            'description': 'A popular saltwater fish, often canned, that is high in protein and omega-3s.',
+            'benefits': 'Provides lean protein and anti-inflammatory omega-3 fatty acids.',
+            'preparation_method': 'Best served as a very occasional treat. Choose tuna canned in water with no added salt.',
+            'pro_tip': 'Tuna should not be a staple in a pet\'s diet due to concerns about heavy metals (mercury). Overfeeding can also lead to an unbalanced diet and a "tuna addiction," especially in cats.',
+            'allergy_alert': 'Part of the fish allergen group.',
+            'storage_notes': 'Refrigerate opened cans and use within 2 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -254,7 +338,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 200, 'alpha_linolenic_acid': 0.15, 'eicosapentaenoic_acid': 0.48,
             'docosahexaenoic_acid': 0.51, 'arachidonic_acid': 0.17, 'omega_3_fatty_acids': 1.4, 'omega_6_fatty_acids': 1.5,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': True,
-            'preparation_notes': '可连骨食用，营养丰富', 'storage_notes': '冷藏保存，1-2天内使用',
+            
+            'description': 'Small, oily fish that are a powerhouse of nutrition, including omega-3s and calcium.',
+            'benefits': 'Excellent for skin, coat, and joint health. Since they are small and low on the food chain, they have lower levels of mercury than larger fish.',
+            'preparation_method': 'Best served canned in water with no added salt. The small, soft bones are edible and a great source of calcium.',
+            'pro_tip': 'Introduce slowly as their richness can cause digestive upset. One or two sardines a couple of times a week is plenty for most dogs.',
+            'allergy_alert': 'As with other fish, allergies are a possibility.',
+            'storage_notes': 'Refrigerate opened cans and use within 2 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -271,7 +361,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 280, 'alpha_linolenic_acid': 0.10, 'eicosapentaenoic_acid': 0.90,
             'docosahexaenoic_acid': 1.40, 'arachidonic_acid': 0.22, 'omega_3_fatty_acids': 2.6, 'omega_6_fatty_acids': 0.2,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': True,
-            'preparation_notes': '富含牛磺酸和DHA，对心脏和眼睛极佳', 'storage_notes': '冷藏保存，当天使用',
+            
+            'description': 'An oily fish that is one of the richest natural sources of omega-3 fatty acids.',
+            'benefits': 'Exceptional for skin and coat health, reducing inflammation, and supporting joint and heart function. A great source of Vitamin D.',
+            'preparation_method': 'Serve cooked and boneless. Canned mackerel in water (no salt) is also a good option.',
+            'pro_tip': 'Due to its high fat and calorie content, it should be given as a supplement or occasional meal component rather than a daily staple.',
+            'allergy_alert': 'Can be an allergen for pets with fish sensitivities.',
+            'storage_notes': 'Store cooked or canned mackerel in the fridge for 2 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -288,7 +384,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 320, 'alpha_linolenic_acid': 0.15, 'eicosapentaenoic_acid': 1.20,
             'docosahexaenoic_acid': 2.30, 'arachidonic_acid': 0.15, 'omega_3_fatty_acids': 3.8, 'omega_6_fatty_acids': 0.3,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': True,
-            'preparation_notes': '超高牛磺酸含量，猫咪的天然补品', 'storage_notes': '新鲜鱼当天使用，冷藏保存',
+            
+            'description': 'A small, oily fish similar to mackerel and sardines, rich in beneficial fats.',
+            'benefits': 'Excellent source of DHA and EPA for brain and skin health. Also provides Vitamin B12 and selenium.',
+            'preparation_method': 'Cook thoroughly to eliminate parasites and remove the spine, although smaller bones may soften.',
+            'pro_tip': 'A great, nutrient-dense choice. As with other oily fish, feed in moderation.',
+            'allergy_alert': 'Belongs to the fish allergen group.',
+            'storage_notes': 'Best consumed fresh. Refrigerate cooked fish for 1-2 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -305,7 +407,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 396, 'alpha_linolenic_acid': 0.05, 'eicosapentaenoic_acid': 0.44,
             'docosahexaenoic_acid': 0.24, 'arachidonic_acid': 0.06, 'omega_3_fatty_acids': 0.8, 'omega_6_fatty_acids': 0.2,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': True,
-            'preparation_notes': '必须完全煮熟，去壳，富含锌和牛磺酸', 'storage_notes': '新鲜生蚝当天使用，冷藏保存',
+            
+            'description': 'A bivalve mollusk that is an incredible source of zinc.',
+            'benefits': 'The best natural source of zinc, which is vital for immune function, thyroid health, and metabolism. Also rich in iron and B12.',
+            'preparation_method': 'Must be cooked thoroughly (steamed or boiled) to kill bacteria like Vibrio. Never serve raw. Remove the shell.',
+            'pro_tip': 'Serve as a rare, special treat. One small, cooked oyster is sufficient. Overfeeding can lead to zinc toxicity.',
+            'allergy_alert': 'Shellfish are a common allergen.',
+            'storage_notes': 'Consume immediately after cooking.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -322,7 +430,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 154, 'alpha_linolenic_acid': 0.01, 'eicosapentaenoic_acid': 0.17,
             'docosahexaenoic_acid': 0.14, 'arachidonic_acid': 0.01, 'omega_3_fatty_acids': 0.32, 'omega_6_fatty_acids': 0.02,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': True,
-            'preparation_notes': '去壳去虾线，完全煮熟，高蛋白低脂', 'storage_notes': '冷藏保存，当天使用',
+            
+            'description': 'A popular shellfish that is low in calories and high in protein.',
+            'benefits': 'Good source of antioxidants, phosphorus, and B-vitamins. A low-fat treat.',
+            'preparation_method': 'Serve cooked, plain, and with the entire shell (including tail, legs, and head) removed.',
+            'pro_tip': 'The shells can be a choking hazard and cause digestive obstruction. Ensure they are fully peeled.',
+            'allergy_alert': 'Shellfish are a known allergen.',
+            'storage_notes': 'Refrigerate cooked shrimp and use within 2 days.',
             'data_source': 'USDA Food Database'
         },
         
@@ -341,7 +455,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 8, 'alpha_linolenic_acid': 0.32, 'eicosapentaenoic_acid': 0.04,
             'docosahexaenoic_acid': 0.02, 'arachidonic_acid': 0.13, 'omega_3_fatty_acids': 0.4, 'omega_6_fatty_acids': 5.8,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去皮去脂，烤制或炖煮', 'storage_notes': '冷藏保存，1-2天内使用',
+            
+            'description': 'A nutrient-dense organ meat, rich in Vitamin A, iron, and B vitamins.',
+            'benefits': 'Highly palatable and packed with nutrients. Supports vision, immune function, and overall vitality.',
+            'preparation_method': 'Cook by lightly pan-frying or boiling. Do not overcook to retain maximum nutrients.',
+            'pro_tip': 'Feed in strict moderation. Due to the high concentration of Vitamin A, overfeeding can lead to Vitamin A toxicity (hypervitaminosis A). Organ meats should not exceed 5-10% of the total diet.',
+            'allergy_alert': 'Rare, but can be tied to a chicken protein allergy.',
+            'storage_notes': 'Cooked liver can be stored for 2 days in the fridge.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -358,7 +478,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 40, 'alpha_linolenic_acid': 0.04, 'eicosapentaenoic_acid': 0.03,
             'docosahexaenoic_acid': 0.04, 'arachidonic_acid': 0.25, 'omega_3_fatty_acids': 0.11, 'omega_6_fatty_acids': 0.8,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '营养丰富，每周不超过1-2次', 'storage_notes': '冷藏保存，当天使用',
+            
+            'description': 'Considered a superfood for pets, beef liver is exceptionally rich in essential nutrients.',
+            'benefits': 'An outstanding source of iron, copper, zinc, and vitamins A, B6, B12, and C. Boosts energy and supports healthy organ function.',
+            'preparation_method': 'Serve cooked (boiled or lightly seared) in small, diced portions.',
+            'pro_tip': 'Same rule as chicken liver: feed in moderation (5-10% of diet) to prevent Vitamin A toxicity. It\'s very rich and can cause loose stools if overfed.',
+            'allergy_alert': 'Can be linked to a beef protein allergy.',
+            'storage_notes': 'Refrigerate cooked beef liver for 2-3 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -375,7 +501,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 1200, 'alpha_linolenic_acid': 0.02, 'eicosapentaenoic_acid': 0.02,
             'docosahexaenoic_acid': 0.08, 'arachidonic_acid': 0.55, 'omega_3_fatty_acids': 0.12, 'omega_6_fatty_acids': 1.8,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '富含牛磺酸，对心脏有益', 'storage_notes': '冷藏保存，1-2天内使用',
+            
+            'description': 'A lean, muscular organ that is a fantastic source of taurine.',
+            'benefits': 'Excellent natural source of taurine, which is critical for heart health, especially in cats. Also provides high-quality protein, iron, and B vitamins.',
+            'preparation_method': 'Can be served cooked (boiled or seared). They are small and can be served whole or chopped.',
+            'pro_tip': 'A great addition to the diet, especially for felines. Can be part of the 5-10% organ meat allowance.',
+            'allergy_alert': 'Related to chicken allergies.',
+            'storage_notes': 'Store cooked hearts for up to 3 days in the refrigerator.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -392,7 +524,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 180, 'alpha_linolenic_acid': 0.08, 'eicosapentaenoic_acid': 0.05,
             'docosahexaenoic_acid': 0.12, 'arachidonic_acid': 0.40, 'omega_3_fatty_acids': 0.25, 'omega_6_fatty_acids': 0.8,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '富含B族维生素和牛磺酸，猫咪每周1-2次', 'storage_notes': '冷藏保存，当天使用',
+            
+            'description': 'A nutrient-rich organ meat that is high in protein and various vitamins.',
+            'benefits': 'Excellent source of B vitamins (especially B12), iron, and selenium, which support energy production and antioxidant defenses.',
+            'preparation_method': 'Should be cooked thoroughly. Soaking beforehand can reduce the strong odor.',
+            'pro_tip': 'Like all organ meats, kidney is very rich and should be fed in moderation as part of the 5-10% organ meat allowance in a balanced diet.',
+            'allergy_alert': 'Can be linked to pork allergies.',
+            'storage_notes': 'Cooked kidney should be used within 2 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -409,7 +547,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 150, 'alpha_linolenic_acid': 0.02, 'eicosapentaenoic_acid': 0.01,
             'docosahexaenoic_acid': 0.05, 'arachidonic_acid': 0.25, 'omega_3_fatty_acids': 0.08, 'omega_6_fatty_acids': 0.4,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '高蛋白低脂，富含牛磺酸，质地较韧需充分煮熟', 'storage_notes': '冷藏保存，1-2天内使用',
+            
+            'description': 'The muscular part of a chicken\'s stomach. A chewy, protein-packed organ.',
+            'benefits': 'Great source of cartilage (natural glucosamine) for joint health. Also provides iron, zinc, and Vitamin B12.',
+            'preparation_method': 'Cook by boiling or simmering until tender. Can be served whole (for a good chew) or chopped.',
+            'pro_tip': 'A tough, muscular meat that can provide good dental stimulation for dogs.',
+            'allergy_alert': 'Related to chicken protein allergies.',
+            'storage_notes': 'Refrigerate cooked gizzards for 3 days.',
             'data_source': 'USDA Food Database'
         },
         
@@ -428,7 +572,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.002, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.002, 'omega_6_fatty_acids': 0.12,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '蒸煮切丁，有助消化', 'storage_notes': '阴凉干燥处保存，可保存1-2周',
+            
+            'description': 'A crunchy, low-calorie vegetable rich in Beta-Carotene (a precursor to Vitamin A) and fiber.',
+            'benefits': 'Supports eye health, immune function, and healthy skin. Raw carrots can help clean teeth.',
+            'preparation_method': 'Serve raw (for teeth cleaning), steamed, or boiled. Grate or chop finely to improve digestibility and prevent choking.',
+            'pro_tip': 'Introduce slowly as the high fiber content can affect digestion. Carrots are high in natural sugars, so feed in moderation.',
+            'allergy_alert': 'Allergies are very rare.',
+            'storage_notes': 'Store fresh carrots in the refrigerator.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -445,7 +595,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.02, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.02, 'omega_6_fatty_acids': 0.06,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '蒸煮至软烂，少量食用', 'storage_notes': '冷藏保存，3-5天内使用',
+            
+            'description': 'A cruciferous vegetable high in fiber, Vitamin C, and Vitamin K.',
+            'benefits': 'Provides anti-inflammatory properties and supports bone health. High in fiber for digestive regularity.',
+            'preparation_method': 'Best served steamed and chopped. Raw broccoli can be difficult to digest.',
+            'pro_tip': 'Feed in small quantities. The florets contain isothiocyanates, which can cause gastric irritation if too much is consumed. Stems can be a choking hazard.',
+            'allergy_alert': 'Rare, but can cause gas in some pets.',
+            'storage_notes': 'Store fresh broccoli in the fridge.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -462,7 +618,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.005, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.005, 'omega_6_fatty_acids': 0.04,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '蒸煮去皮，有助消化', 'storage_notes': '干燥处保存，可保存数月',
+            
+            'description': 'A superfood for digestion, packed with soluble fiber and essential vitamins.',
+            'benefits': 'Excellent for resolving both diarrhea and constipation by regulating bowel movements. Supports overall digestive health.',
+            'preparation_method': 'Use 100% pure canned pumpkin purée (not pie filling) or steamed and mashed fresh pumpkin.',
+            'pro_tip': 'A little goes a long way. Start with 1 teaspoon for small pets and 1 tablespoon for large dogs, mixed into their food.',
+            'allergy_alert': 'Extremely rare.',
+            'storage_notes': 'Refrigerate leftover purée in an airtight container for up to a week, or freeze in ice cube trays for easy portions.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -479,7 +641,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.006, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.006, 'omega_6_fatty_acids': 0.01,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '蒸煮去皮，适量食用', 'storage_notes': '干燥处保存，可保存数周',
+            
+            'description': 'A highly digestible root vegetable, providing an excellent source of dietary fiber and complex carbohydrates.',
+            'benefits': 'Excellent source of Vitamin A, C, and B6. Supports digestive health and provides sustained energy. A great grain-free carb source.',
+            'preparation_method': 'Must be cooked (steamed, boiled, or baked) and served plain without skin. Never feed raw sweet potato.',
+            'pro_tip': 'Their high fiber and carbohydrate content means they should be given in moderation to avoid weight gain.',
+            'allergy_alert': 'Very rare.',
+            'storage_notes': 'Store cooked sweet potato in the fridge for up to 4 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -496,7 +664,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.14, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.14, 'omega_6_fatty_acids': 0.03,
             'is_safe_for_dogs': True, 'is_safe_for_cats': False, 'is_common_allergen': False,
-            'preparation_notes': '少量食用，含草酸，猫咪不宜', 'storage_notes': '冷藏保存，2-3天内使用',
+            
+            'description': 'A leafy green vegetable containing iron, vitamins, and antioxidants.',
+            'benefits': 'Rich in vitamins A, B, C, and K. Also contains iron and flavonoids that can help protect against inflammation and heart issues.',
+            'preparation_method': 'Best served lightly steamed to increase nutrient absorption and reduce oxalic acid content.',
+            'pro_tip': 'Feed in moderation. Spinach is high in oxalic acid, which can interfere with calcium absorption and may be problematic for pets with kidney issues.',
+            'allergy_alert': 'Allergies are very uncommon.',
+            'storage_notes': 'Use fresh spinach promptly.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -513,7 +687,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.001, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.001, 'omega_6_fatty_acids': 0.05,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '只喂食商业种植的蘑菇，野生蘑菇有毒', 'storage_notes': '冷藏保存，2-3天内使用',
+            
+            'description': 'Edible fungi that can offer health benefits, but caution is paramount.',
+            'benefits': 'Certain mushrooms (like white button, cremini) contain B vitamins and antioxidants. Some medicinal mushrooms have immune-boosting properties.',
+            'preparation_method': 'Only plain, store-bought mushrooms (e.g., white button) should be used. Serve cooked and unseasoned.',
+            'pro_tip': 'NEVER feed wild mushrooms, as many are highly toxic and can be fatal. When in doubt, it is safest to avoid them altogether.',
+            'allergy_alert': 'Rare, but possible.',
+            'storage_notes': 'Keep fresh mushrooms refrigerated.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -530,7 +710,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.03, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.03, 'omega_6_fatty_acids': 0.06,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去籽去蒂，蒸煮至软，富含维生素C', 'storage_notes': '冷藏保存，1周内使用',
+            
+            'description': 'A crunchy, sweet vegetable available in various colors, packed with vitamins.',
+            'benefits': 'Excellent source of Vitamin C, A, and beta-carotene. Red bell peppers have the highest nutrient content. Supports immune health.',
+            'preparation_method': 'Serve raw or steamed, with seeds and stem removed. Chop into appropriate sizes.',
+            'pro_tip': 'While nutritious, some pets may find them hard to digest. Introduce slowly.',
+            'allergy_alert': 'Uncommon.',
+            'storage_notes': 'Store in the refrigerator.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -547,7 +733,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.18, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.18, 'omega_6_fatty_acids': 0.06,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '蒸煮至软烂，少量食用避免胀气', 'storage_notes': '冷藏保存，1周内使用',
+            
+            'description': 'A member of the cruciferous vegetable family, rich in nutrients and antioxidants.',
+            'benefits': 'Contains vitamins K and C, and antioxidants that help reduce inflammation.',
+            'preparation_method': 'Serve cooked (steamed or boiled) and chopped. This makes them easier to digest.',
+            'pro_tip': 'Feed in very small quantities. They are known to cause significant flatulence (gas) in dogs.',
+            'allergy_alert': 'Uncommon.',
+            'storage_notes': 'Keep fresh sprouts refrigerated.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -564,7 +756,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.004, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.004, 'omega_6_fatty_acids': 0.09,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去皮蒸煮至软烂，易消化的碳水化合物', 'storage_notes': '阴凉干燥处保存，可保存数周',
+            
+            'description': 'A starchy root vegetable, known in Traditional Chinese Medicine for its gentle, supportive properties.',
+            'benefits': 'Excellent for digestive health as it is very gentle on the stomach. It contains allantoin, which can help soothe the gastrointestinal tract. Also provides potassium and B vitamins.',
+            'preparation_method': 'Must be served cooked (steamed or boiled) and peeled. Mash or chop into small pieces for easy digestion.',
+            'pro_tip': 'Never feed raw, as the peel and raw flesh contain compounds that can cause skin irritation and digestive upset. It is often used in bland diets for pets recovering from diarrhea.',
+            'allergy_alert': 'Allergies are very rare, making it a safe choice for most pets.',
+            'storage_notes': 'Store raw yams in a cool, dark, and dry place. Refrigerate cooked yam for up to 3 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -581,7 +779,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.003, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.003, 'omega_6_fatty_acids': 0.04,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去皮煮熟，避免绿色部分和芽眼，含龙葵素有毒', 'storage_notes': '阴凉干燥处保存，避免发芽变绿',
+            
+            'description': 'A starchy root vegetable that is a common source of carbohydrates.',
+            'benefits': 'Provides Vitamin C, Vitamin B6, and potassium.',
+            'preparation_method': 'MUST be cooked thoroughly (boiled or baked) and served plain, without skin, salt, or butter.',
+            'pro_tip': 'NEVER feed raw potato. It contains solanine, which is toxic to pets. The skin can also be hard to digest. Not recommended for diabetic pets due to its high glycemic index.',
+            'allergy_alert': 'Uncommon.',
+            'storage_notes': 'Store raw potatoes in a cool, dark place.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -598,10 +802,15 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.06, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.06, 'omega_6_fatty_acids': 0.05,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '低热量高水分，蒸煮或生食皆可', 'storage_notes': '冷藏保存，1周内使用',
+            
+            'description': 'A low-calorie summer squash with high water content.',
+            'benefits': 'Rich in vitamins C and A, and low in calories, making it a healthy treat, especially for overweight pets.',
+            'preparation_method': 'Can be served raw or steamed. Grate or chop into bite-sized pieces.',
+            'pro_tip': 'A great, hydrating snack for pets.',
+            'allergy_alert': 'Very rare.',
+            'storage_notes': 'Refrigerate fresh zucchini.',
             'data_source': 'USDA Food Database'
         },
-
         {
             'name': '青豆', 'name_en': 'Green peas', 'category': IngredientCategory.VEGETABLES,
             'image_filename': 'green_peas.png', 'seasonality': 'spring,summer',
@@ -616,10 +825,15 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.04, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.04, 'omega_6_fatty_acids': 0.2,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '高纤维高蛋白，蒸煮至软', 'storage_notes': '新鲜豆荚冷藏3-5天，冷冻可保存数月',
+            
+            'description': 'Small, starchy vegetables that are a good source of vitamins.',
+            'benefits': 'Contain vitamins A, K, and several B vitamins, plus fiber and protein.',
+            'preparation_method': 'Serve fresh, frozen (thawed), or steamed.',
+            'pro_tip': 'Should not be given to pets with kidney issues, as peas contain purines. Some recent studies have investigated a potential link between high-legume diets and canine heart disease (DCM), so moderation is key.',
+            'allergy_alert': 'Uncommon.',
+            'storage_notes': 'Keep frozen or refrigerate fresh peas.',
             'data_source': 'USDA Food Database'
         },
-
         {
             'name': '芹菜', 'name_en': 'Celery', 'category': IngredientCategory.VEGETABLES,
             'image_filename': 'celery.png', 'seasonality': 'autumn,winter',
@@ -634,10 +848,15 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.001, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.001, 'omega_6_fatty_acids': 0.08,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '切小段避免窒息，低热量高纤维', 'storage_notes': '冷藏保存，1-2周内使用',
+            
+            'description': 'A crunchy, low-calorie vegetable known for its high water and fiber content.',
+            'benefits': 'Low in calories and can help freshen a dog\'s breath. Contains vitamins A, C, and K.',
+            'preparation_method': 'Wash and chop into bite-sized pieces to prevent the stringy parts from becoming a choking hazard.',
+            'pro_tip': 'Celery is a diuretic, so it may make your pet urinate more frequently.',
+            'allergy_alert': 'Rare.',
+            'storage_notes': 'Keep refrigerated.',
             'data_source': 'USDA Food Database'
         },
-
         {
             'name': '黄瓜', 'name_en': 'Cucumber', 'category': IngredientCategory.VEGETABLES,
             'image_filename': 'cucumber.png', 'seasonality': 'summer',
@@ -652,7 +871,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.005, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.005, 'omega_6_fatty_acids': 0.03,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去皮切片，清爽低热量，夏季补水佳品', 'storage_notes': '冷藏保存，1周内使用',
+            
+            'description': 'A very low-calorie, high-water-content vegetable.',
+            'benefits': 'Excellent, hydrating, low-calorie snack for overweight pets. Contains some vitamin K.',
+            'preparation_method': 'Serve raw in slices or chunks.',
+            'pro_tip': 'A safe and refreshing treat, especially during hot weather. Overfeeding could potentially cause mild digestive upset due to high water/fiber content.',
+            'allergy_alert': 'Extremely rare.',
+            'storage_notes': 'Keep refrigerated.',
             'data_source': 'USDA Food Database'
         },
         
@@ -671,7 +896,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.009, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.009, 'omega_6_fatty_acids': 0.04,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去核去籽，少量食用', 'storage_notes': '阴凉处保存，可保存1-2周',
+            
+            'description': 'A crunchy, sweet fruit that provides vitamins A and C, along with dietary fiber.',
+            'benefits': 'Low in protein and fat, making them a good snack for senior pets. The fiber content aids digestion.',
+            'preparation_method': 'Serve in slices with the core and seeds completely removed.',
+            'pro_tip': 'Crucially, apple seeds contain cyanide and are toxic. The core is a choking hazard. Only feed the fleshy part of the fruit.',
+            'allergy_alert': 'Very uncommon.',
+            'storage_notes': 'Store apples in the refrigerator.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -688,7 +919,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.06, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.06, 'omega_6_fatty_acids': 0.09,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '富含抗氧化剂，适量食用', 'storage_notes': '冷藏保存，3-5天内使用',
+            
+            'description': 'A small fruit packed with antioxidants and phytochemicals.',
+            'benefits': 'Antioxidants like anthocyanins help protect cells from damage, supporting the immune system and cognitive function, especially in older pets.',
+            'preparation_method': 'Serve fresh or frozen as a tasty, low-calorie treat.',
+            'pro_tip': 'Due to their small size, they are a safe and healthy treat. As with all fruits, feed in moderation due to sugar content.',
+            'allergy_alert': 'Allergies are extremely rare.',
+            'storage_notes': 'Keep fresh blueberries in the fridge or store in the freezer for a cool treat.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -705,7 +942,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.03, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.03, 'omega_6_fatty_acids': 0.05,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去皮切片，糖分较高，少量食用', 'storage_notes': '室温保存，数天内使用',
+            
+            'description': 'A soft, potassium-rich fruit that is easy for most pets to eat and digest.',
+            'benefits': 'Good source of potassium for heart and kidney function, as well as fiber and vitamin C.',
+            'preparation_method': 'Serve mashed or in small pieces. The peel should be removed.',
+            'pro_tip': 'Bananas are very high in sugar and should only be given as an occasional treat, not a regular part of the diet.',
+            'allergy_alert': 'Extremely rare.',
+            'storage_notes': 'Store at room temperature.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -722,7 +965,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.002, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.002, 'omega_6_fatty_acids': 0.09,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去核去籽，果核含氰化物有毒，果肉适量食用', 'storage_notes': '室温保存至成熟，然后冷藏',
+            
+            'description': 'A sweet, fibrous fruit.',
+            'benefits': 'Good source of copper, vitamin C, vitamin K, and fiber.',
+            'preparation_method': 'Serve in chunks with the seeds and core removed.',
+            'pro_tip': 'Like apple seeds, pear seeds contain traces of cyanide and must be removed. Feed in moderation due to sugar content.',
+            'allergy_alert': 'Uncommon.',
+            'storage_notes': 'Refrigerate ripe pears.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -739,7 +988,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.07, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.07, 'omega_6_fatty_acids': 0.09,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去叶蒂，富含维生素C和抗氧化剂', 'storage_notes': '冷藏保存，3-5天内使用',
+            
+            'description': 'A sweet, popular berry packed with nutrients.',
+            'benefits': 'Full of fiber and vitamin C. Also contains an enzyme that can help whiten teeth.',
+            'preparation_method': 'Serve fresh or frozen, with the green tops removed.',
+            'pro_tip': 'A healthy treat, but should be given in moderation due to sugar.',
+            'allergy_alert': 'Rare, but possible.',
+            'storage_notes': 'Keep fresh strawberries refrigerated.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -756,7 +1011,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.05, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.05, 'omega_6_fatty_acids': 0.03,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '去籽，高水分低热量，夏季消暑佳品', 'storage_notes': '整个西瓜室温保存，切开后冷藏',
+            
+            'description': 'A hydrating fruit with very high water content, perfect for summer.',
+            'benefits': 'Excellent source of hydration. Contains vitamins A, B6, and C, as well as potassium.',
+            'preparation_method': 'Serve only the pink, fleshy part. The rind and seeds must be removed.',
+            'pro_tip': 'The rind can cause gastrointestinal upset and blockage. Seeds can also cause intestinal blockage. Serve seedless or with seeds removed.',
+            'allergy_alert': 'Extremely rare.',
+            'storage_notes': 'Refrigerate cut watermelon.',
             'data_source': 'USDA Food Database'
         },
         
@@ -775,7 +1036,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.04, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.04, 'omega_6_fatty_acids': 1.2,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '煮熟至软烂，易消化', 'storage_notes': '密封干燥处保存，可保存数月',
+            
+            'description': 'A whole grain that provides digestible carbohydrates for energy and essential B vitamins.',
+            'benefits': 'Good source of sustained energy and fiber for healthy digestion. Helps stabilize blood sugar levels.',
+            'preparation_method': 'Cook thoroughly until soft and easily digestible. Serve plain.',
+            'pro_tip': 'While nutritious, some pets have grain sensitivities. For pets needing a bland diet, plain white rice is often more easily digested.',
+            'allergy_alert': 'Grain sensitivities can occur, though true allergies are less common.',
+            'storage_notes': 'Refrigerate cooked rice for up to 4 days.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -792,7 +1059,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.11, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.11, 'omega_6_fatty_acids': 2.4,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '煮熟成粥状，高纤维', 'storage_notes': '密封干燥处保存，可保存1年',
+            
+            'description': 'A whole grain cereal, high in soluble fiber, which is beneficial for digestion.',
+            'benefits': 'Great source of soluble fiber, which can help regulate blood glucose levels. Contains linoleic acid, a fatty acid that supports skin health.',
+            'preparation_method': 'Must be cooked into plain oatmeal without any sugar, salt, or other additives. Never serve raw.',
+            'pro_tip': 'Choose plain, old-fashioned oats, not instant oatmeal packets which often contain added sugar and flavorings.',
+            'allergy_alert': 'Generally well-tolerated, but sensitivities are possible.',
+            'storage_notes': 'Store dry oats in a cool, dark place.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -809,7 +1082,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.26, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.26, 'omega_6_fatty_acids': 2.9,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '完整蛋白质，煮熟后易消化，超级食物', 'storage_notes': '密封干燥处保存，可保存2年',
+            
+            'description': 'A seed that is often categorized as a whole grain, notable for containing all nine essential amino acids.',
+            'benefits': 'A complete protein source and a good source of fiber and magnesium. It\'s a nutritious, gluten-free alternative to other grains.',
+            'preparation_method': 'Rinse well before cooking to remove saponins (a natural bitter coating). Cook thoroughly and serve plain.',
+            'pro_tip': 'The saponin coating can cause digestive upset if not rinsed away. Introduce small amounts to see how your pet tolerates it.',
+            'allergy_alert': 'Uncommon, but introduce slowly.',
+            'storage_notes': 'Store cooked quinoa in the fridge for up to 4 days.',
             'data_source': 'USDA Food Database'
         },
         
@@ -828,13 +1107,33 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.011, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.011, 'omega_6_fatty_acids': 0.01,
             'is_safe_for_dogs': True, 'is_safe_for_cats': False, 'is_common_allergen': True,
-            'preparation_notes': '选择无糖无添加剂的，适量食用', 'storage_notes': '冷藏保存，开封后3-5天内使用',
+            
+            'description': 'Fermented dairy product containing beneficial probiotics for gut health.',
+            'benefits': 'The live probiotic cultures support a healthy digestive microbiome, aiding digestion and boosting the immune system.',
+            'preparation_method': 'Serve a small spoonful as a treat or mixed with food.',
+            'pro_tip': 'Must be plain, unsweetened yogurt. Avoid any yogurt containing sugar, artificial sweeteners (especially Xylitol, which is toxic), or fruit.',
+            'allergy_alert': 'Many pets are lactose intolerant. Introduce a very small amount first and watch for gas, bloating, or diarrhea.',
+            'storage_notes': 'Keep refrigerated.',
+            'data_source': 'USDA Food Database'
+        },
+        {
+            'name': '乳酪','name_en': 'Cottage Cheese','category': IngredientCategory.DAIRY,
+            'image_filename': 'cottage_cheese.png', 'seasonality': 'all_year',
+            'calories': 98, 'protein': 11, 'fat': 4.3, 'fiber': 0, 'carbohydrate': 3.4,
+            'is_common_allergen': True,
+
+            'description': 'A fresh cheese curd product with a mild flavor, high in protein and calcium.',
+            'benefits': 'Good source of protein and calcium. Often used in bland diets for pets recovering from stomach upset.',
+            'preparation_method': 'Serve a small amount plain.',
+            'pro_tip': 'Choose low-fat or non-fat options and ensure it has no added salt.',
+            'allergy_alert': 'Also contains lactose, so the same precautions for lactose intolerance apply.',
+            'storage_notes': 'Keep refrigerated and check the expiration date.',
             'data_source': 'USDA Food Database'
         },
         
-        # 油脂类
+        # 营养补充剂类
         {
-            'name': '鱼油', 'name_en': 'Fish oil', 'category': IngredientCategory.OILS,
+            'name': '鱼油', 'name_en': 'Fish oil', 'category': IngredientCategory.SUPPLEMENTS,
             'image_filename': 'fish_oil.png', 'seasonality': 'all_year',
             'calories': 902, 'protein': 0.0, 'fat': 100.0, 'carbohydrate': 0.0, 'fiber': 0.0, 'moisture': 0.0, 'ash': 0.0,
             'calcium': 0, 'phosphorus': 0, 'potassium': 0, 'sodium': 0, 'chloride': 0, 'magnesium': 0,
@@ -847,7 +1146,27 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 1.0, 'eicosapentaenoic_acid': 18.0,
             'docosahexaenoic_acid': 12.0, 'arachidonic_acid': 1.5, 'omega_3_fatty_acids': 30.0, 'omega_6_fatty_acids': 2.0,
             'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
-            'preparation_notes': '按体重计算用量，每日少量添加', 'storage_notes': '冷藏保存，避光防氧化',
+            
+            'description': 'A supplement derived from the tissues of oily fish, rich in omega-3 fatty acids.',
+            'benefits': 'Concentrated source of EPA and DHA. Reduces inflammation, supports coat and skin health, lubricates joints, and promotes heart and brain function.',
+            'preparation_method': 'Administer as a liquid or capsule, directly or mixed with food, according to veterinary dosage recommendations.',
+            'pro_tip': 'Consult your vet for the correct dosage for your pet\'s size and health needs. Too much can lead to an upset stomach or interfere with blood clotting.',
+            'allergy_alert': 'Could be an issue for pets with fish allergies.',
+            'storage_notes': 'Keep in a cool, dark place or refrigerate to prevent rancidity.',
+            'data_source': 'Supplement Database'
+        },
+        {
+            'name': '蛋壳粉','name_en': 'Eggshell Powder','category': IngredientCategory.SUPPLEMENTS,
+            'image_filename': 'eggshell_powder.png', 'seasonality': 'all_year',
+            'calories': 0, 'protein': 0, 'fat': 0, 'fiber': 0, 'carbohydrate': 0,
+            'is_common_allergen': False,
+
+            'description': 'A natural calcium supplement made from dried, ground eggshells.',
+            'benefits': 'Provides a highly bioavailable source of calcium carbonate, which is essential for strong bones and teeth. A crucial component in balancing homemade diets.',
+            'preparation_method': 'Wash and dry eggshells, bake at a low temperature to sterilize, then grind into a very fine powder using a coffee grinder.',
+            'pro_tip': 'Calcium and phosphorus ratios are critical in a pet\'s diet. Use this powder to balance a recipe under the guidance of a vet or veterinary nutritionist. Roughly one teaspoon of powder provides 2000mg of calcium.',
+            'allergy_alert': 'Safe for pets with egg allergies, as the allergy is typically to the protein in the egg white or yolk, not the shell mineral.',
+            'storage_notes': 'Store in an airtight container at room temperature.',
             'data_source': 'Supplement Database'
         },
         
@@ -866,7 +1185,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.001, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.001, 'omega_6_fatty_acids': 0.01,
             'is_safe_for_dogs': False, 'is_safe_for_cats': False, 'is_common_allergen': False,
-            'preparation_notes': '含有硫化合物，对宠物有毒', 'storage_notes': '干燥处保存',
+            
+            'description': 'All forms of onion (raw, cooked, powdered) are highly toxic to pets.',
+            'benefits': 'None. Onions are dangerous and offer no health benefits to pets.',
+            'preparation_method': 'DO NOT FEED. This item should never be given to a pet.',
+            'pro_tip': 'Onions contain N-propyl disulfide, which causes oxidative damage to red blood cells, leading to life-threatening hemolytic anemia. Keep all onion products away from pets.',
+            'allergy_alert': 'This is a toxin, not an allergen.',
+            'storage_notes': 'Store securely away from pet access.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -883,7 +1208,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.02, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.02, 'omega_6_fatty_acids': 0.23,
             'is_safe_for_dogs': False, 'is_safe_for_cats': False, 'is_common_allergen': False,
-            'preparation_notes': '含有硫化合物，对宠物有毒', 'storage_notes': '干燥处保存',
+            
+            'description': 'Part of the Allium family like onions, garlic is also toxic to pets, but in different concentrations.',
+            'benefits': 'None. The risks far outweigh any purported benefits.',
+            'preparation_method': 'DO NOT FEED. This item should never be given to a pet.',
+            'pro_tip': 'Garlic is considered about 5 times as potent as onions in toxicity. It can cause the same hemolytic anemia. Small, repeated doses can be just as dangerous as a single large ingestion.',
+            'allergy_alert': 'This is a toxin, not an allergen.',
+            'storage_notes': 'Store securely away from pet access.',
             'data_source': 'USDA Food Database'
         },
         {
@@ -900,7 +1231,13 @@ def init_basic_ingredients(force_reinit=False):
             'taurine': 0, 'alpha_linolenic_acid': 0.11, 'eicosapentaenoic_acid': 0.0,
             'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.11, 'omega_6_fatty_acids': 1.4,
             'is_safe_for_dogs': False, 'is_safe_for_cats': False, 'is_common_allergen': False,
-            'preparation_notes': '含有可可碱，对宠物有毒', 'storage_notes': '阴凉干燥处保存',
+            
+            'description': 'A common and severe toxin for pets, especially dogs.',
+            'benefits': 'None. Chocolate is poisonous to pets.',
+            'preparation_method': 'DO NOT FEED. This item should never be given to a pet.',
+            'pro_tip': 'Contains theobromine and caffeine, which stimulate the nervous system and can cause vomiting, diarrhea, rapid heart rate, seizures, and death. Darker chocolate (baking, cocoa powder) is the most dangerous.',
+            'allergy_alert': 'This is a toxin, not an allergen.',
+            'storage_notes': 'Store securely away from pet access. Contact a vet immediately if ingested.',
             'data_source': 'USDA Food Database'
         }
     ]
@@ -910,6 +1247,9 @@ def init_basic_ingredients(force_reinit=False):
 
     # 创建或更新食材记录
     for ing_data in basic_ingredients:
+        # 将英文名赋值给中文名字段
+        ing_data['name'] = ing_data['name_en']
+        
         # 检查是否已存在
         existing = Ingredient.query.filter_by(name=ing_data['name']).first()
         if existing and not force_reinit:
