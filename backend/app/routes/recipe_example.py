@@ -273,7 +273,7 @@ class RecipeService:
 def example_usage():
     """使用示例"""
     # 创建数据库会话
-    from database_config import SessionLocal
+    from app.models.database_config import SessionLocal
     db = SessionLocal()
     
     try:

@@ -21,7 +21,10 @@ def create_app(config_class=Config):
 
     # 创建Flask app并指定模板目录
     app = Flask(__name__, instance_relative_config=True, template_folder=template_path, static_folder=static_path)
-    app.config.from_object(config_class)
+    
+    app.config['SECRET_KEY'] = 'your-secret-key-here'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pet_recipes.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # 初始化扩展
     db.init_app(app)
@@ -36,7 +39,8 @@ def create_app(config_class=Config):
         ingredient_model,
         recipe_model,
         nutrition_requirements_model,
-        recipe_ingredient_model
+        recipe_ingredient_model,
+        pet_allergen_model
     )
 
     # 创建数据库表
@@ -48,11 +52,18 @@ def create_app(config_class=Config):
     from .routes.pet import pet_bp
     from .routes.recipe import recipe_bp
     from .routes.main import main_bp
+    from .routes.recipe_recommendation_api import recommendation_api_bp
+    from .routes.recipe_save_api import recipe_save_api_bp
+    from .routes.nutrition_api import nutrition_api_bp
+    from .routes.allergen_api import allergen_api_bp
 
     # 修改蓝图注册，添加页面路由
     app.register_blueprint(user_bp, url_prefix='/user')       # 页面路由
     app.register_blueprint(pet_bp, url_prefix='/api/pets')
     app.register_blueprint(recipe_bp, url_prefix='/recipe')
+    app.register_blueprint(recommendation_api_bp)
     app.register_blueprint(main_bp)
+    app.register_blueprint(nutrition_api_bp)
+    app.register_blueprint(recipe_save_api_bp)
 
     return app

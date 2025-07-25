@@ -2,6 +2,7 @@
 from flask import Blueprint, render_template, session, redirect, url_for, flash, request
 from app.models.pet_model import Pet
 from app.models.user_model import User
+from app.models.recipe_model import Recipe
 from app.extensions import db
 
 main_bp = Blueprint('main', __name__)
@@ -16,7 +17,7 @@ def base():
     """Base Template Route (for testing)"""
     return render_template('base.html')
 
-# 修改用户中心路由，添加登录检测和宠物数据 
+# 修改用户中心路由，添加登录检测和宠物数据
 @main_bp.route('/user_center')
 def user_center():
     """User Center Route - Login Required"""

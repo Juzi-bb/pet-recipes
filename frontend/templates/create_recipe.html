@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}创建食谱 - Pet Recipe Website{% endblock %}
+{% block title %}Create Recipe - Pet Recipe Website{% endblock %}
 
 {% block content %}
 <style>
@@ -640,12 +640,244 @@
     .success-message.type-info {
         background: #2196F3;
     }
+
+    /* 营养成分分析 */
+    .nutrition-plan-section {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid #EDBF9D;
+    }
+
+    .nutrition-plans-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .nutrition-plan-card {
+        background: white;
+        border: 2px solid #A1B4B2;
+        border-radius: 15px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .nutrition-plan-card:hover {
+        border-color: #5580AD;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(85, 128, 173, 0.15);
+    }
+
+    .nutrition-plan-card.selected {
+        border-color: #B82F0D;
+        background: #fff8f8;
+        box-shadow: 0 5px 20px rgba(184, 47, 13, 0.2);
+    }
+
+    .nutrition-plan-card.recommended {
+        border-color: #28a745;
+        position: relative;
+    }
+
+    .nutrition-plan-card.recommended::before {
+        content: "推荐";
+        position: absolute;
+        top: -8px;
+        right: 15px;
+        background: #28a745;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+
+    .plan-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .plan-card-title {
+        color: #510B0B;
+        font-size: 1.1rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .plan-card-icon {
+        font-size: 1.5rem;
+        color: #5580AD;
+    }
+
+    .plan-card-description {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        margin-bottom: 1rem;
+    }
+
+    .plan-card-highlights {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .plan-highlight-tag {
+        background: #f0f7ff;
+        color: #5580AD;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        border: 1px solid #5580AD;
+    }
+
+    /* 模态框样式 */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    }
+
+    .plan-detail-modal {
+        background: white;
+        border-radius: 15px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .modal-header {
+        padding: 1.5rem;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        color: #510B0B;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #999;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-close:hover {
+        color: #333;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        padding: 1rem 1.5rem;
+        border-top: 2px solid #f0f0f0;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .ratio-chart {
+        display: grid;
+        gap: 0.75rem;
+        margin: 1.5rem 0;
+    }
+
+    .ratio-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .ratio-label {
+        min-width: 80px;
+        font-weight: bold;
+        color: #510B0B;
+    }
+
+    .ratio-bar {
+        flex: 1;
+        height: 25px;
+        background: #f0f0f0;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .ratio-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #5580AD, #B82F0D);
+        border-radius: 12px;
+        transition: width 0.3s ease;
+    }
+
+    .ratio-percent {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: #B82F0D;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #a02a0c;
+    }
+
+    .btn-secondary {
+        background: #A1B4B2;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #8a9a99;
+    }
 </style>
 
 <div class="create-recipe-container">
     <div class="page-header">
-        <h1>🍽️ 创建宠物食谱</h1>
-        <p>为您的爱宠定制营养均衡的美味食谱</p>
+        <h1>🍽️ Create a Pet Recipe</h1>
+        <p>Customize a nutritious and delicious recipe for your beloved pet</p>
     </div>
 
     <!-- 进度条 -->
@@ -656,23 +888,23 @@
             </div>
             <div class="progress-step active" data-step="1">
                 <span>1</span>
-                <div class="step-label">选择宠物</div>
+                <div class="step-label">Select Pet</div>
             </div>
             <div class="progress-step" data-step="2">
                 <span>2</span>
-                <div class="step-label">选择食材</div>
+                <div class="step-label">Select Ingredients</div>
             </div>
             <div class="progress-step" data-step="3">
                 <span>3</span>
-                <div class="step-label">设置重量</div>
+                <div class="step-label">Set Weights</div>
             </div>
             <div class="progress-step" data-step="4">
                 <span>4</span>
-                <div class="step-label">营养分析</div>
+                <div class="step-label">Nutrition Analysis</div>
             </div>
             <div class="progress-step" data-step="5">
                 <span>5</span>
-                <div class="step-label">保存食谱</div>
+                <div class="step-label">Save Recipe</div>
             </div>
         </div>
     </div>
@@ -681,9 +913,9 @@
     <div class="step-content" id="step1">
         <div class="step-title">
             <i class="fas fa-paw"></i>
-            选择目标宠物
+            Select Target Pet
         </div>
-        <p style="color: #B82F0D; margin-bottom: 2rem;">选择要为哪只宠物创建食谱，我们将根据其信息提供个性化营养建议。</p>
+        <p style="color: #B82F0D; margin-bottom: 2rem;">Choose which pet you want to create a recipe for. We will provide personalized nutritional advice based on their information.</p>
         
         <div class="pet-selector">
             {% for pet in pets %}
@@ -692,7 +924,7 @@
                 <div class="pet-info">
                     <h3>{{ pet.name }}</h3>
                     <div class="pet-stats">
-                        {{ pet.species }} | {{ pet.weight }}kg | {{ pet.age }}岁
+                        {{ pet.species }} | {{ pet.weight }}kg | {{ pet.age }}years old
                         {% if pet.breed %}
                         <br>{{ pet.breed }}
                         {% endif %}
@@ -701,21 +933,64 @@
             </div>
             {% endfor %}
         </div>
+
+        <!-- 新增：营养配比方案选择 -->
+        <div class="nutrition-plan-section" id="nutritionPlanSection" style="display: none;">
+            <h3 style="color: #510B0B; margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-chart-pie"></i>
+                选择营养配比方案
+            </h3>
+            <p style="color: #B82F0D; margin-bottom: 1.5rem;">
+                根据您的宠物特点，我们推荐以下营养配比方案。点击卡片查看详细比例。
+            </p>
+            
+            <!-- 配比方案加载状态 -->
+            <div class="nutrition-plans-loading" id="nutritionPlansLoading">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span style="margin-left: 1rem;">正在加载营养方案...</span>
+                </div>
+            </div>
+            
+            <!-- 配比方案网格 -->
+            <div class="nutrition-plans-grid" id="nutritionPlansGrid" style="display: none;">
+                <!-- 动态生成的配比方案卡片 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 营养方案详情模态框 -->
+    <div class="modal-overlay" id="planDetailModal" style="display: none;">
+        <div class="modal-content plan-detail-modal">
+            <div class="modal-header">
+                <h3 id="planDetailTitle">营养配比方案详情</h3>
+                <button class="modal-close" onclick="closePlanDetail()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="planDetailContent">
+                <!-- 动态生成的方案详情 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePlanDetail()">取消</button>
+                <button class="btn btn-primary" id="selectPlanBtn" onclick="selectNutritionPlan()">选择此方案</button>
+            </div>
+        </div>
     </div>
 
     <!-- 第二步：选择食材 -->
     <div class="step-content hidden" id="step2">
         <div class="step-title">
             <i class="fas fa-carrot"></i>
-            选择食材
+            Select Ingredients
         </div>
-        <p style="color: #B82F0D; margin-bottom: 2rem;">从不同分类中选择您想要的食材，建议搭配多种类型以确保营养均衡。</p>
+        <p style="color: #B82F0D; margin-bottom: 2rem;">Select your desired ingredients from various categories. It is recommended to combine multiple types to ensure a balanced diet.</p>
         
         <!-- 分类标签 -->
         <div class="category-tabs" id="categoryTabs">
             <div class="loading">
                 <div class="spinner"></div>
-                <span style="margin-left: 1rem;">加载食材分类中...</span>
+                <span style="margin-left: 1rem;">Loading ingredient categories...</span>
             </div>
         </div>
 
@@ -723,7 +998,7 @@
         <div class="ingredients-grid" id="ingredientsGrid">
             <div class="loading">
                 <div class="spinner"></div>
-                <span style="margin-left: 1rem;">加载食材中...</span>
+                <span style="margin-left: 1rem;">Loading ingredients...</span>
             </div>
         </div>
 
@@ -731,11 +1006,11 @@
         <div class="selected-ingredients-panel">
             <h3>
                 <i class="fas fa-check-circle"></i>
-                已选择食材
+                Selected Ingredients
                 <span class="selected-count" id="selectedCount">0</span>
             </h3>
             <div class="selected-list" id="selectedList">
-                <div style="color: #666; font-style: italic;">还未选择任何食材</div>
+                <div style="color: #666; font-style: italic;">No ingredients selected yet</div>
             </div>
         </div>
     </div>
@@ -744,24 +1019,24 @@
     <div class="step-content hidden" id="step3">
         <div class="step-title">
             <i class="fas fa-weight"></i>
-            设置食材重量
+            Set Ingredient Weights
         </div>
-        <p style="color: #B82F0D; margin-bottom: 2rem;">为每种食材设置合适的重量(克)，系统将实时计算营养成分。</p>
+        <p style="color: #B82F0D; margin-bottom: 2rem;">Set the appropriate weight (in grams) for each ingredient. The system will calculate the nutritional content in real-time.</p>
         
         <table class="weight-table">
             <thead>
                 <tr>
-                    <th>食材名称</th>
-                    <th>重量(克)</th>
-                    <th>热量(卡)</th>
-                    <th>蛋白质(克)</th>
-                    <th>脂肪(克)</th>
-                    <th>碳水(克)</th>
+                    <th>Ingredient Name</th>
+                    <th>Weight (g)</th>
+                    <th>Calories (kcal)</th>
+                    <th>Protein (g)</th>
+                    <th>Fat (g)</th>
+                    <th>Carbs (g)</th>
                 </tr>
             </thead>
             <tbody id="weightTableBody">
                 <tr>
-                    <td colspan="6" style="text-align: center; color: #666; font-style: italic;">请先选择食材</td>
+                    <td colspan="6" style="text-align: center; color: #666; font-style: italic;">Please select ingredients first</td>
                 </tr>
             </tbody>
         </table>
@@ -771,14 +1046,14 @@
     <div class="step-content hidden" id="step4">
         <div class="step-title">
             <i class="fas fa-chart-bar"></i>
-            营养成分分析
+            Nutritional Analysis
         </div>
-        <p style="color: #B82F0D; margin-bottom: 2rem;">查看食谱的详细营养成分，确保符合您宠物的营养需求。</p>
+        <p style="color: #B82F0D; margin-bottom: 2rem;">Review the detailed nutritional information of the recipe to ensure it meets your pet's needs.</p>
         
         <div id="nutritionAnalysis">
             <div class="loading">
                 <div class="spinner"></div>
-                <span style="margin-left: 1rem;">分析营养成分中...</span>
+                <span style="margin-left: 1rem;">Analyzing nutritional content...</span>
             </div>
         </div>
     </div>
@@ -787,27 +1062,27 @@
     <div class="step-content hidden" id="step5">
         <div class="step-title">
             <i class="fas fa-save"></i>
-            保存食谱
+            Save Recipe
         </div>
-        <p style="color: #B82F0D; margin-bottom: 2rem;">为您的食谱起个名字，并添加描述信息。</p>
+        <p style="color: #B82F0D; margin-bottom: 2rem;">Give your recipe a name and add a description.</p>
         
         <div style="max-width: 600px;">
             <div class="form-group">
-                <label for="recipeName">食谱名称 *</label>
-                <input type="text" id="recipeName" placeholder="例如：小可爱的营养大餐" maxlength="50">
+                <label for="recipeName">Recipe Name *</label>
+                <input type="text" id="recipeName" placeholder="e.g., Fluffy's Nutritional Feast" maxlength="50">
             </div>
             <div class="form-group">
-                <label for="recipeDescription">食谱描述</label>
-                <textarea id="recipeDescription" rows="4" placeholder="描述这个食谱的特色、适用场景等..." maxlength="200"></textarea>
+                <label for="recipeDescription">Recipe Description</label>
+                <textarea id="recipeDescription" rows="4" placeholder="Describe the features of this recipe, suitable occasions, etc..." maxlength="200"></textarea>
             </div>
             <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                 <button class="nav-btn" style="background: #A1B4B2;" onclick="saveRecipe(true)">
                     <i class="fas fa-edit"></i>
-                    保存为草稿
+                    Save as Draft
                 </button>
                 <button class="nav-btn" style="background: #B82F0D;" onclick="saveRecipe(false)">
                     <i class="fas fa-check"></i>
-                    发布食谱
+                    Publish Recipe
                 </button>
             </div>
         </div>
@@ -817,15 +1092,15 @@
     <div class="navigation-buttons">
         <button class="nav-btn prev-btn" id="prevBtn" onclick="previousStep()" disabled>
             <i class="fas fa-chevron-left"></i>
-            上一步
+            Previous Step
         </button>
         
         <div class="step-info">
-            第 <span id="currentStepText">1</span> / 5 步
+            Step <span id="currentStepText">1</span> of 5
         </div>
         
         <button class="nav-btn next-btn" id="nextBtn" onclick="nextStep()" disabled>
-            下一步
+            Next Step
             <i class="fas fa-chevron-right"></i>
         </button>
     </div>
@@ -841,6 +1116,9 @@ let ingredientWeights = {};
 let nutritionData = null;
 let categories = [];
 let allIngredients = [];
+let selectedNutritionPlan = null;
+let nutritionPlans = [];
+let currentPlanDetail = null;
 
 // 页面初始化
 document.addEventListener('DOMContentLoaded', function() {
@@ -869,10 +1147,153 @@ function selectPet(petId) {
     });
     document.querySelector(`[data-pet-id="${petId}"]`).classList.add('selected');
     
+    // 显示营养配比方案选择
+    showNutritionPlanSection(petId);
+    
+    showSuccessMessage('宠物已选择，请选择营养配比方案');
+}
+
+// 显示营养配比方案选择
+async function showNutritionPlanSection(petId) {
+    const section = document.getElementById('nutritionPlanSection');
+    const loading = document.getElementById('nutritionPlansLoading');
+    const grid = document.getElementById('nutritionPlansGrid');
+    
+    section.style.display = 'block';
+    loading.style.display = 'block';
+    grid.style.display = 'none';
+    
+    try {
+        const response = await fetch(`/api/nutrition/plans?pet_id=${petId}`);
+        if (!response.ok) {
+            throw new Error('Failed to load nutrition plans');
+        }
+        
+        const data = await response.json();
+        nutritionPlans = data.plans;
+        
+        renderNutritionPlans();
+        
+        loading.style.display = 'none';
+        grid.style.display = 'grid';
+        
+    } catch (error) {
+        console.error('Failed to load nutrition plans:', error);
+        loading.innerHTML = '<div style="color: #dc3545; text-align: center;">加载营养方案失败，请重试</div>';
+    }
+}
+
+// 渲染营养配比方案
+function renderNutritionPlans() {
+    const grid = document.getElementById('nutritionPlansGrid');
+    
+    const cardsHtml = nutritionPlans.map(plan => {
+        const highlights = plan.special_notes.slice(0, 2); // 只显示前2个特点
+        
+        return `
+            <div class="nutrition-plan-card ${plan.is_recommended ? 'recommended' : ''}" 
+                data-plan-id="${plan.id}" onclick="showPlanDetail('${plan.id}')">
+                <div class="plan-card-header">
+                    <h4 class="plan-card-title">${plan.name}</h4>
+                    <i class="fas fa-chart-pie plan-card-icon"></i>
+                </div>
+                <div class="plan-card-description">${plan.description}</div>
+                <div class="plan-card-highlights">
+                    ${highlights.map(note => `<span class="plan-highlight-tag">${note}</span>`).join('')}
+                </div>
+                <div style="margin-top: 1rem; text-align: center; color: #5580AD; font-size: 0.9rem;">
+                    <i class="fas fa-eye"></i> 点击查看详细配比
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    grid.innerHTML = cardsHtml;
+}
+
+// 显示配比方案详情
+function showPlanDetail(planId) {
+    const plan = nutritionPlans.find(p => p.id === planId);
+    if (!plan) return;
+    
+    currentPlanDetail = plan;
+    
+    // 更新模态框内容
+    document.getElementById('planDetailTitle').textContent = plan.name;
+    
+    const ratioItems = [
+        { label: '红肉', key: 'red_meat', color: '#dc3545' },
+        { label: '白肉', key: 'white_meat', color: '#28a745' },
+        { label: '鱼类', key: 'fish', color: '#007bff' },
+        { label: '内脏', key: 'organs', color: '#6f42c1' },
+        { label: '蔬菜', key: 'vegetables', color: '#20c997' },
+        { label: '水果', key: 'fruits', color: '#fd7e14' },
+        { label: '谷物', key: 'grains', color: '#6c757d' }
+    ].filter(item => plan.category_ratios[item.key] > 0);
+    
+    const ratioChartHtml = ratioItems.map(item => {
+        const percent = Math.round(plan.category_ratios[item.key] * 100);
+        return `
+            <div class="ratio-item">
+                <div class="ratio-label">${item.label}</div>
+                <div class="ratio-bar">
+                    <div class="ratio-fill" style="width: ${percent}%; background: ${item.color};"></div>
+                    <div class="ratio-percent">${percent}%</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    const contentHtml = `
+        <div>
+            <h4 style="color: #510B0B; margin-bottom: 1rem;">方案说明</h4>
+            <p style="color: #666; line-height: 1.6;">${plan.description}</p>
+        </div>
+        
+        <div>
+            <h4 style="color: #510B0B; margin-bottom: 1rem;">食材配比</h4>
+            <div class="ratio-chart">
+                ${ratioChartHtml}
+            </div>
+        </div>
+        
+        <div>
+            <h4 style="color: #510B0B; margin-bottom: 1rem;">特点说明</h4>
+            <ul style="color: #666; line-height: 1.6;">
+                ${plan.special_notes.map(note => `<li>${note}</li>`).join('')}
+            </ul>
+        </div>
+    `;
+    
+    document.getElementById('planDetailContent').innerHTML = contentHtml;
+    document.getElementById('planDetailModal').style.display = 'flex';
+}
+
+// 关闭配比方案详情
+function closePlanDetail() {
+    document.getElementById('planDetailModal').style.display = 'none';
+    currentPlanDetail = null;
+}
+
+// 选择营养配比方案
+function selectNutritionPlan() {
+    if (!currentPlanDetail) return;
+    
+    selectedNutritionPlan = currentPlanDetail;
+    
+    // 更新UI
+    document.querySelectorAll('.nutrition-plan-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    document.querySelector(`[data-plan-id="${currentPlanDetail.id}"]`).classList.add('selected');
+    
+    // 关闭模态框
+    closePlanDetail();
+
     // 启用下一步按钮
     updateNextButtonState();
     
-    showSuccessMessage('已选择宠物，可以进入下一步');
+    showSuccessMessage('已选择 "${currentPlanDetail.name}" 配比方案');
 }
 
 // 加载食材分类
@@ -880,7 +1301,7 @@ async function loadCategories() {
     try {
         const response = await fetch('/recipe/api/categories');
         if (!response.ok) {
-            throw new Error('加载分类失败');
+            throw new Error('Failed to load categories');
         }
         
         categories = await response.json();
@@ -893,7 +1314,7 @@ async function loadCategories() {
         allTab.className = 'category-tab active';
         allTab.innerHTML = `
             <i class="fas fa-list"></i>
-            全部食材
+            All Ingredients
             <span class="category-count">${categories.reduce((sum, cat) => sum + cat.count, 0)}</span>
         `;
         allTab.onclick = () => selectCategory('all', allTab);
@@ -916,8 +1337,8 @@ async function loadCategories() {
         loadIngredients();
         
     } catch (error) {
-        console.error('加载分类失败:', error);
-        showErrorMessage('加载食材分类失败，请刷新页面重试');
+        console.error('Failed to load categories:', error);
+        showErrorMessage('Failed to load ingredient categories, please refresh the page and try again.');
     }
 }
 
@@ -943,7 +1364,7 @@ async function loadIngredients(category = null) {
         
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error('加载食材失败');
+            throw new Error('Failed to load ingredients');
         }
         
         const ingredients = await response.json();
@@ -965,11 +1386,11 @@ async function loadIngredients(category = null) {
             
             card.innerHTML = `
                 ${ingredient.seasonality ? `<div class="ingredient-seasonality">${getSeasonalityText(ingredient.seasonality)}</div>` : ''}
-                ${ingredient.is_common_allergen ? '<div class="allergen-warning">过敏原</div>' : ''}
+                ${ingredient.is_common_allergen ? '<div class="allergen-warning">Allergen</div>' : ''}
                 <div class="ingredient-image">
                     ${ingredient.image_filename ?
                         `<img src="/static/images/ingredients/${ingredient.image_filename}" alt="${ingredient.name}" style="width: 100%; height: 100%; object-fit: cover;">` :
-                        '暂无图片'
+                        'No Image'
                     }
                 </div>
                 <div class="ingredient-name">${ingredient.name}</div>
@@ -981,8 +1402,8 @@ async function loadIngredients(category = null) {
         });
         
     } catch (error) {
-        console.error('加载食材失败:', error);
-        showErrorMessage('加载食材失败，请检查网络连接');
+        console.error('Failed to load ingredients:', error);
+        showErrorMessage('Failed to load ingredients, please check your network connection.');
     }
 }
 
@@ -994,11 +1415,11 @@ function toggleIngredient(ingredient) {
         // 取消选择
         selectedIngredients.splice(existingIndex, 1);
         delete ingredientWeights[ingredient.id];
-        showSuccessMessage(`已移除食材：${ingredient.name}`);
+        showSuccessMessage(`Removed ingredient: ${ingredient.name}`);
     } else {
         // 添加选择
         selectedIngredients.push(ingredient);
-        showSuccessMessage(`已添加食材：${ingredient.name}`);
+        showSuccessMessage(`Added ingredient: ${ingredient.name}`);
     }
     
     // 更新UI
@@ -1015,7 +1436,7 @@ function updateSelectedIngredientsDisplay() {
     countEl.textContent = selectedIngredients.length;
     
     if (selectedIngredients.length === 0) {
-        listEl.innerHTML = '<div style="color: #666; font-style: italic;">还未选择任何食材</div>';
+        listEl.innerHTML = '<div style="color: #666; font-style: italic;">No ingredients selected yet</div>';
     } else {
         listEl.innerHTML = selectedIngredients.map(ingredient => `
             <div class="selected-tag">
@@ -1038,7 +1459,7 @@ function removeIngredient(ingredientId) {
         updateNextButtonState();
         
         if (ingredient) {
-            showSuccessMessage(`已移除食材：${ingredient.name}`);
+            showSuccessMessage(`Removed ingredient: ${ingredient.name}`);
         }
         
         // 如果在重量设置步骤，更新重量表格
@@ -1068,13 +1489,13 @@ function updateIngredientsGridSelection() {
 // 获取季节性文本
 function getSeasonalityText(seasonality) {
     const seasonMap = {
-        'all_year': '全年',
-        'spring': '春季',
-        'summer': '夏季',
-        'autumn': '秋季',
-        'winter': '冬季',
-        'spring,summer': '春夏',
-        'autumn,winter': '秋冬'
+        'all_year': 'All Year',
+        'spring': 'Spring',
+        'summer': 'Summer',
+        'autumn': 'Autumn',
+        'winter': 'Winter',
+        'spring,summer': 'Spring, Summer',
+        'autumn,winter': 'Autumn, Winter'
     };
     return seasonMap[seasonality] || seasonality;
 }
@@ -1084,7 +1505,7 @@ function updateWeightTable() {
     const tbody = document.getElementById('weightTableBody');
     
     if (selectedIngredients.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666; font-style: italic;">请先选择食材</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666; font-style: italic;">Please select ingredients first</td></tr>';
         return;
     }
     
@@ -1119,12 +1540,12 @@ function updateIngredientWeight(ingredientId, weight) {
     const numWeight = parseFloat(weight) || 0;
     
     if (numWeight < 0) {
-        showErrorMessage('重量不能为负数');
+        showErrorMessage('Weight cannot be negative.');
         return;
     }
     
     if (numWeight > 1000) {
-        showErrorMessage('单个食材重量不能超过1000克');
+        showErrorMessage('Weight for a single ingredient cannot exceed 1000g.');
         return;
     }
     
@@ -1135,7 +1556,7 @@ function updateIngredientWeight(ingredientId, weight) {
     if (numWeight > 0) {
         const ingredient = selectedIngredients.find(item => item.id === ingredientId);
         if (ingredient) {
-            showSuccessMessage(`已设置${ingredient.name}重量：${numWeight}克`);
+            showSuccessMessage(`Set weight for ${ingredient.name}: ${numWeight}g`);
         }
     }
 }
@@ -1144,27 +1565,101 @@ function updateIngredientWeight(ingredientId, weight) {
 function updateNextButtonState() {
     const nextBtn = document.getElementById('nextBtn');
     
-    switch(currentStep) {
-        case 1:
-            nextBtn.disabled = !selectedPetId;
-            break;
-        case 2:
-            nextBtn.disabled = selectedIngredients.length === 0;
-            break;
-        case 3:
-            // 检查是否所有食材都设置了重量
-            const hasWeights = selectedIngredients.every(ingredient =>
-                ingredientWeights[ingredient.id] && ingredientWeights[ingredient.id] > 0
-            );
-            nextBtn.disabled = !hasWeights;
-            break;
-        case 4:
-            nextBtn.disabled = !nutritionData;
-            break;
-        default:
+    if (currentStep === 1) {
+        // 第一步需要选择宠物和营养方案
+        if (selectedPetId && selectedNutritionPlan) {
             nextBtn.disabled = false;
+            nextBtn.style.opacity = '1';
+        } else {
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.5';
+        }
+    } else if (currentStep === 2) {
+        // 第二步需要选择食材
+        if (selectedIngredients.length > 0) {
+            nextBtn.disabled = false;
+            nextBtn.style.opacity = '1';
+        } else {
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.5';
+        }
+    } else if (currentStep === 3) {
+        // 第三步需要设置重量
+        const hasWeights = selectedIngredients.some(ing =>
+            ingredientWeights[ing.id] && parseFloat(ingredientWeights[ing.id]) > 0
+        );
+        if (hasWeights) {
+            nextBtn.disabled = false;
+            nextBtn.style.opacity = '1';
+        } else {
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.5';
+        }
+    } else if (currentStep === 4) {
+        // 第四步需要完成营养分析
+        if (nutritionData) {
+            nextBtn.disabled = false;
+            nextBtn.style.opacity = '1';
+        } else {
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.5';
+        }
+    } else {
+        nextBtn.disabled = false;
+        nextBtn.style.opacity = '1';
     }
 }
+
+// 修改第三步的一键分配重量功能，使用选择的营养方案
+async function autoDistributeWeights() {
+    if (!selectedNutritionPlan || selectedIngredients.length === 0) {
+        showErrorMessage('请先选择营养方案和食材');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/nutrition/suggest-weights', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ingredient_ids: selectedIngredients.map(ing => ing.id),
+                nutrition_plan_id: selectedNutritionPlan.id,
+                pet_id: selectedPetId,
+                total_weight: 200 // 默认200g
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to get weight suggestions');
+        }
+        
+        const data = await response.json();
+        
+        // 应用推荐重量
+        data.suggested_weights.forEach(item => {
+            ingredientWeights[item.ingredient_id] = item.suggested_weight;
+        });
+        
+        // 更新重量表格
+        updateWeightTable();
+        updateNextButtonState();
+        
+        showSuccessMessage(`已根据 "${selectedNutritionPlan.name}" 方案自动分配重量`);
+        
+    } catch (error) {
+        console.error('Failed to get weight suggestions:', error);
+        showErrorMessage('获取重量建议失败，请手动设置');
+    }
+}
+
+// 点击模态框外部关闭
+document.getElementById('planDetailModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePlanDetail();
+    }
+});
 
 // ------- 新增：更新上一步按钮状态函数 -------
 function updatePrevButtonState() {
@@ -1244,18 +1739,35 @@ function updateProgressBar() {
 
 // ------- 新增：计算营养成分函数 -------
 async function calculateNutrition() {
+    if (!selectedPetId) {
+        showErrorMessage('请先选择宠物');
+        return;
+    }
+    
+    if (selectedIngredients.length === 0) {
+        showErrorMessage('请先选择食材');
+        return;
+    }
+    
+    // 检查是否所有食材都有重量
+    const ingredientsWithWeights = selectedIngredients.map(ingredient => ({
+        ingredient_id: ingredient.id,  // 保持原有字段名
+        weight: parseFloat(ingredientWeights[ingredient.id] || 0)
+    })).filter(item => item.weight > 0);
+    
+    if (ingredientsWithWeights.length === 0) {
+        showErrorMessage('请为食材设置重量');
+        return;
+    }
+    
+    console.log('发送营养计算请求:', {
+        ingredients: ingredientsWithWeights,
+        pet_id: selectedPetId
+    });
+    
     try {
-        const ingredientsWithWeights = selectedIngredients.map(ingredient => ({
-            ingredient_id: ingredient.id,
-            weight: ingredientWeights[ingredient.id] || 0
-        })).filter(item => item.weight > 0);
-        
-        if (ingredientsWithWeights.length === 0) {
-            showErrorMessage('请先设置食材重量');
-            return;
-        }
-        
-        const response = await fetch('/recipe/api/calculate_nutrition', {
+        // 修复：使用正确的API路径
+        const response = await fetch('/api/nutrition/calculate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1266,19 +1778,28 @@ async function calculateNutrition() {
             })
         });
         
+        console.log('响应状态:', response.status);
+        
         if (!response.ok) {
-            throw new Error('计算营养成分失败');
+            const errorText = await response.text();
+            console.error('API错误:', errorData);
+            throw new Error(errorData.error || `HTTP ${response.status}`);
         }
         
         nutritionData = await response.json();
+        console.log('营养计算结果:', nutritionData);
+        
+        if (nutritionData.error) {
+            throw new Error(nutritionData.error);
+        }
         
         // 显示营养分析结果
         displayNutritionAnalysis(nutritionData);
         updateNextButtonState();
         
     } catch (error) {
-        console.error('计算营养成分失败:', error);
-        showErrorMessage('计算营养成分失败，请检查网络连接');
+        console.error('营养计算失败:', error);
+        showErrorMessage(`营养计算失败: ${error.message}`);
     }
 }
 
@@ -1286,33 +1807,150 @@ async function calculateNutrition() {
 function displayNutritionAnalysis(data) {
     const container = document.getElementById('nutritionAnalysis');
     
+    // 营养状态颜色映射
+    const statusColors = {
+        'excellent': '#28a745',
+        'good': '#17a2b8',
+        'calculated': '#ffc107',
+        'needs_improvement': '#dc3545',
+        'insufficient_data': '#6c757d'
+    };
+    
+    const statusTexts = {
+        'excellent': '优秀',
+        'good': '良好',
+        'calculated': '已计算',
+        'needs_improvement': '需要改善',
+        'insufficient_data': '数据不足'
+    };
+
+    const analysis = data.nutrition_analysis || {};
+    const statusColor = statusColors[analysis.status] || '#6c757d';
+    const statusText = statusTexts[analysis.status] || '未知';
+
     container.innerHTML = `
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
-            <div style="background: white; padding: 1.5rem; border-radius: 10px; border: 2px solid #A1B4B2;">
-                <h4 style="color: #510B0B; margin-bottom: 1rem;">基础营养信息</h4>
-                <div style="display: grid; gap: 0.5rem;">
-                    <div>总重量: <strong>${data.total_weight.toFixed(1)}克</strong></div>
-                    <div>总热量: <strong>${data.calories.toFixed(1)}卡</strong></div>
-                    <div>蛋白质: <strong>${data.protein.toFixed(1)}克</strong></div>
-                    <div>脂肪: <strong>${data.fat.toFixed(1)}克</strong></div>
-                    <div>碳水化合物: <strong>${data.carbohydrate.toFixed(1)}克</strong></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+            <!-- 基础营养信息 -->
+            <div style="background: white; padding: 1.5rem; border-radius: 15px; border: 2px solid #A1B4B2;">
+                <h4 style="color: #510B0B; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-info-circle"></i>
+                    基础营养信息
+                </h4>
+                <div style="display: grid; gap: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>总重量:</span>
+                        <strong style="color: #5580AD;">${data.total_nutrition.total_weight.toFixed(1)} g</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>总热量:</span>
+                        <strong style="color: #B82F0D;">${data.total_nutrition.calories.toFixed(1)} kcal</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>蛋白质:</span>
+                        <strong style="color: #28a745;">${data.total_nutrition.protein.toFixed(1)} g</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>脂肪:</span>
+                        <strong style="color: #fd7e14;">${data.total_nutrition.fat.toFixed(1)} g</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>碳水化合物:</span>
+                        <strong style="color: #20c997;">${data.total_nutrition.carbohydrate.toFixed(1)} g</strong>
+                    </div>
                 </div>
             </div>
-            <div style="background: white; padding: 1.5rem; border-radius: 10px; border: 2px solid #A1B4B2;">
-                <h4 style="color: #510B0B; margin-bottom: 1rem;">营养密度</h4>
-                <div style="display: grid; gap: 0.5rem;">
-                    <div>每100克热量: <strong>${(data.calories / data.total_weight * 100).toFixed(1)}卡</strong></div>
-                    <div>蛋白质占比: <strong>${(data.protein * 4 / data.calories * 100).toFixed(1)}%</strong></div>
-                    <div>脂肪占比: <strong>${(data.fat * 9 / data.calories * 100).toFixed(1)}%</strong></div>
-                    <div>碳水占比: <strong>${(data.carbohydrate * 4 / data.calories * 100).toFixed(1)}%</strong></div>
+            
+            <!-- 营养比例 -->
+            <div style="background: white; padding: 1.5rem; border-radius: 15px; border: 2px solid #A1B4B2;">
+                <h4 style="color: #510B0B; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-chart-pie"></i>
+                    营养比例
+                </h4>
+                <div style="display: grid; gap: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>蛋白质比例:</span>
+                        <strong style="color: #28a745;">${data.nutrition_ratios.protein_percent || 0}%</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>脂肪比例:</span>
+                        <strong style="color: #fd7e14;">${data.nutrition_ratios.fat_percent || 0}%</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>碳水比例:</span>
+                        <strong style="color: #20c997;">${data.nutrition_ratios.carbohydrate_percent || 0}%</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>热量密度:</span>
+                        <strong style="color: #5580AD;">${data.nutrition_ratios.calories_per_100g || 0} kcal/100g</strong>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <div style="margin-top: 2rem; padding: 1rem; background: #e8f5e8; border-radius: 10px; border-left: 4px solid #4CAF50;">
-            <p style="color: #2e7d32; margin: 0;">
+        <!-- 营养评估 -->
+        <div style="background: white; padding: 1.5rem; border-radius: 15px; border: 2px solid ${statusColor}; margin-bottom: 2rem;">
+            <h4 style="color: ${statusColor}; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-clipboard-check"></i>
+                营养评估 - ${statusText}
+                ${analysis.score ? `<span style="font-size: 0.9rem; background: ${statusColor}; color: white; padding: 0.25rem 0.5rem; border-radius: 8px;">${analysis.score}分</span>` : ''}
+            </h4>
+            
+            ${analysis.recommendations && analysis.recommendations.length > 0 ? `
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: #28a745;">✓ 推荐:</strong>
+                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem; color: #28a745;">
+                        ${analysis.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+            
+            ${analysis.warnings && analysis.warnings.length > 0 ? `
+                <div>
+                    <strong style="color: #dc3545;">⚠ 注意事项:</strong>
+                    <ul style="margin: 0.5rem 0; padding-left: 1.5rem; color: #dc3545;">
+                        ${analysis.warnings.map(warning => `<li>${warning}</li>`).join('')}
+                    </ul>
+                </div>
+            ` : ''}
+        </div>
+        
+        <!-- 食材详情表格 -->
+        <div style="background: white; padding: 1.5rem; border-radius: 15px; border: 2px solid #A1B4B2;">
+            <h4 style="color: #510B0B; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-table"></i>
+                食材营养贡献
+            </h4>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="background: #f8f9fa;">
+                            <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6;">食材</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">重量(g)</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">比例(%)</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">热量(kcal)</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">蛋白质(g)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.ingredient_details.map(detail => `
+                            <tr>
+                                <td style="padding: 0.75rem; border-bottom: 1px solid #dee2e6;">${detail.name}</td>
+                                <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6;">${detail.weight}</td>
+                                <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6;">${detail.percentage}%</td>
+                                <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6;">${detail.contribution.calories.toFixed(1)}</td>
+                                <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6;">${detail.contribution.protein.toFixed(1)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 成功提示 -->
+        <div style="margin-top: 2rem; padding: 1rem; background: #d4edda; border-radius: 10px; border-left: 4px solid #28a745;">
+            <p style="color: #155724; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-check-circle"></i>
-                营养成分计算完成！您的食谱看起来营养均衡。
+                营养计算完成！您可以继续到下一步保存食谱。
             </p>
         </div>
     `;
@@ -1324,27 +1962,27 @@ async function saveRecipe(isDraft) {
     const recipeDescription = document.getElementById('recipeDescription').value.trim();
     
     if (!recipeName) {
-        showErrorMessage('请输入食谱名称');
+        showErrorMessage('Please enter a recipe name.');
         return;
     }
     
     if (!selectedPetId || selectedIngredients.length === 0 || !nutritionData) {
-        showErrorMessage('请完成所有步骤');
+        showErrorMessage('Please complete all previous steps.');
         return;
     }
     
     const ingredientsWithWeights = selectedIngredients.map(ingredient => ({
         ingredient_id: ingredient.id,
-        weight: ingredientWeights[ingredient.id] || 0
+        weight: parseFloat(ingredientWeights[ingredient.id] || 0)
     })).filter(item => item.weight > 0);
     
     if (ingredientsWithWeights.length === 0) {
-        showErrorMessage('请设置食材重量');
+        showErrorMessage('Please set the ingredient weights.');
         return;
     }
     
     try {
-        const response = await fetch('/recipe/api/save_recipe', {
+        const response = await fetch('/api/recipe/save', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1354,7 +1992,9 @@ async function saveRecipe(isDraft) {
                 description: recipeDescription,
                 pet_id: selectedPetId,
                 ingredients: ingredientsWithWeights,
-                is_draft: isDraft
+                nutrition_plan_id: selectedNutritionPlan ? selectedNutritionPlan.id : null,
+                is_draft: isDraft,
+                is_public: !isDraft
             })
         });
         
@@ -1373,8 +2013,8 @@ async function saveRecipe(isDraft) {
         }, 2000);
         
     } catch (error) {
-        console.error('保存食谱失败:', error);
-        showErrorMessage('保存食谱失败，请检查网络连接');
+        console.error('Failed to save recipe:', error);
+        showErrorMessage('Failed to save recipe, please check your network connection.');
     }
 }
 
@@ -1440,7 +2080,7 @@ document.addEventListener('keydown', function(e) {
 window.addEventListener('beforeunload', function(e) {
     if (selectedIngredients.length > 0 || selectedPetId) {
         e.preventDefault();
-        e.returnValue = '您有未保存的食谱数据，确定要离开吗？';
+        e.returnValue = 'You have unsaved recipe data. Are you sure you want to leave?';
     }
 });
 </script>

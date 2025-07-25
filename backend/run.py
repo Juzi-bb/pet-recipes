@@ -1,4 +1,13 @@
 # 项目的启动文件
+import os
+import sys
+
+# 添加项目路径
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# 先设置环境变量，再导入app
+os.environ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pet_recipes.db'
+
 from app import create_app, db
 from flask_migrate import Migrate
 
