@@ -1,0 +1,677 @@
+{% extends "base.html" %}
+
+{% block title %}Recipe Details - Pet Recipe Website{% endblock %}
+
+{% block content %}
+<style>
+    /* 保持与用户中心一致的样式变量 */
+    :root {
+        --primary-color: #510B0B;
+        --secondary-color: #B82F0D;
+        --accent-color: #5580AD;
+        --light-accent: #A1B4B2;
+        --warm-accent: #EDBF9D;
+        --success-color: #27ae60;
+        --error-color: #e74c3c;
+        --warning-color: #f39c12;
+    }
+
+    /* 主容器样式 - 与用户中心保持一致 */
+    .recipe-welcome {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--light-accent) 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .recipe-welcome::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 100px;
+        height: 100px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        transform: scale(3);
+    }
+
+    .back-btn {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 45px;
+        height: 45px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        z-index: 10;
+    }
+
+    .back-btn:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateX(-3px);
+    }
+
+    .header-actions {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.5rem;
+        z-index: 10;
+    }
+
+    .action-btn {
+        background: rgba(255,255,255,0.2);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .action-btn:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-2px);
+    }
+
+    .recipe-title {
+        font-size: 2.2rem;
+        margin: 0 0 0.5rem 0;
+        text-align: center;
+        position: relative;
+        z-index: 5;
+    }
+
+    .recipe-meta {
+        text-align: center;
+        opacity: 0.9;
+        font-size: 1rem;
+        position: relative;
+        z-index: 5;
+    }
+
+    /* 内容区域样式 */
+    .content-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        border: 2px solid var(--warm-accent);
+        transition: all 0.3s ease;
+    }
+
+    .content-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .section-title {
+        font-size: 1.4rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--warm-accent);
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .section-title i {
+        color: var(--secondary-color);
+    }
+
+    /* 食谱描述样式 */
+    .recipe-description {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 4px solid var(--accent-color);
+        line-height: 1.6;
+        color: #495057;
+        font-size: 1rem;
+    }
+
+    .recipe-description h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    /* 食材列表样式 */
+    .ingredients-container {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+
+    .ingredient-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .ingredient-item:last-child {
+        border-bottom: none;
+    }
+
+    .ingredient-item:hover {
+        background: linear-gradient(135deg, var(--warm-accent)10 0%, var(--warm-accent)20 100%);
+        transform: translateX(5px);
+    }
+
+    .ingredient-item::before {
+        content: '🥕';
+        position: absolute;
+        left: 0.5rem;
+        font-size: 1.2rem;
+    }
+
+    .ingredient-name {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-left: 2rem;
+        flex: 1;
+    }
+
+    .ingredient-weight {
+        color: var(--accent-color);
+        font-weight: 700;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, var(--accent-color)15 0%, var(--accent-color)25 100%);
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        border: 1px solid var(--accent-color);
+    }
+
+    /* 营养分析网格 */
+    .nutrition-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .nutrition-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        text-align: center;
+        border: 2px solid var(--warm-accent);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nutrition-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, transparent, rgba(85, 128, 173, 0.1), transparent);
+        transform: rotate(45deg);
+        transition: all 0.3s ease;
+    }
+
+    .nutrition-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        border-color: var(--accent-color);
+    }
+
+    .nutrition-card:hover::before {
+        animation: shine 0.6s ease-in-out;
+    }
+
+    @keyframes shine {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .nutrition-value {
+        font-size: 2.2rem;
+        font-weight: bold;
+        color: var(--accent-color);
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .nutrition-label {
+        color: var(--primary-color);
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .nutrition-unit {
+        color: var(--secondary-color);
+        font-size: 0.8rem;
+        font-weight: 500;
+        position: relative;
+        z-index: 2;
+    }
+
+    /* 空状态和加载状态 */
+    .no-data {
+        text-align: center;
+        padding: 3rem;
+        color: var(--secondary-color);
+    }
+
+    .no-data i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 1.5rem;
+    }
+
+    .no-data h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 3rem;
+        color: var(--accent-color);
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--accent-color);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1.5rem;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* 错误消息样式 */
+    .error-message {
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        color: var(--error-color);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border: 2px solid #ffcdd2;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .error-message i {
+        font-size: 1.5rem;
+    }
+
+    /* 操作按钮样式 */
+    .btn {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--light-accent) 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--light-accent) 0%, var(--accent-color) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(85, 128, 173, 0.3);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #5a6268 0%, #6c757d 100%);
+        transform: translateY(-2px);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .recipe-welcome {
+            padding: 1.5rem;
+        }
+        
+        .recipe-title {
+            font-size: 1.8rem;
+        }
+        
+        .content-section {
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .nutrition-grid {
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+        
+        .nutrition-card {
+            padding: 1rem;
+        }
+        
+        .nutrition-value {
+            font-size: 1.8rem;
+        }
+        
+        .header-actions {
+            position: static;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .back-btn {
+            position: static;
+            margin-bottom: 1rem;
+        }
+
+        .ingredient-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .ingredient-name {
+            margin-left: 2rem;
+        }
+
+        .ingredient-weight {
+            align-self: flex-end;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .nutrition-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .recipe-welcome {
+            padding: 1rem;
+        }
+        
+        .content-section {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="recipe-welcome">
+    <button class="back-btn" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+    
+    <div class="header-actions" id="headerActions" style="display: none;">
+        <button class="action-btn" onclick="editRecipe()">
+            <i class="fas fa-edit"></i>
+            编辑
+        </button>
+    </div>
+
+    <h1 class="recipe-title" id="recipeTitle">🍽️ 加载中...</h1>
+    <div class="recipe-meta">
+        <span id="recipeMeta"></span>
+    </div>
+</div>
+
+<div id="content">
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>正在加载食谱详情...</p>
+    </div>
+</div>
+
+<script>
+let currentRecipe = null;
+let currentUserId = null;
+
+// 页面加载完成后获取食谱详情
+document.addEventListener('DOMContentLoaded', function() {
+    const recipeId = getRecipeIdFromUrl();
+    if (recipeId) {
+        loadRecipeDetail(recipeId);
+    } else {
+        showError('食谱ID无效');
+    }
+});
+
+// 从URL中获取食谱ID
+function getRecipeIdFromUrl() {
+    const pathParts = window.location.pathname.split('/');
+    return pathParts[pathParts.length - 1];
+}
+
+// 加载食谱详情
+async function loadRecipeDetail(recipeId) {
+    try {
+        const response = await fetch(`/api/recipe/${recipeId}/detail`);
+        const data = await response.json();
+        
+        if (data.success) {
+            currentRecipe = data.recipe;
+            currentUserId = data.current_user_id;
+            displayRecipeDetail(data.recipe);
+            
+            // 如果是创建者，显示编辑按钮
+            if (data.recipe.user_id === data.current_user_id) {
+                document.getElementById('headerActions').style.display = 'flex';
+            }
+        } else {
+            showError('获取食谱详情失败：' + (data.message || '未知错误'));
+        }
+    } catch (error) {
+        console.error('获取食谱详情出错:', error);
+        showError('网络错误，请稍后重试');
+    }
+}
+
+// 显示食谱详情
+function displayRecipeDetail(recipe) {
+    // 更新标题和元信息
+    document.getElementById('recipeTitle').innerHTML = `🍽️ ${escapeHtml(recipe.name)}`;
+    document.getElementById('recipeMeta').innerHTML = `
+        <i class="fas fa-calendar-alt"></i> 创建于 ${formatDate(recipe.created_at)}
+        ${recipe.pet_name ? `<span style="margin-left: 20px;"><i class="fas fa-paw"></i> 为 ${escapeHtml(recipe.pet_name)} 设计</span>` : ''}
+    `;
+
+    // 构建内容HTML
+    let contentHtml = '';
+
+    // 食谱描述
+    if (recipe.description) {
+        contentHtml += `
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    食谱描述
+                </h2>
+                <div class="recipe-description">
+                    <p>${escapeHtml(recipe.description)}</p>
+                </div>
+            </div>
+        `;
+    }
+
+    // 食材列表
+    if (recipe.ingredients && recipe.ingredients.length > 0) {
+        contentHtml += `
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-list"></i>
+                    食材清单 (${recipe.ingredients.length} 种食材)
+                </h2>
+                <div class="ingredients-container">
+                    ${recipe.ingredients.map(ingredient => `
+                        <div class="ingredient-item">
+                            <span class="ingredient-name">${escapeHtml(ingredient.name)}</span>
+                            <span class="ingredient-weight">${ingredient.weight}g</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // 营养分析
+    if (recipe.nutrition) {
+        contentHtml += `
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-pie"></i>
+                    营养分析
+                </h2>
+                <div class="nutrition-grid">
+                    <div class="nutrition-card">
+                        <div class="nutrition-value">${recipe.nutrition.total_calories.toFixed(1)}</div>
+                        <div class="nutrition-label">总卡路里</div>
+                        <div class="nutrition-unit">kcal</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value">${recipe.nutrition.total_protein.toFixed(1)}</div>
+                        <div class="nutrition-label">蛋白质</div>
+                        <div class="nutrition-unit">g</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value">${recipe.nutrition.total_fat.toFixed(1)}</div>
+                        <div class="nutrition-label">脂肪</div>
+                        <div class="nutrition-unit">g</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value">${recipe.nutrition.total_carbs.toFixed(1)}</div>
+                        <div class="nutrition-label">碳水化合物</div>
+                        <div class="nutrition-unit">g</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value">${recipe.nutrition.total_fiber.toFixed(1)}</div>
+                        <div class="nutrition-label">纤维</div>
+                        <div class="nutrition-unit">g</div>
+                    </div>
+                    <div class="nutrition-card">
+                        <div class="nutrition-value">${recipe.nutrition.total_calcium.toFixed(1)}</div>
+                        <div class="nutrition-label">钙</div>
+                        <div class="nutrition-unit">mg</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // 如果没有任何内容
+    if (!contentHtml) {
+        contentHtml = `
+            <div class="content-section">
+                <div class="no-data">
+                    <i class="fas fa-utensils"></i>
+                    <h3>此食谱暂无详细信息</h3>
+                    <p>食谱信息可能还在完善中</p>
+                </div>
+            </div>
+        `;
+    }
+
+    document.getElementById('content').innerHTML = contentHtml;
+}
+
+// 编辑食谱
+function editRecipe() {
+    if (currentRecipe) {
+        window.location.href = `/recipe/edit/${currentRecipe.id}`;
+    }
+}
+
+// 返回上一页
+function goBack() {
+    if (document.referrer && document.referrer.includes(window.location.origin)) {
+        window.history.back();
+    } else {
+        window.location.href = '/user/center';
+    }
+}
+
+// 格式化日期
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('zh-CN', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+// HTML转义
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 显示错误信息
+function showError(message) {
+    document.getElementById('recipeTitle').innerHTML = '❌ 加载失败';
+    document.getElementById('recipeMeta').textContent = '';
+    document.getElementById('content').innerHTML = `
+        <div class="content-section">
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div>
+                    <strong>错误：</strong>${message}
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button onclick="window.location.reload()" class="btn btn-primary">
+                    <i class="fas fa-redo"></i> 重新加载
+                </button>
+                <a href="/user/center" class="btn btn-secondary" style="margin-left: 1rem;">
+                    <i class="fas fa-home"></i> 返回首页
+                </a>
+            </div>
+        </div>
+    `;
+}
+</script>
+{% endblock %}

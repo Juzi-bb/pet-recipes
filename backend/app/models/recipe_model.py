@@ -3,15 +3,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import enum
-
-Base = declarative_base()
+from ..extensions import db  # 使用相对导入
 
 class RecipeStatus(enum.Enum):
     DRAFT = "draft"           # 草稿
     PUBLISHED = "published"   # 已发布
     ARCHIVED = "archived"     # 已归档
 
-class Recipe(Base):
+class Recipe(db.Model):  # 修复：继承 db.Model 而不是 Base
     __tablename__ = 'recipes'
     
     # 基础信息

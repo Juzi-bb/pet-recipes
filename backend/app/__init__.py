@@ -22,9 +22,21 @@ def create_app(config_class=Config):
     # 创建Flask app并指定模板目录
     app = Flask(__name__, instance_relative_config=True, template_folder=template_path, static_folder=static_path)
     
+    # 修复：固定数据库文件路径
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # 放在backend/instance目录下
+    instance_dir = os.path.join(backend_dir, '..', 'instance')
+    os.makedirs(instance_dir, exist_ok=True)
+    database_path = os.path.join(instance_dir, 'pet_recipes.db')
+
     app.config['SECRET_KEY'] = 'your-secret-key-here'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pet_recipes.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # 添加调试信息
+    print(f"数据库文件路径: {database_path}")
+    print(f"数据库文件存在: {os.path.exists(database_path)}")
 
     # 初始化扩展
     db.init_app(app)
@@ -40,12 +52,27 @@ def create_app(config_class=Config):
         recipe_model,
         nutrition_requirements_model,
         recipe_ingredient_model,
-        pet_allergen_model
+        pet_allergen_model,
+        recipe_favorite_model
     )
 
     # 创建数据库表
     with app.app_context():
+        # 检查是否是首次运行
+        if not os.path.exists(database_path):
+            print("首次运行，创建数据库表...")
+        else:
+            print("数据库文件已存在，检查表结构...")
+
         db.create_all()
+
+        # 显示用户数量
+        try:
+            from .models.user_model import User
+            user_count = User.query.count()
+            print(f"当前用户数量: {user_count}")
+        except Exception as e:
+            print(f"查询用户失败: {e}")
 
     # 注册蓝图
     from .routes.user import user_bp
@@ -55,7 +82,16 @@ def create_app(config_class=Config):
     from .routes.recipe_recommendation_api import recommendation_api_bp
     from .routes.recipe_save_api import recipe_save_api_bp
     from .routes.nutrition_api import nutrition_api_bp
-    from .routes.allergen_api import allergen_api_bp
+    from .routes.favorite_api import favorite_api
+    from .routes.recipe_detail_api import recipe_detail_bp
+
+    # 修复：条件性导入 allergen_api
+    try:
+        from .routes.allergen_api import allergen_api_bp
+        ALLERGEN_API_AVAILABLE = True
+    except ImportError:
+        print("Warning: allergen_api not available")
+        ALLERGEN_API_AVAILABLE = False
 
     # 修改蓝图注册，添加页面路由
     app.register_blueprint(user_bp, url_prefix='/user')       # 页面路由
@@ -65,5 +101,11 @@ def create_app(config_class=Config):
     app.register_blueprint(main_bp)
     app.register_blueprint(nutrition_api_bp)
     app.register_blueprint(recipe_save_api_bp)
+    app.register_blueprint(favorite_api)
+    app.register_blueprint(recipe_detail_bp)
+    
+    # 修复：条件性注册 allergen_api
+    if ALLERGEN_API_AVAILABLE:
+        app.register_blueprint(allergen_api_bp)
 
     return app

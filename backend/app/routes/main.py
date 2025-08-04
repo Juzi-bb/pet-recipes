@@ -1,9 +1,13 @@
 # 主路由文件
-from flask import Blueprint, render_template, session, redirect, url_for, flash, request
+from flask import Blueprint, render_template, session, redirect, url_for, flash, request, jsonify
 from app.models.pet_model import Pet
 from app.models.user_model import User
 from app.models.recipe_model import Recipe
 from app.extensions import db
+from app.models.recipe_favorite_model import RecipeFavorite
+from werkzeug.security import check_password_hash, generate_password_hash
+import re
+from datetime import datetime
 
 main_bp = Blueprint('main', __name__)
 
@@ -47,7 +51,22 @@ def user_center():
             }
             pets_data.append(pet_data)
         
-        return render_template('user_center.html', pets=pets_data)
+        # 获取用户收藏数量（如果 RecipeFavorite 表存在）
+        try:
+            favorites_count = RecipeFavorite.query.filter_by(user_id=user_id).count()
+        except:
+            favorites_count = 0
+        
+        # 获取用户创建的食谱数量
+        try:
+            recipes_count = Recipe.query.filter_by(user_id=user_id).count()
+        except:
+            recipes_count = 0
+
+        return render_template('user_center.html',
+                                pets=pets,
+                                favorites_count=favorites_count,
+                                recipes_count=recipes_count)
     
     except Exception as e:
         flash(f'Error getting pet information: {str(e)}', 'error')
@@ -295,6 +314,88 @@ def api_pet_info(pet_id):
         'avatar': pet.avatar,
         'special_needs': pet.special_needs.split(',') if pet.special_needs else []
     }
+
+@main_bp.route('/api/user/recipes', methods=['GET'])
+def get_user_recipes():
+    """获取用户创建的食谱列表"""
+    try:
+        # 检查用户登录状态
+        if 'user_id' not in session:
+            return jsonify({
+                'success': False,
+                'message': '请先登录'
+            }), 401
+        
+        user_id = session['user_id']
+        print(f"🔍 获取用户 {user_id} 的食谱列表")  # 调试日志
+        
+        # 获取用户创建的食谱
+        recipes = Recipe.query.filter_by(user_id=user_id).order_by(
+            Recipe.created_at.desc()
+        ).all()
+
+        print(f"📊 找到 {len(recipes)} 个食谱")  # 调试日志
+        
+        recipes_data = []
+        for recipe in recipes:
+            try:
+                # 检查当前用户是否收藏了这个食谱
+                is_favorited = False
+                try:
+                    # 检查收藏状态
+                    favorite = RecipeFavorite.query.filter_by(
+                        user_id=user_id,
+                        recipe_id=recipe.id
+                    ).first()
+                    is_favorited = favorite is not None
+                except Exception as fav_error:
+                    print(f"⚠️ 检查收藏状态出错: {fav_error}")
+                    is_favorited = False
+                
+                recipe_dict = {
+                    'id': recipe.id,
+                    'name': recipe.name,
+                    'description': recipe.description or '',
+                    'user_id': recipe.user_id,
+                    'created_at': recipe.created_at.isoformat() if recipe.created_at else None,
+                    'is_favorited': is_favorited
+                }
+                
+                recipes_data.append(recipe_dict)
+                print(f"✅ 成功处理食谱: {recipe.name}")
+                
+            except Exception as recipe_error:
+                print(f"❌ 处理食谱 {recipe.id} 时出错: {recipe_error}")
+                # 即使单个食谱处理出错，也添加基本信息
+                recipes_data.append({
+                    'id': recipe.id,
+                    'name': recipe.name or f'Recipe {recipe.id}',
+                    'description': '',
+                    'user_id': recipe.user_id,
+                    'created_at': recipe.created_at.isoformat() if recipe.created_at else None,
+                    'is_favorited': False
+                })
+        
+        print(f"✅ 最终返回 {len(recipes_data)} 个食谱")
+
+        # ⚠️ 关键修复：统一返回格式，与前端期望一致
+        response_data = {
+            'success': True,
+            'recipes': recipes_data  # 前端期望 data.recipes，不是 data.data.recipes
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        print(f"❌ 获取用户食谱出错: {e}")
+        import traceback
+        traceback.print_exc()
+
+        return jsonify({
+            'success': False,
+            'message': f'服务器内部错误: {str(e)}',
+            'error_type': type(e).__name__
+        }), 500
 
 @main_bp.route('/encyclopedia')
 def encyclopedia():

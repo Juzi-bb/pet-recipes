@@ -13,10 +13,10 @@ class Pet(db.Model):
     avatar = db.Column(db.String(100), nullable=False, default='dog1.png')  # 头像文件名
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)  # 创建时间
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)  # 更新时间
-    __tablename__ = 'pet'
+    __tablename__ = 'pets'
 
     # 外键，关联到用户表的 id
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     # 添加字符串表示方法
     def __repr__(self):

@@ -12,6 +12,14 @@ from app.utils.allergen_service import AllergenService
 from app.extensions import db
 from datetime import datetime
 
+# 修复：添加条件导入，如果 AllergenService 不可用就跳过过敏检查
+try:
+    from app.utils.allergen_service import AllergenService
+    ALLERGEN_SERVICE_AVAILABLE = True
+except ImportError:
+    print("Warning: AllergenService not available, skipping allergen checks")
+    ALLERGEN_SERVICE_AVAILABLE = False
+
 recipe_save_api_bp = Blueprint('recipe_save_api', __name__)
 
 @recipe_save_api_bp.route('/api/recipe/save', methods=['POST'])
@@ -37,11 +45,16 @@ def save_recipe():
         if not ingredients_data:
             return jsonify({'error': '请选择食材'}), 400
         
-        # 验证宠物权限（如果指定了宠物）
+        # 修复：将pet_id转换为整数
         if pet_id:
-            pet = Pet.query.filter_by(id=pet_id, user_id=session['user_id']).first()
-            if not pet:
-                return jsonify({'error': '宠物信息不存在'}), 404
+            try:
+                pet_id = int(pet_id)
+                # 验证宠物权限
+                pet = Pet.query.filter_by(id=pet_id, user_id=session['user_id']).first()
+                if not pet:
+                    return jsonify({'error': '宠物信息不存在'}), 404
+            except (ValueError, TypeError):
+                pet_id = None
         
         # 检查食谱名称是否重复
         existing_recipe = Recipe.query.filter_by(
@@ -53,12 +66,20 @@ def save_recipe():
             return jsonify({'error': '您已有同名食谱，请使用不同的名称'}), 400
         
         # 验证食材数据
-        ingredient_ids = [item.get('ingredient_id') for item in ingredients_data]
+        ingredient_ids = []
+        for item in ingredients_data:
+            ingredient_id = item.get('ingredient_id') or item.get('id')
+            if ingredient_id:
+                ingredient_ids.append(int(ingredient_id))
+        
+        if not ingredient_ids:
+            return jsonify({'error': '请选择有效的食材'}), 400
+        
         ingredients = Ingredient.query.filter(Ingredient.id.in_(ingredient_ids)).all()
         ingredient_dict = {ing.id: ing for ing in ingredients}
         
         # 检查过敏安全性
-        if pet_id:
+        if ALLERGEN_SERVICE_AVAILABLE and pet_id:
             safety_check = AllergenService.check_recipe_safety(ingredient_ids, pet_id)
             if not safety_check['is_safe']:
                 return jsonify({

@@ -6,7 +6,7 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     nickname = db.Column(db.String(80), nullable=True)  # 添加昵称字段
-    __tablename__ = 'user'  # 明确指定表名
+    __tablename__ = 'users'  # 明确指定表名
 
     # 关系：一个用户可以有多只宠物
     pets = db.relationship('Pet', backref='owner', lazy=True)

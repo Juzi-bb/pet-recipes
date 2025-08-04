@@ -4,10 +4,9 @@ from sqlalchemy import Column, Integer, String, Float, Boolean, Text, DateTime, 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from datetime import datetime
+from ..extensions import db  # 使用相对导入
 
-Base = declarative_base()
-
-class RecipeIngredient(Base):
+class RecipeIngredient(db.Model):  # 修复：继承 db.Model 而不是 Base
     __tablename__ = 'recipe_ingredients'
     
     # 基础信息

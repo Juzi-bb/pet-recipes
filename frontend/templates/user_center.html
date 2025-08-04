@@ -29,17 +29,56 @@
         margin-bottom: 1.5rem;
         padding-bottom: 0.5rem;
         border-bottom: 2px solid #EDBF9D;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    /* -------宠物卡片网格 -------*/
+    .section-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-section {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: #5580AD;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #A1B4B2;
+        transform: translateY(-2px);
+    }
+
+    /* 宠物卡片网格 */
     .pets-grid {
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
         gap: 1.5rem;
-        margin-bottom: 2rem;
+        margin-bottom: 3rem;
     }
 
-    /* ---------迷你宠物卡片 ----------*/
+    /* 食谱卡片网格 */
+    .recipes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    /* 迷你宠物卡片 */
     .pet-card-mini {
         background: white;
         border-radius: 15px;
@@ -67,6 +106,377 @@
     .pet-card-mini:nth-child(4n+1) { border-color: #A1B4B2; background: linear-gradient(135deg, #A1B4B205 0%, #A1B4B210 100%); }
     .pet-card-mini:nth-child(5n+1) { border-color: #EDBF9D; background: linear-gradient(135deg, #EDBF9D15 0%, #EDBF9D25 100%); }
 
+    /* 食谱卡片样式 */
+    .recipe-card {
+        background: white;
+        border-radius: 15px;
+        padding: 0;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        border: 2px solid #EDBF9D;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .recipe-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: #5580AD;
+    }
+
+    /* 食谱卡片头部 - 折叠状态 */
+    .recipe-card-header {
+        padding: 1.5rem;
+        position: relative;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .recipe-card.expanded .recipe-card-header {
+        border-bottom: 2px solid #5580AD;
+        background: linear-gradient(135deg, #5580AD10 0%, #5580AD20 100%);
+    }
+
+    /* 收藏星星按钮 */
+    .favorite-star {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255,255,255,0.9);
+        border: none;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 16px;
+        z-index: 10;
+    }
+
+    .favorite-star:hover {
+        background: white;
+        transform: scale(1.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .favorite-star.favorited {
+        color: #f1c40f;
+    }
+
+    .favorite-star:not(.favorited) {
+        color: #bdc3c7;
+    }
+
+    /* 展开/折叠指示器 */
+    .expand-indicator {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        background: #5580AD;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        font-size: 12px;
+    }
+
+    .expand-indicator:hover {
+        background: #A1B4B2;
+        transform: scale(1.1);
+    }
+
+    .recipe-card.expanded .expand-indicator {
+        transform: rotate(180deg);
+        background: #B82F0D;
+    }
+
+    /* 食谱信息 */
+    .recipe-info {
+        padding-right: 60px; /* 为右侧收藏按钮留出空间 */
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .recipe-info h3 {
+        color: #510B0B;
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: bold;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .recipe-description {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        line-height: 1.4;
+    }
+
+    .recipe-card.expanded .recipe-description {
+        -webkit-line-clamp: unset;
+        display: block;
+    }
+
+    .recipe-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: #95a5a6;
+        border-top: 1px solid #ecf0f1;
+        padding-top: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    /* 食谱展开内容 */
+    .recipe-expanded-content {
+        display: none;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-top: 1px solid #e9ecef;
+        animation: expandContent 0.3s ease-out;
+    }
+
+    .recipe-card.expanded .recipe-expanded-content {
+        display: block;
+    }
+
+    @keyframes expandContent {
+        from {
+            opacity: 0;
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        to {
+            opacity: 1;
+            max-height: 500px;
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+    }
+
+    /* 食材列表样式 */
+    .ingredients-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .ingredients-title {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #510B0B;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ingredients-list {
+        background: white;
+        border-radius: 10px;
+        border: 1px solid #e9ecef;
+        max-height: 150px;
+        overflow-y: auto;
+    }
+
+    .ingredient-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid #f8f9fa;
+        font-size: 0.85rem;
+    }
+
+    .ingredient-item:last-child {
+        border-bottom: none;
+    }
+
+    .ingredient-item:hover {
+        background: linear-gradient(135deg, #EDBF9D10 0%, #EDBF9D20 100%);
+    }
+
+    .ingredient-name {
+        color: #510B0B;
+        font-weight: 500;
+    }
+
+    .ingredient-weight {
+        color: #5580AD;
+        font-weight: 600;
+    }
+
+    /* 营养信息样式 */
+    .nutrition-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .nutrition-title {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #510B0B;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .nutrition-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.8rem;
+    }
+
+    .nutrition-item {
+        background: white;
+        padding: 0.8rem;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .nutrition-item:hover {
+        border-color: #5580AD;
+        transform: translateY(-2px);
+    }
+
+    .nutrition-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #5580AD;
+        margin-bottom: 0.2rem;
+    }
+
+    .nutrition-label {
+        font-size: 0.7rem;
+        color: #7f8c8d;
+        font-weight: 500;
+    }
+
+    /* 展开内容的操作按钮 */
+    .recipe-actions {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: flex-end;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-decoration: none;
+    }
+
+    .btn-view {
+        background: #5580AD;
+        color: white;
+    }
+
+    .btn-view:hover {
+        background: #A1B4B2;
+        transform: translateY(-1px);
+    }
+
+    .btn-edit {
+        background: #EDBF9D;
+        color: #510B0B;
+    }
+
+    .btn-edit:hover {
+        background: #B82F0D;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    /* 收藏夹特殊卡片 */
+    .favorites-card {
+        background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%);
+        border: 2px dashed #f39c12;
+        cursor: pointer;
+        text-align: center;
+        min-height: 160px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        padding: 1.5rem;
+    }
+
+    .favorites-card:hover {
+        border-color: #e67e22;
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        transform: translateY(-3px) scale(1.02);
+    }
+
+    .favorites-icon {
+        font-size: 2.5rem;
+        color: #f39c12;
+        position: relative;
+    }
+
+    .favorites-count {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: bold;
+        border: 2px solid white;
+    }
+
+    .favorites-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #e67e22;
+        margin: 0;
+    }
+
+    .favorites-subtitle {
+        color: #d68910;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    /* 宠物相关 */
     .pet-avatar-large {
         width: 80px;
         height: 80px;
@@ -123,7 +533,7 @@
         transform: scale(1.1);
     }
 
-    /* ------------添加新宠物卡片 ----------------*/
+    /* 添加新宠物卡片 */
     .add-pet-card {
         background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
         border: 2px dashed #5580AD;
@@ -156,20 +566,20 @@
     }
 
     /* 模态框样式 */
-    .modal-overlay {
+    .modal {
+        display: none;
         position: fixed;
-        top: 0;
+        z-index: 1000;
         left: 0;
+        top: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        display: none;
+        background: rgba(0,0,0,0.5);
         opacity: 0;
         transition: opacity 0.3s ease;
     }
 
-    .modal-overlay.show {
+    .modal.show {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -180,9 +590,9 @@
         background: white;
         border-radius: 20px;
         padding: 2rem;
-        max-width: 600px;
+        max-width: 900px;
         width: 90%;
-        max-height: 80vh;
+        max-height: 85vh;
         overflow-y: auto;
         position: relative;
         transform: scale(0.7) translateY(-50px);
@@ -190,7 +600,7 @@
         box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
 
-    .modal-overlay.show .modal-content {
+    .modal.show .modal-content {
         transform: scale(1) translateY(0);
     }
 
@@ -209,6 +619,7 @@
         display: flex;
         align-items: center;
         gap: 1rem;
+        margin: 0;
     }
 
     .close-btn {
@@ -230,52 +641,6 @@
         background: #B82F0D;
         color: white;
         transform: rotate(90deg);
-    }
-
-    .modal-pet-info {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    .modal-avatar {
-        width: 120px;
-        height: 120px;
-        border-radius: 20px;
-        object-fit: cover;
-        border: 4px solid #EDBF9D;
-    }
-
-    .modal-details {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .detail-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .detail-row:last-child {
-        border-bottom: none;
-    }
-
-    .detail-label {
-        font-weight: bold;
-        color: #510B0B;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .detail-value {
-        color: #B82F0D;
-        font-weight: 500;
     }
 
     /* 特殊需求标签 */
@@ -333,6 +698,8 @@
         gap: 0.5rem;
         flex: 1;
         justify-content: center;
+        border: none;
+        cursor: pointer;
     }
 
     .btn-edit-modal {
@@ -355,8 +722,58 @@
         transform: translateY(-2px);
     }
 
+    /* 确认对话框 */
+    .confirm-modal {
+        max-width: 400px;
+    }
+
+    .confirm-content {
+        text-align: center;
+        padding: 1rem 0;
+    }
+
+    .confirm-message {
+        font-size: 1.1rem;
+        color: #510B0B;
+        margin-bottom: 1.5rem;
+    }
+
+    .confirm-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn-confirm {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel {
+        background: #95a5a6;
+        color: white;
+    }
+
+    .btn-cancel:hover {
+        background: #7f8c8d;
+    }
+
+    .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c0392b;
+    }
+
     /* 空状态样式 */
     .empty-state {
+        grid-column: 1 / -1;
         text-align: center;
         padding: 3rem;
         color: #B82F0D;
@@ -365,6 +782,7 @@
     .empty-state-icon {
         font-size: 4rem;
         margin-bottom: 1rem;
+        color: #bdc3c7;
     }
 
     .empty-state h3 {
@@ -372,19 +790,86 @@
         margin-bottom: 1rem;
     }
 
-    /* 成功消息动画 - 【修改】重新设计整个消息框样式 */
+    .empty-state p {
+        color: #7f8c8d;
+        margin-bottom: 1.5rem;
+    }
+
+    /* 加载状态 */
+    .loading {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 2rem;
+        color: #7f8c8d;
+        font-size: 1.1rem;
+    }
+
+    .loading i {
+        animation: spin 2s linear infinite;
+        margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Toast 消息样式 */
+    .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideInRight 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 400px;
+    }
+
+    .toast-success {
+        background: #27ae60;
+    }
+
+    .toast-error {
+        background: #e74c3c;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    /* 成功消息动画 */
     .success-message {
-        /* 【修改】定位方式：固定在用户视窗顶部而非页面顶部 */
         position: fixed;
         top: -80px;
         left: 50%;
         transform: translateX(-50%);
-        
-        /* 【修改】背景颜色改为主题色系中的暖色调 */
         background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
         color: #510B0B;
-        
-        /* 【修改】自适应宽度设置 */
         padding: 1rem 2rem;
         min-width: 200px;
         max-width: 80vw;
@@ -392,80 +877,33 @@
         display: inline-block;
         text-align: center;
         white-space: nowrap;
-        
-        /* 【修改】更精致的圆角和阴影 */
         border-radius: 25px;
         box-shadow: 0 8px 32px rgba(81, 11, 11, 0.3);
         border: 2px solid #510B0B;
-        
-        /* 【修改】层级确保始终在最顶层 */
         z-index: 9999;
-        
         font-weight: bold;
         font-size: 1rem;
-        
-        /* 【修改】更平滑的动画曲线 */
         transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         opacity: 0;
-        
-        /* 【新增】文字阴影增强可读性 */
         text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
     }
 
-    /* 【修改】显示状态：出现在视窗顶部 */
     .success-message.show {
-        top: 20px;  /* 距离视窗顶部20px */
+        top: 20px;
         opacity: 1;
         transform: translateX(-50%) scale(1);
     }
 
-    /* 【修改】隐藏状态：向上消失并缩小 */
     .success-message.hide {
         top: -80px;
         opacity: 0;
         transform: translateX(-50%) scale(0.8);
     }
 
-    /* 【新增】长文本自动换行处理 */
     .success-message.multiline {
         white-space: normal;
         max-width: 400px;
         line-height: 1.4;
-    }
-
-    /* 【新增】响应式设计：移动端适配 */
-    @media (max-width: 768px) {
-        .success-message {
-            padding: 0.8rem 1.5rem;
-            font-size: 0.9rem;
-            max-width: 90vw;
-            margin: 0 1rem;
-        }
-        
-        .success-message.show {
-            top: 15px;
-        }
-    }
-
-    /* 【新增】不同类型消息的颜色变体 */
-    .success-message.type-success {
-        background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
-        color: #510B0B;
-        border-color: #510B0B;
-    }
-
-    .success-message.type-info {
-        background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
-        color: white;
-        border-color: #5580AD;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    }
-
-    .success-message.type-warning {
-        background: linear-gradient(135deg, #B82F0D 0%, #EDBF9D 100%);
-        color: white;
-        border-color: #B82F0D;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
     }
 
     /* 快速操作区域 */
@@ -507,6 +945,20 @@
 
     /* 响应式设计 */
     @media (max-width: 768px) {
+        .pets-grid, .recipes-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .section-title {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .section-actions {
+            justify-content: center;
+        }
+        
         .modal-content {
             width: 95%;
             padding: 1.5rem;
@@ -526,7 +978,10 @@
             gap: 0.5rem;
         }
 
-        /* 【新增】移动端成功消息样式优化 */
+        .favorites-grid {
+            grid-template-columns: 1fr;
+        }
+
         .success-message {
             padding: 0.8rem 1.5rem;
             font-size: 0.9rem;
@@ -537,6 +992,15 @@
         .success-message.show {
             top: 15px;
         }
+
+        .recipe-info {
+            padding-left: 12px;
+            padding-right: 35px;
+        }
+
+        .recipe-icon {
+            display: none; /* 在小屏幕上隐藏图标节省空间 */
+        }
     }
 </style>
 
@@ -545,16 +1009,17 @@
     <p>Manage your pet's information and create exclusive healthy recipes for them.</p>
 </div>
 
+<!-- 我的宠物部分 -->
 <div class="section-title">
     🐾 My Pets
+    <div class="section-actions">
+        <a href="{{ url_for('main.add_pet') }}" class="btn-section btn-primary">
+            ➕ Add Pet
+        </a>
+    </div>
 </div>
 
 <div class="pets-grid">
-    <a href="{{ url_for('main.add_pet') }}" class="pet-card add-pet-card">
-        <div class="add-pet-icon">➕</div>
-        <div class="add-pet-text">Add New Pet</div>
-    </a>
-
     {% if pets %}
         {% for pet in pets %}
         <div class="pet-card-mini" data-pet-id="{{ pet.id }}" onclick="showPetModal(this.dataset.petId)">
@@ -583,19 +1048,52 @@
             </div>
         </div>
         {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🐕</div>
+            <h3>No pet information added yet</h3>
+            <p>Click the "Add Pet" button above to start creating an exclusive profile for your pet!</p>
+        </div>
     {% endif %}
 </div>
-            
-{% if not pets %}
-<div class="empty-state">
-    <div class="empty-state-icon">🐕</div>
-    <h3>No pet information has been added yet.</h3>
-    <p>Click the "Add New Pet" button above to start creating an exclusive profile for your pet!</p>
-</div>
-{% endif %}
 
+<!-- 我的食谱部分 -->
 <div class="section-title">
-    🍽️ Quick Actions
+    🍽️ My Recipes
+    <div class="section-actions">
+        <a href="/recipe/create_recipe" class="btn-section btn-primary">
+            ➕ Create Recipe
+        </a>
+    </div>
+</div>
+
+<div class="recipes-grid">
+    <!-- 收藏夹卡片 -->
+    <div class="recipe-card favorites-card" onclick="showFavoritesModal()">
+        <div class="favorites-icon">
+            📁
+            <span class="favorites-count" id="favoritesCount">0</span>
+        </div>
+        <h3 class="favorites-title">My Favorites</h3>
+        <p class="favorites-subtitle">View saved recipes</p>
+    </div>
+
+    <!-- 用户创建的食谱列表 -->
+    <div id="userRecipesList">
+        <!-- 动态加载用户食谱 -->
+    </div>
+
+    <!-- 空状态显示 -->
+    <div class="empty-state" id="recipesEmptyState" style="display: none;">
+        <div class="empty-state-icon">🍖</div>
+        <h3>No recipes created yet</h3>
+        <p>Click the "Create Recipe" button above to start creating healthy recipes for your pets!</p>
+    </div>
+</div>
+
+<!-- 快速操作区域 -->
+<div class="section-title">
+    ⚡ Quick Actions
 </div>
 
 <div class="quick-actions-grid">
@@ -615,12 +1113,11 @@
     </a>
 </div>
 
-<div class="modal-overlay" id="petModal" onclick="closePetModal(event)">
+<!-- 宠物详情模态框 -->
+<div class="modal" id="petModal" onclick="closePetModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
-            <div class="modal-title">
-                <span id="modalPetName">Pet Details</span>
-            </div>
+            <h2 class="modal-title" id="modalPetName">Pet Details</h2>
             <button class="close-btn" onclick="closePetModal()">&times;</button>
         </div>
         
@@ -659,8 +1156,7 @@
             <div class="special-needs-title">
                 🏥 Special Needs
             </div>
-            <div class="needs-tags" id="modalSpecialNeeds">
-                </div>
+            <div class="needs-tags" id="modalSpecialNeeds"></div>
         </div>
         
         <div class="modal-actions">
@@ -675,6 +1171,46 @@
     </div>
 </div>
 
+<!-- 收藏夹模态框 -->
+<div class="modal" id="favoritesModal" onclick="closeFavoritesModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2 class="modal-title">📁 My Favorites</h2>
+            <button class="close-btn" onclick="closeFavoritesModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <div id="favoritesGrid" class="favorites-grid">
+                <!-- 动态加载收藏的食谱 -->
+            </div>
+            <div id="favoritesEmptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">💝</div>
+                <h3>No favorite recipes yet</h3>
+                <p>Start exploring and save your favorite recipes!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 确认删除模态框 -->
+<div class="modal" id="confirmModal" onclick="closeConfirmModal(event)">
+    <div class="modal-content confirm-modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2 class="modal-title">⚠️ Confirm Action</h2>
+            <button class="close-btn" onclick="closeConfirmModal()">&times;</button>
+        </div>
+        
+        <div class="confirm-content">
+            <p class="confirm-message" id="confirmMessage">Are you sure you want to perform this action?</p>
+            <div class="confirm-actions">
+                <button class="btn-confirm btn-cancel" onclick="closeConfirmModal()">Cancel</button>
+                <button class="btn-confirm btn-danger" id="confirmButton">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 隐藏的宠物数据容器 -->
 <div id="pet-data-container" style="display: none;">
     {% for pet in pets %}
     <div class="pet-data"
@@ -692,13 +1228,30 @@
 </div>
 
 <script>
+// 全局变量
+let petData = [];
+let favoritesManager = null;
+let recipeDetailsCache = {}; // 缓存食谱详情
+
+// 页面加载完成时初始化
+document.addEventListener('DOMContentLoaded', function() {
+    initializePage();
+});
+
+// 初始化页面
+function initializePage() {
+    petData = getPetData();
+    favoritesManager = new FavoritesManager();
+    loadUserRecipes();
+}
+
 // 从隐藏的DOM元素中读取宠物数据
 function getPetData() {
-    var petElements = document.querySelectorAll('.pet-data');
-    var petData = [];
+    const petElements = document.querySelectorAll('.pet-data');
+    const data = [];
     
     petElements.forEach(function(element) {
-        petData.push({
+        data.push({
             id: parseInt(element.dataset.id),
             name: element.dataset.name,
             species: element.dataset.species,
@@ -711,15 +1264,410 @@ function getPetData() {
         });
     });
     
-    return petData;
+    return data;
 }
 
-// 获取宠物数据
-var petData = getPetData();
+// 收藏功能管理类
+class FavoritesManager {
+    constructor() {
+        this.favoritesCount = 0;
+        this.favoritesCache = [];
+        this.init();
+    }
 
-// 显示宠物详情模态框
+    init() {
+        this.loadFavoritesCount();
+    }
+
+    async loadFavoritesCount() {
+        try {
+            const response = await fetch('/api/user/favorites');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.favoritesCount = data.data.count;
+                this.updateFavoritesCountDisplay();
+            }
+        } catch (error) {
+            console.error('加载收藏数量失败:', error);
+        }
+    }
+
+    updateFavoritesCountDisplay() {
+        const countElement = document.getElementById('favoritesCount');
+        if (countElement) {
+            countElement.textContent = this.favoritesCount;
+        }
+    }
+
+    async toggleFavorite(recipeId, element, event) {
+        if (event) {
+            event.stopPropagation();
+        }
+        
+        const isFavorited = element.classList.contains('favorited');
+        
+        try {
+            element.disabled = true;
+            
+            const method = isFavorited ? 'DELETE' : 'POST';
+            const url = isFavorited ? `/api/recipe/favorite/${recipeId}` : '/api/recipe/favorite';
+            const body = isFavorited ? null : JSON.stringify({ recipe_id: recipeId });
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: body
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                if (isFavorited) {
+                    element.classList.remove('favorited');
+                    this.favoritesCount--;
+                    showToast('Recipe removed from favorites', 'success');
+                } else {
+                    element.classList.add('favorited');
+                    this.favoritesCount++;
+                    showToast('Recipe added to favorites!', 'success');
+                }
+                this.updateFavoritesCountDisplay();
+            } else {
+                showToast(data.message, 'error');
+            }
+        } catch (error) {
+            console.error('切换收藏状态失败:', error);
+            showToast('Operation failed, please try again', 'error');
+        } finally {
+            element.disabled = false;
+        }
+    }
+
+    async showFavoritesModal() {
+        // 这里可以实现收藏夹模态框显示逻辑
+        showToast('Favorites feature is under development', 'info');
+    }
+}
+
+// 加载用户创建的食谱
+async function loadUserRecipes() {
+    try {
+        const container = document.getElementById('userRecipesList');
+        const emptyState = document.getElementById('recipesEmptyState');
+        
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i>Loading recipes...</div>';
+        emptyState.style.display = 'none';
+        
+        console.log('🔄 开始加载用户食谱...');
+        
+        const response = await fetch('/api/user/recipes');
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('📦 接收到数据:', data);
+        
+        if (data.success) {
+            if (data.recipes && data.recipes.length > 0) {
+                console.log(`✅ 成功获取 ${data.recipes.length} 个食谱`);
+                renderRecipeCards(data.recipes);
+                emptyState.style.display = 'none';
+            } else {
+                console.log('📭 用户暂无食谱');
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+            }
+        } else {
+            throw new Error(data.message || '未知错误');
+        }
+    } catch (error) {
+        console.error('❌ 加载用户食谱失败:', error);
+        const container = document.getElementById('userRecipesList');
+        if (container) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚠️</div>
+                    <h3>Failed to load recipes</h3>
+                    <p>Error: ${error.message}</p>
+                    <p>Please check the console for details and try again.</p>
+                    <button onclick="loadUserRecipes()" class="btn-section btn-primary" style="margin-top: 1rem;">
+                        🔄 Retry
+                    </button>
+                </div>
+            `;
+        }
+    }
+}
+
+// 渲染食谱卡片
+function renderRecipeCards(recipes) {
+    const container = document.getElementById('userRecipesList');
+    
+    const recipesHtml = recipes.map(recipe => `
+        <div class="recipe-card" data-recipe-id="${recipe.id}">
+            <!-- 食谱卡片头部 - 折叠状态 -->
+            <div class="recipe-card-header" onclick="toggleRecipeCard(${recipe.id}, event)">
+                <button class="favorite-star ${recipe.is_favorited ? 'favorited' : ''}" 
+                        onclick="favoritesManager.toggleFavorite(${recipe.id}, this, event)">
+                    <i class="fas fa-star"></i>
+                </button>
+                
+                <button class="expand-indicator">
+                    <i class="fas fa-chevron-down"></i> 
+                </button>
+                
+                <div class="recipe-info">
+                    <h3>${escapeHtml(recipe.name)}</h3>
+                    <p class="recipe-description">${escapeHtml(recipe.description || 'No description available')}</p>
+                    <div class="recipe-meta">
+                        <span><i class="fas fa-calendar-alt"></i> ${formatDate(recipe.created_at)}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 食谱展开内容 -->
+            <div class="recipe-expanded-content">
+                <div class="loading-indicator">
+                    <i class="fas fa-spinner fa-spin"></i> Loading details...
+                </div>
+            </div>
+        </div>
+    `).join('');
+    
+    container.innerHTML = recipesHtml;
+}
+
+// 切换食谱卡片展开/折叠状态
+async function toggleRecipeCard(recipeId, event) {
+    // 阻止收藏按钮和展开按钮的点击事件冒泡
+    if (event.target.closest('.favorite-star') || event.target.closest('.expand-indicator')) {
+        return;
+    }
+    
+    const card = document.querySelector(`[data-recipe-id="${recipeId}"]`);
+    const expandedContent = card.querySelector('.recipe-expanded-content');
+    
+    if (card.classList.contains('expanded')) {
+        // 折叠卡片
+        card.classList.remove('expanded');
+    } else {
+        // 展开卡片
+        card.classList.add('expanded');
+        
+        // 如果还没有加载详情，则加载
+        if (!recipeDetailsCache[recipeId]) {
+            await loadRecipeDetails(recipeId, expandedContent);
+        }
+    }
+}
+
+// 加载食谱详情
+async function loadRecipeDetails(recipeId, contentContainer) {
+    try {
+        const response = await fetch(`/api/recipe/${recipeId}/detail`);
+        const data = await response.json();
+        
+        if (data.success) {
+            const recipe = data.recipe;
+            recipeDetailsCache[recipeId] = recipe;
+            
+            // 渲染详情内容
+            contentContainer.innerHTML = renderRecipeDetails(recipe);
+        } else {
+            contentContainer.innerHTML = `
+                <div style="text-align: center; padding: 1rem; color: #e74c3c;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Failed to load recipe details</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('加载食谱详情失败:', error);
+        contentContainer.innerHTML = `
+            <div style="text-align: center; padding: 1rem; color: #e74c3c;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Network error, please try again</p>
+            </div>
+        `;
+    }
+}
+
+// 渲染食谱详情内容
+function renderRecipeDetails(recipe) {
+    let html = '';
+    
+    // 食材列表
+    if (recipe.ingredients && recipe.ingredients.length > 0) {
+        html += `
+            <div class="ingredients-section">
+                <div class="ingredients-title">
+                    <i class="fas fa-list"></i>
+                    Ingredients (${recipe.ingredients.length})
+                </div>
+                <div class="ingredients-list">
+                    ${recipe.ingredients.map(ingredient => `
+                        <div class="ingredient-item">
+                            <span class="ingredient-name">${escapeHtml(ingredient.name)}</span>
+                            <span class="ingredient-weight">${ingredient.weight}g</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // 营养信息
+    if (recipe.nutrition) {
+        html += `
+            <div class="nutrition-section">
+                <div class="nutrition-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Nutrition Information
+                </div>
+                <div class="nutrition-grid">
+                    <div class="nutrition-item">
+                        <div class="nutrition-value">${recipe.nutrition.total_calories.toFixed(1)}</div>
+                        <div class="nutrition-label">Calories</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-value">${recipe.nutrition.total_protein.toFixed(1)}</div>
+                        <div class="nutrition-label">Protein (g)</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-value">${recipe.nutrition.total_fat.toFixed(1)}</div>
+                        <div class="nutrition-label">Fat (g)</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-value">${recipe.nutrition.total_carbs.toFixed(1)}</div>
+                        <div class="nutrition-label">Carbs (g)</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-value">${recipe.nutrition.total_fiber.toFixed(1)}</div>
+                        <div class="nutrition-label">Fiber (g)</div>
+                    </div>
+                    <div class="nutrition-item">
+                        <div class="nutrition-value">${recipe.nutrition.total_calcium.toFixed(1)}</div>
+                        <div class="nutrition-label">Calcium (mg)</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 操作按钮
+    html += `
+        <div class="recipe-actions">
+            <a href="/recipe/detail/${recipe.id}" class="action-btn btn-view">
+                <i class="fas fa-eye"></i>
+                View Details
+            </a>
+    `;
+    
+    // 只有食谱创建者可以编辑
+    if (recipe.user_id === getCurrentUserId()) {
+        html += `
+            <a href="/recipe/edit/${recipe.id}" class="action-btn btn-edit">
+                <i class="fas fa-edit"></i>
+                Edit
+            </a>
+        `;
+    }
+    
+    html += '</div>';
+    
+    return html;
+}
+
+// 获取当前用户ID（从session或其他方式获取）
+function getCurrentUserId() {
+    // 这里需要根据您的实际实现来获取当前用户ID
+    // 可以从页面的隐藏元素、session数据等获取
+    return window.currentUserId || null;
+}
+
+// 格式化日期
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+// HTML转义函数
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 显示提示消息
+function showToast(message, type = 'success') {
+    // 移除已存在的toast
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideInRight 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 400px;
+    `;
+    
+    // 根据类型设置背景色
+    const colors = {
+        success: '#27ae60',
+        error: '#e74c3c',
+        info: '#3498db',
+        warning: '#f39c12'
+    };
+    
+    toast.style.background = colors[type] || colors.success;
+    
+    const icon = type === 'success' ? 'check-circle' :
+                 type === 'error' ? 'exclamation-circle' :
+                 type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+    
+    toast.innerHTML = `
+        <i class="fas fa-${icon}"></i>
+        <span>${escapeHtml(message)}</span>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // 3秒后自动消失
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// 宠物模态框相关函数
 function showPetModal(petId) {
-    var pet = petData.find(function(p) { return p.id == petId; });
+    const pet = petData.find(p => p.id == petId);
     if (!pet) return;
     
     // 填充模态框数据
@@ -766,12 +1714,11 @@ function showPetModal(petId) {
     // 显示模态框
     const modal = document.getElementById('petModal');
     modal.style.display = 'flex';
-    setTimeout(() => {
-        modal.classList.add('show');
-    }, 10);
+    setTimeout(() => modal.classList.add('show'), 10);
+    document.body.style.overflow = 'hidden';
 }
 
-// 关闭模态框
+// 关闭宠物模态框
 function closePetModal(event) {
     if (event && event.target !== event.currentTarget) return;
     
@@ -779,31 +1726,81 @@ function closePetModal(event) {
     modal.classList.remove('show');
     setTimeout(() => {
         modal.style.display = 'none';
+        document.body.style.overflow = '';
     }, 300);
 }
 
 // 获取特殊需求标签的CSS类
 function getNeedTagClass(need) {
     if (need.includes('Allergy')) return 'allergy';
-    if (need.includes('Obesity') || need.includes('Diabetes') || need.includes('Kidney') || need.includes('Stomach') || need.includes('Joint')) return 'health';
+    if (need.includes('Obesity') || need.includes('Diabetes') || need.includes('Kidney') || 
+        need.includes('Stomach') || need.includes('Joint')) return 'health';
     if (need.includes('Hair') || need.includes('Dental')) return 'beauty';
     return 'normal';
 }
 
-// 【修改】显示成功消息 - 增强版本
+// 收藏夹相关的全局函数（为了向后兼容）
+function showFavoritesModal() {
+    if (favoritesManager) {
+        return favoritesManager.showFavoritesModal();
+    }
+}
+
+function closeFavoritesModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    if (favoritesManager) {
+        return favoritesManager.closeFavoritesModal();
+    }
+}
+
+function closeConfirmModal(event) {
+    if (event && event.target !== event.currentTarget) return;
+    if (favoritesManager) {
+        return favoritesManager.closeConfirmModal();
+    }
+}
+
+// CSS动画定义
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// 显示成功消息函数
 function showSuccessMessage(message, type = 'success', duration = 3000) {
     // 移除已存在的消息
-    var existingMessage = document.querySelector('.success-message');
+    const existingMessage = document.querySelector('.success-message');
     if (existingMessage) {
         existingMessage.remove();
     }
     
-    var messageEl = document.createElement('div');
+    const messageEl = document.createElement('div');
     
-    // 【修改】根据消息长度判断是否需要多行显示
-    var isLongMessage = message.length > 20;
+    // 根据消息长度判断是否需要多行显示
+    const isLongMessage = message.length > 20;
     
-    // 【修改】动态设置CSS类
+    // 动态设置CSS类
     messageEl.className = 'success-message type-' + type;
     if (isLongMessage) {
         messageEl.className += ' multiline';
@@ -811,20 +1808,20 @@ function showSuccessMessage(message, type = 'success', duration = 3000) {
     
     messageEl.textContent = message;
     
-    // 【新增】将消息添加到body的最前面，确保在最顶层
+    // 将消息添加到body的最前面，确保在最顶层
     document.body.insertBefore(messageEl, document.body.firstChild);
     
-    // 【修改】显示动画 - 更流畅的时序
-    requestAnimationFrame(function() {
-        setTimeout(function() {
+    // 显示动画
+    requestAnimationFrame(() => {
+        setTimeout(() => {
             messageEl.classList.add('show');
         }, 50);
     });
     
-    // 【修改】自动隐藏 - 可配置持续时间
-    setTimeout(function() {
+    // 自动隐藏
+    setTimeout(() => {
         messageEl.classList.add('hide');
-        setTimeout(function() {
+        setTimeout(() => {
             if (messageEl.parentNode) {
                 messageEl.parentNode.removeChild(messageEl);
             }
@@ -832,7 +1829,7 @@ function showSuccessMessage(message, type = 'success', duration = 3000) {
     }, duration);
 }
 
-// 【新增】便捷的消息类型函数
+// 便捷的消息类型函数
 function showInfoMessage(message, duration) {
     showSuccessMessage(message, 'info', duration);
 }
@@ -843,19 +1840,12 @@ function showWarningMessage(message, duration) {
 
 // 显示开发中提示
 function showComingSoon(feature) {
-    alert(feature + ' is under development, stay tuned!');
+    showInfoMessage(feature + ' is under development, stay tuned!', 4000);
 }
-
-// 监听ESC键关闭模态框
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        closePetModal();
-    }
-});
 
 // 检查是否有成功消息需要显示
 document.addEventListener('DOMContentLoaded', function() {
-    // 检查URL参数或session中的成功消息
+    // 检查URL参数中的成功消息
     const urlParams = new URLSearchParams(window.location.search);
     const successMsg = urlParams.get('success');
     if (successMsg) {

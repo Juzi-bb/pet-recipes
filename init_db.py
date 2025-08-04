@@ -3,6 +3,7 @@
 
 import os
 import sys
+import sqlite3
 
 # 添加项目路径到Python路径
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -84,10 +85,58 @@ def init_database():
     
     return True
 
+def create_favorites_table():
+    """创建收藏功能相关的数据库表"""
+    # 数据库文件路径（根据您的项目结构调整）
+    db_path = os.path.join('backend', 'instance', 'pet_recipes.db')
+    
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    
+    try:
+        # 创建用户食谱收藏表
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_recipe_favorites (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                recipe_id INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE,
+                UNIQUE(user_id, recipe_id)
+            )
+        ''')
+        
+        # 创建索引以提高查询性能
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_user_recipe_favorites_user_id 
+            ON user_recipe_favorites(user_id)
+        ''')
+        
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_user_recipe_favorites_recipe_id 
+            ON user_recipe_favorites(recipe_id)
+        ''')
+        
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_user_recipe_favorites_created_at 
+            ON user_recipe_favorites(created_at)
+        ''')
+        
+        conn.commit()
+        print("✅ 收藏功能数据库表创建成功")
+        
+    except Exception as e:
+        print(f"❌ 创建收藏表失败: {e}")
+        conn.rollback()
+    finally:
+        conn.close()
+
 if __name__ == '__main__':
     # 确保instance目录存在
     instance_dir = os.path.join(project_root, 'backend', 'instance')
     os.makedirs(instance_dir, exist_ok=True)
+    create_favorites_table()
     
     print("Pet Recipe Website - Database Initialization")
     print("=" * 40)
@@ -103,3 +152,4 @@ if __name__ == '__main__':
         print("Password: 123456")
     else:
         print("\n❌ Initialization failed, please check the error message.")
+

@@ -1023,6 +1023,26 @@
         </div>
         <p style="color: #B82F0D; margin-bottom: 2rem;">Set the appropriate weight (in grams) for each ingredient. The system will calculate the nutritional content in real-time.</p>
         
+        <!-- 新增：表格上方的操作区域 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; border: 1px solid #A1B4B2;">
+            <div style="color: #510B0B;">
+                <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
+                <strong>Weight Distribution</strong>
+                <small style="display: block; color: #B82F0D; margin-top: 0.3rem;">
+                    You can manually set weights or use auto-distribution based on your selected nutrition plan
+                </small>
+            </div>
+            <button type="button"
+                    id="autoDistributeBtn"
+                    class="nav-btn"
+                    style="background: #5580AD; margin: 0; padding: 0.8rem 1.5rem; font-size: 0.9rem;"
+                    onclick="autoDistributeWeights()"
+                    disabled>
+                <i class="fas fa-magic" style="margin-right: 0.5rem;"></i>
+                Auto-Distribute Weights
+            </button>
+        </div>
+        
         <table class="weight-table">
             <thead>
                 <tr>
@@ -1561,9 +1581,10 @@ function updateIngredientWeight(ingredientId, weight) {
     }
 }
 
-// 更新下一步按钮状态
+// 更新下一步按钮状态，同时控制自动分配按钮
 function updateNextButtonState() {
     const nextBtn = document.getElementById('nextBtn');
+    const autoDistributeBtn = document.getElementById('autoDistributeBtn');
     
     if (currentStep === 1) {
         // 第一步需要选择宠物和营养方案
@@ -1595,6 +1616,16 @@ function updateNextButtonState() {
             nextBtn.disabled = true;
             nextBtn.style.opacity = '0.5';
         }
+        // 控制自动分配按钮状态
+        if (autoDistributeBtn) {
+            if (selectedIngredients.length > 0 && selectedNutritionPlan) {
+                autoDistributeBtn.disabled = false;
+                autoDistributeBtn.style.opacity = '1';
+            } else {
+                autoDistributeBtn.disabled = true;
+                autoDistributeBtn.style.opacity = '0.5';
+            }
+        }
     } else if (currentStep === 4) {
         // 第四步需要完成营养分析
         if (nutritionData) {
@@ -1617,6 +1648,12 @@ async function autoDistributeWeights() {
         return;
     }
     
+    // 显示加载状态
+    const btn = document.getElementById('autoDistributeBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculating...';
+    btn.disabled = true;
+
     try {
         const response = await fetch('/api/nutrition/suggest-weights', {
             method: 'POST',
@@ -1651,6 +1688,12 @@ async function autoDistributeWeights() {
     } catch (error) {
         console.error('Failed to get weight suggestions:', error);
         showErrorMessage('获取重量建议失败，请手动设置');
+    } finally {
+        // 恢复按钮状态
+        btn.innerHTML = originalText;
+        if (selectedIngredients.length > 0 && selectedNutritionPlan) {
+            btn.disabled = false;
+        }
     }
 }
 
@@ -1828,6 +1871,35 @@ function displayNutritionAnalysis(data) {
     const statusColor = statusColors[analysis.status] || '#6c757d';
     const statusText = statusTexts[analysis.status] || '未知';
 
+    // 计算钙磷比
+    let calciumPhosphorusRatio = 0;
+    let calciumPhosphorusStatus = 'unknown';
+    let calciumPhosphorusNote = '';
+    
+    if (data.total_nutrition.calcium > 0 && data.total_nutrition.phosphorus > 0) {
+        calciumPhosphorusRatio = data.total_nutrition.calcium / data.total_nutrition.phosphorus;
+        
+        // 评估钙磷比状态（理想范围 1.0-2.0）
+        if (calciumPhosphorusRatio >= 1.0 && calciumPhosphorusRatio <= 2.0) {
+            calciumPhosphorusStatus = 'excellent';
+            calciumPhosphorusNote = '理想范围';
+        } else if (calciumPhosphorusRatio >= 0.8 && calciumPhosphorusRatio < 1.0) {
+            calciumPhosphorusStatus = 'warning';
+            calciumPhosphorusNote = '略低，建议增加含钙食材';
+        } else if (calciumPhosphorusRatio > 2.0 && calciumPhosphorusRatio <= 2.5) {
+            calciumPhosphorusStatus = 'warning';
+            calciumPhosphorusNote = '略高，建议平衡钙磷摄入';
+        } else if (calciumPhosphorusRatio < 0.8) {
+            calciumPhosphorusStatus = 'danger';
+            calciumPhosphorusNote = '偏低，需要增加钙质';
+        } else {
+            calciumPhosphorusStatus = 'danger';
+            calciumPhosphorusNote = '偏高，建议减少钙质或增加磷';
+        }
+    } else {
+        calciumPhosphorusNote = '数据不足';
+    }
+
     container.innerHTML = `
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
             <!-- 基础营养信息 -->
@@ -1883,6 +1955,23 @@ function displayNutritionAnalysis(data) {
                         <span>热量密度:</span>
                         <strong style="color: #5580AD;">${data.nutrition_ratios.calories_per_100g || 0} kcal/100g</strong>
                     </div>
+                    <!-- 新增：钙磷比显示 -->
+                    <div style="border-top: 1px solid #eee; padding-top: 0.75rem; margin-top: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="display: flex; align-items: center; gap: 0.5rem;">
+                                钙磷比:
+                                <i class="fas fa-info-circle"
+                                    style="color: #666; font-size: 0.8rem; cursor: help;" 
+                                    title="理想钙磷比为 1.0-2.0:1，对骨骼健康很重要"></i>
+                            </span>
+                            <div style="text-align: right;">
+                                <strong style="color: ${statusColors[calciumPhosphorusStatus] || '#6c757d'};">
+                                    ${calciumPhosphorusRatio > 0 ? calciumPhosphorusRatio.toFixed(2) + ':1' : '无数据'}
+                                </strong>
+                                ${calciumPhosphorusNote ? `<br><small style="color: ${statusColors[calciumPhosphorusStatus] || '#6c757d'}; font-size: 0.8rem;">${calciumPhosphorusNote}</small>` : ''}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1912,6 +2001,18 @@ function displayNutritionAnalysis(data) {
                     </ul>
                 </div>
             ` : ''}
+
+            <!-- 如果钙磷比有问题，添加到建议中 -->
+            ${calciumPhosphorusStatus === 'warning' || calciumPhosphorusStatus === 'danger' ? `
+                <div style="margin-top: 1rem; padding: 0.75rem; background: ${calciumPhosphorusStatus === 'danger' ? '#fff5f5' : '#fffaf0'}; border-radius: 8px; border: 1px solid ${statusColors[calciumPhosphorusStatus]};">
+                    <strong style="color: ${statusColors[calciumPhosphorusStatus]};">
+                        <i class="fas fa-balance-scale"></i> 钙磷比建议:
+                    </strong>
+                    <p style="margin: 0.5rem 0 0 0; color: ${statusColors[calciumPhosphorusStatus]}; font-size: 0.9rem;">
+                        ${calciumPhosphorusNote}。钙磷比对宠物骨骼和牙齿健康至关重要。
+                    </p>
+                </div>
+            ` : ''}
         </div>
         
         <!-- 食材详情表格 -->
@@ -1929,6 +2030,8 @@ function displayNutritionAnalysis(data) {
                             <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">比例(%)</th>
                             <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">热量(kcal)</th>
                             <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">蛋白质(g)</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">钙(mg)</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">磷(mg)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1939,8 +2042,20 @@ function displayNutritionAnalysis(data) {
                                 <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6;">${detail.percentage}%</td>
                                 <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6;">${detail.contribution.calories.toFixed(1)}</td>
                                 <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6;">${detail.contribution.protein.toFixed(1)}</td>
+                                <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6;">${detail.contribution.calcium ? detail.contribution.calcium.toFixed(1) : '0.0'}</td>
+                                <td style="padding: 0.75rem; text-align: right; border-bottom: 1px solid #dee2e6;">${detail.contribution.phosphorus ? detail.contribution.phosphorus.toFixed(1) : '0.0'}</td>
                             </tr>
                         `).join('')}
+                        <!-- 添加总计行 -->
+                        <tr style="background: #f8f9fa; font-weight: bold;">
+                            <td style="padding: 0.75rem; border-top: 2px solid #dee2e6;">总计</td>
+                            <td style="padding: 0.75rem; text-align: right; border-top: 2px solid #dee2e6;">${data.total_nutrition.total_weight.toFixed(1)}</td>
+                            <td style="padding: 0.75rem; text-align: right; border-top: 2px solid #dee2e6;">100%</td>
+                            <td style="padding: 0.75rem; text-align: right; border-top: 2px solid #dee2e6;">${data.total_nutrition.calories.toFixed(1)}</td>
+                            <td style="padding: 0.75rem; text-align: right; border-top: 2px solid #dee2e6;">${data.total_nutrition.protein.toFixed(1)}</td>
+                            <td style="padding: 0.75rem; text-align: right; border-top: 2px solid #dee2e6; color: #5580AD;">${data.total_nutrition.calcium.toFixed(1)}</td>
+                            <td style="padding: 0.75rem; text-align: right; border-top: 2px solid #dee2e6; color: #5580AD;">${data.total_nutrition.phosphorus.toFixed(1)}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

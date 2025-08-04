@@ -394,11 +394,19 @@ def assess_nutrition_adequacy(total_nutrition, nutrition_ratios, pet=None):
     if total_nutrition.get('calcium', 0) > 0 and total_nutrition.get('phosphorus', 0) > 0:
         ca_p_ratio = total_nutrition['calcium'] / total_nutrition['phosphorus']
         if ca_p_ratio < 0.8:
-            assessment['warnings'].append('钙磷比偏低，建议增加含钙食材')
+            assessment['warnings'].append(f'钙磷比偏低({ca_p_ratio:.2f}:1)，建议增加含钙食材如奶制品、绿叶蔬菜')
+            score += 40
         elif ca_p_ratio > 2.5:
-            assessment['warnings'].append('钙磷比偏高，建议平衡钙磷摄入')
+            assessment['warnings'].append(f'钙磷比偏高({ca_p_ratio:.2f}:1)，建议平衡钙磷摄入或减少钙质补充')
+            score += 40
+        elif 1.0 <= ca_p_ratio <= 2.0:
+            assessment['recommendations'].append(f'钙磷比例优秀({ca_p_ratio:.2f}:1)，有利于骨骼健康')
+            score += 100
         else:
-            assessment['recommendations'].append('钙磷比例良好')
+            assessment['recommendations'].append(f'钙磷比例可接受({ca_p_ratio:.2f}:1)')
+            score += 80
+    else:
+        assessment['warnings'].append('缺少钙或磷的数据，建议添加含钙磷的食材')
     
     # 设置总体状态
     if len(assessment['warnings']) == 0:
