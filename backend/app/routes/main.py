@@ -397,10 +397,10 @@ def get_user_recipes():
             'error_type': type(e).__name__
         }), 500
 
-@main_bp.route('/encyclopedia')
-def encyclopedia():
-    """食材百科页面"""
-    return render_template('encyclopedia.html')
+#@main_bp.route('/encyclopedia')
+#def encyclopedia():
+#    """食材百科页面"""
+#    return render_template('ingredient_encyclopedia.html')
 
 @main_bp.route('/community')
 def community():

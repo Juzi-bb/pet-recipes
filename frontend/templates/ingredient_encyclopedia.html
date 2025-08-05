@@ -1,0 +1,734 @@
+{% extends "base.html" %}
+
+{% block title %}Ingredient Encyclopedia - Pet Nutrition Calculator{% endblock %}
+
+{% block content %}
+<div class="ingredient-encyclopedia-container">
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1><i class="fas fa-book-open"></i> Ingredient Encyclopedia</h1>
+            <p class="header-subtitle">Explore the world of pet nutrition and learn about the nutritional value and benefits of each ingredient</p>
+        </div>
+        
+        <!-- 统计信息 -->
+        <div class="stats-row" id="statsRow">
+            <div class="stat-item">
+                <div class="stat-number" id="totalIngredients">-</div>
+                <div class="stat-label">Ingredients</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="safeForDogs">-</div>
+                <div class="stat-label">Safe for Dogs</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="safeForCats">-</div>
+                <div class="stat-label">Safe for Cats</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索和筛选区域 -->
+    <div class="search-filter-section">
+        <div class="search-box-container">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search ingredient names..." class="search-input">
+                <div class="search-suggestions" id="searchSuggestions"></div>
+            </div>
+            <div class="filter-dropdown">
+                <select id="safetyFilter" class="filter-select">
+                    <option value="all">All Ingredients</option>
+                    <option value="dogs">Safe for Dogs</option>
+                    <option value="cats">Safe for Cats</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分类标签 -->
+    <div class="category-tabs-container">
+        <div class="category-tabs" id="categoryTabs">
+            <button class="category-tab active" data-category="all">
+                <i class="fas fa-th-large"></i>
+                <span>All</span>
+                <span class="category-count" id="countAll">0</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 加载状态 -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading ingredient data...</p>
+        </div>
+    </div>
+
+    <!-- 食材网格 -->
+    <div class="ingredients-grid" id="ingredientsGrid">
+        <!-- 食材卡片将通过JavaScript动态生成 -->
+    </div>
+
+    <!-- 分页控件 -->
+    <div class="pagination-container" id="paginationContainer">
+        <div class="pagination">
+            <button class="pagination-btn" id="prevBtn" disabled>
+                <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <div class="pagination-info">
+                <span id="pageInfo">Page 1 of 1</span>
+            </div>
+            <button class="pagination-btn" id="nextBtn" disabled>
+                Next <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 无结果提示 -->
+    <div class="no-results" id="noResults" style="display: none;">
+        <div class="no-results-content">
+            <i class="fas fa-search-minus"></i>
+            <h3>No Related Ingredients Found</h3>
+            <p>Please try adjusting your search criteria or browse other categories</p>
+        </div>
+    </div>
+</div>
+
+<!-- 样式定义 -->
+<style>
+/* 基础容器样式 */
+.ingredient-encyclopedia-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* 页面头部样式 */
+.page-header {
+    text-align: center;
+    margin-bottom: 30px;
+    background: white;
+    padding: 40px 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 2px solid #A1B4B2;
+}
+
+.header-content h1 {
+    color: #510B0B;
+    margin-bottom: 10px;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.header-subtitle {
+    color: #B82F0D;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #5580AD;
+}
+
+.stat-label {
+    color: #B82F0D;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+/* 搜索和筛选区域样式 */
+.search-filter-section {
+    margin-bottom: 30px;
+}
+
+.search-box-container {
+    display: flex;
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-input-wrapper {
+    flex: 1;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 40px 12px 45px;
+    border: 2px solid #A1B4B2;
+    border-radius: 25px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #5580AD;
+    box-shadow: 0 0 0 3px rgba(85, 128, 173, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #B82F0D;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2px solid #A1B4B2;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    margin-top: 5px;
+}
+
+.suggestion-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover {
+    background-color: #f8f9fa;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.filter-select {
+    padding: 12px 15px;
+    border: 2px solid #A1B4B2;
+    border-radius: 25px;
+    background: white;
+    font-size: 1rem;
+    min-width: 150px;
+    color: #510B0B;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #5580AD;
+}
+
+/* 分类标签样式 */
+.category-tabs-container {
+    margin-bottom: 30px;
+    overflow-x: auto;
+    padding: 0 5px;
+}
+
+.category-tabs {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    min-width: max-content;
+}
+
+.category-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: 2px solid #A1B4B2;
+    background: white;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    color: #510B0B;
+    font-weight: 500;
+}
+
+.category-tab:hover {
+    border-color: #5580AD;
+    background-color: #f0f7ff;
+    transform: translateY(-1px);
+}
+
+.category-tab.active {
+    background-color: #5580AD;
+    border-color: #5580AD;
+    color: white;
+    box-shadow: 0 4px 12px rgba(85, 128, 173, 0.3);
+}
+
+.category-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.category-tab.active .category-count {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* 加载状态样式 */
+.loading-container {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.loading-spinner i {
+    font-size: 3rem;
+    color: #5580AD;
+    margin-bottom: 20px;
+}
+
+.loading-spinner p {
+    color: #510B0B;
+    font-size: 1.1rem;
+}
+
+/* 食材网格样式 - 参考create_recipe.html的正方形图片设计 */
+.ingredients-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* 食材卡片样式 */
+.ingredient-card {
+    background: white;
+    border: 3px solid #A1B4B2;
+    border-radius: 15px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.ingredient-card:hover {
+    border-color: #5580AD;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(85, 128, 173, 0.15);
+}
+
+/* 食材图片容器 - 正方形设计 */
+.ingredient-image {
+    width: 60%;
+    aspect-ratio: 1 / 1;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin: 1rem auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    overflow: hidden;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.ingredient-card:hover .ingredient-image {
+    border-color: #5580AD;
+    box-shadow: 0 4px 12px rgba(85, 128, 173, 0.15);
+    transform: scale(1.02);
+}
+
+/* 图片样式 */
+.ingredient-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    border-radius: 8px;
+}
+
+.ingredient-card:hover .ingredient-image img {
+    transform: scale(1.05);
+}
+
+/* 无图片样式 */
+.ingredient-image .no-image {
+    font-style: italic;
+    text-align: center;
+    padding: 1rem;
+    color: #999;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ingredient-image .no-image i {
+    font-size: 2rem;
+    color: #ddd;
+}
+
+/* 食材名称和信息 */
+.ingredient-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #510B0B;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.3;
+}
+
+.ingredient-info {
+    text-align: center;
+    color: #B82F0D;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-top: auto;
+}
+
+/* 危险食材的特殊样式 */
+.ingredient-card.dangerous {
+    border-color: #dc3545 !important;
+    background: linear-gradient(135deg, #fff 0%, #fff0f0 100%) !important;
+}
+
+.ingredient-card.dangerous:hover {
+    border-color: #c82333 !important;
+    box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3) !important;
+}
+
+.ingredient-card.dangerous .ingredient-name {
+    color: #dc3545 !important;
+}
+
+.ingredient-card.dangerous .category-badge {
+    background: rgba(220, 53, 69, 0.95) !important;
+    color: white !important;
+}
+
+/* 危险分类标签的特殊样式 */
+.category-tab[data-category="dangerous"] {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.category-tab[data-category="dangerous"]:hover {
+    background-color: #f8d7da !important;
+    border-color: #c82333 !important;
+}
+
+.category-tab[data-category="dangerous"].active {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* 安全性标签 */
+.safety-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #28a745;
+    color: white;
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.safety-badge.unsafe {
+    background: #dc3545;
+}
+
+.safety-badge.partial {
+    background: #ffc107;
+    color: #333;
+}
+
+/* 营养标签 */
+.nutrition-highlights {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.nutrition-tag {
+    background: rgba(85, 128, 173, 0.9);
+    color: white;
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.nutrition-tag.high-protein {
+    background: rgba(40, 167, 69, 0.9);
+}
+
+.nutrition-tag.low-fat {
+    background: rgba(23, 162, 184, 0.9);
+}
+
+.nutrition-tag.high-fiber {
+    background: rgba(253, 126, 20, 0.9);
+}
+
+/* 分类标签 */
+.category-badge {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(237, 191, 157, 0.95);
+    color: #510B0B;
+    padding: 0.3rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    backdrop-filter: blur(4px);
+}
+
+/* 分页控件样式 */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 2px solid #A1B4B2;
+}
+
+.pagination-btn {
+    padding: 10px 20px;
+    border: 2px solid #5580AD;
+    background: white;
+    color: #5580AD;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #5580AD;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f8f9fa;
+    color: #ccc;
+    border-color: #ccc;
+}
+
+.pagination-info {
+    color: #510B0B;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* 无结果提示样式 */
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 15px;
+    border: 2px solid #A1B4B2;
+    margin: 2rem 0;
+}
+
+.no-results-content i {
+    font-size: 4rem;
+    color: #bdc3c7;
+    margin-bottom: 20px;
+}
+
+.no-results-content h3 {
+    color: #510B0B;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+.no-results-content p {
+    color: #B82F0D;
+    font-size: 1rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .ingredient-encyclopedia-container {
+        padding: 15px;
+    }
+    
+    .page-header {
+        padding: 30px 20px;
+    }
+    
+    .header-content h1 {
+        font-size: 2rem;
+    }
+    
+    .stats-row {
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .search-box-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .ingredients-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .ingredient-card {
+        padding: 1rem;
+        min-height: 260px;
+    }
+    
+    .ingredient-image {
+        width: 65%;
+        margin: 0.8rem auto;
+    }
+    
+    .ingredient-name {
+        font-size: 1.2rem;
+    }
+    
+    .pagination {
+        padding: 12px 20px;
+        gap: 15px;
+    }
+    
+    .pagination-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .ingredients-grid {
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    }
+}
+
+@media (min-width: 1025px) {
+    .ingredients-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+/* 不支持aspect-ratio的浏览器备选方案 */
+@supports not (aspect-ratio: 1 / 1) {
+    .ingredient-image {
+        position: relative;
+        width: 60%;
+        height: 0;
+        padding-bottom: 60%;
+    }
+    
+    .ingredient-image img,
+    .ingredient-image .no-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+/* 加载动画 */
+.ingredient-card.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.ingredient-card.loading .ingredient-image {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 2s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* 图片错误处理 */
+.ingredient-image.error {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.ingredient-image.error::after {
+    content: "\f03e";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 400;
+    font-size: 2rem;
+    color: #dee2e6;
+}
+</style>
+
+<script src="{{ url_for('static', filename='js/ingredientEncyclopedia.js') }}"></script>
+{% endblock %}

@@ -81,7 +81,7 @@
             color: white;
         }
 
-         /* --------------- 修改用户信息区域样式 --------------- */
+         /*  修改用户信息区域样式 */
         .user-info {
             color: #EDBF9D;
             display: flex;
@@ -135,7 +135,6 @@
         .logout-btn:hover {
             background-color: #510B0B !important;
         }
-        /* --------------- 结束修改 --------------- */
 
         /* 主内容区域 */
         .main-content {
@@ -358,7 +357,7 @@
             <ul class="nav-links">
                 <li><a href="{{ url_for('main.home') }}">Home</a></li>
                 <li><a href="#" id="createRecipeNavBtn">Create Recipe</a></li>
-                <li><a href="#">Encyclopedia</a></li>
+                <li><a href="{{ url_for('ingredient_pages.encyclopedia') }}">Encyclopedia</a></li>
                 <li><a href="#">Community</a></li>
                 <li><a href="{{ url_for('main.user_center') }}">User Center</a></li>
             </ul>

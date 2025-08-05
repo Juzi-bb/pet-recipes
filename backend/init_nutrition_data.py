@@ -1117,17 +1117,26 @@ def init_basic_ingredients(force_reinit=False):
             'data_source': 'USDA Food Database'
         },
         {
-            'name': '乳酪','name_en': 'Cottage Cheese','category': IngredientCategory.DAIRY,
+            'name': '乳酪', 'name_en': 'Cottage cheese', 'category': IngredientCategory.DAIRY,
             'image_filename': 'cottage_cheese.png', 'seasonality': 'all_year',
-            'calories': 98, 'protein': 11, 'fat': 4.3, 'fiber': 0, 'carbohydrate': 3.4,
-            'is_common_allergen': True,
-
+            'calories': 98, 'protein': 11.1, 'fat': 4.3, 'carbohydrate': 3.4, 'fiber': 0.0, 'moisture': 79.8, 'ash': 1.4,
+            'calcium': 83, 'phosphorus': 159, 'potassium': 104, 'sodium': 364, 'chloride': 560, 'magnesium': 8,
+            'iron': 0.1, 'copper': 0.03, 'manganese': 0.01, 'zinc': 0.4, 'iodine': 0.026, 'selenium': 0.009,
+            'vitamin_a': 163, 'vitamin_d': 0, 'vitamin_e': 0.08, 'vitamin_k': 0.1,
+            'thiamine': 0.04, 'riboflavin': 0.18, 'niacin': 0.28, 'pantothenic_acid': 0.22, 'pyridoxine': 0.07,
+            'folic_acid': 0.012, 'vitamin_b12': 0.43, 'biotin': 0.0055, 'choline': 16.8,
+            'arginine': 340, 'histidine': 270, 'isoleucine': 550, 'leucine': 950, 'lysine': 740,
+            'methionine': 250, 'phenylalanine': 460, 'threonine': 430, 'tryptophan': 120, 'valine': 620,
+            'taurine': 0, 'alpha_linolenic_acid': 0.06, 'eicosapentaenoic_acid': 0.0,
+            'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.06, 'omega_6_fatty_acids': 0.12,
+            'is_safe_for_dogs': True, 'is_safe_for_cats': False, 'is_common_allergen': True,
+            
             'description': 'A fresh cheese curd product with a mild flavor, high in protein and calcium.',
-            'benefits': 'Good source of protein and calcium. Often used in bland diets for pets recovering from stomach upset.',
-            'preparation_method': 'Serve a small amount plain.',
-            'pro_tip': 'Choose low-fat or non-fat options and ensure it has no added salt.',
-            'allergy_alert': 'Also contains lactose, so the same precautions for lactose intolerance apply.',
-            'storage_notes': 'Keep refrigerated and check the expiration date.',
+            'benefits': 'Excellent source of high-quality protein and calcium. Often used in bland diets for pets recovering from stomach upset. Lower in lactose than most other dairy products.',
+            'preparation_method': 'Serve a small amount plain, at room temperature. Choose low-fat or non-fat varieties.',
+            'pro_tip': 'Choose varieties with no added salt or preservatives. Start with very small amounts to test tolerance. The curds should be small and not too chunky to prevent choking.',
+            'allergy_alert': 'Contains lactose, so watch for signs of lactose intolerance such as gas, bloating, or diarrhea. Many adult pets have reduced lactase enzyme production.',
+            'storage_notes': 'Keep refrigerated and check expiration dates carefully. Use within 3-5 days of opening.',
             'data_source': 'USDA Food Database'
         },
         
@@ -1156,23 +1165,56 @@ def init_basic_ingredients(force_reinit=False):
             'data_source': 'Supplement Database'
         },
         {
-            'name': '蛋壳粉','name_en': 'Eggshell Powder','category': IngredientCategory.SUPPLEMENTS,
+            'name': '蛋壳粉', 'name_en': 'Eggshell powder', 'category': IngredientCategory.SUPPLEMENTS,
             'image_filename': 'eggshell_powder.png', 'seasonality': 'all_year',
-            'calories': 0, 'protein': 0, 'fat': 0, 'fiber': 0, 'carbohydrate': 0,
-            'is_common_allergen': False,
-
-            'description': 'A natural calcium supplement made from dried, ground eggshells.',
-            'benefits': 'Provides a highly bioavailable source of calcium carbonate, which is essential for strong bones and teeth. A crucial component in balancing homemade diets.',
-            'preparation_method': 'Wash and dry eggshells, bake at a low temperature to sterilize, then grind into a very fine powder using a coffee grinder.',
-            'pro_tip': 'Calcium and phosphorus ratios are critical in a pet\'s diet. Use this powder to balance a recipe under the guidance of a vet or veterinary nutritionist. Roughly one teaspoon of powder provides 2000mg of calcium.',
-            'allergy_alert': 'Safe for pets with egg allergies, as the allergy is typically to the protein in the egg white or yolk, not the shell mineral.',
-            'storage_notes': 'Store in an airtight container at room temperature.',
-            'data_source': 'Supplement Database'
+            'calories': 0, 'protein': 0.0, 'fat': 0.0, 'carbohydrate': 0.0, 'fiber': 0.0, 'moisture': 0.0, 'ash': 100.0,
+            'calcium': 400000, 'phosphorus': 0, 'potassium': 0, 'sodium': 0, 'chloride': 0, 'magnesium': 3800,
+            'iron': 0.0, 'copper': 0.0, 'manganese': 0.0, 'zinc': 0.0, 'iodine': 0.0, 'selenium': 0.0,
+            'vitamin_a': 0, 'vitamin_d': 0, 'vitamin_e': 0.0, 'vitamin_k': 0.0,
+            'thiamine': 0.0, 'riboflavin': 0.0, 'niacin': 0.0, 'pantothenic_acid': 0.0, 'pyridoxine': 0.0,
+            'folic_acid': 0.0, 'vitamin_b12': 0.0, 'biotin': 0.0, 'choline': 0.0,
+            'arginine': 0, 'histidine': 0, 'isoleucine': 0, 'leucine': 0, 'lysine': 0,
+            'methionine': 0, 'phenylalanine': 0, 'threonine': 0, 'tryptophan': 0, 'valine': 0,
+            'taurine': 0, 'alpha_linolenic_acid': 0.0, 'eicosapentaenoic_acid': 0.0,
+            'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.0, 'omega_6_fatty_acids': 0.0,
+            'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
+            
+            'description': 'A natural calcium supplement made from dried, ground eggshells providing highly bioavailable calcium carbonate.',
+            'benefits': 'Provides a highly bioavailable source of calcium carbonate (about 40% elemental calcium). Essential for strong bones, teeth, muscle function, and blood clotting. Critical component for balancing homemade pet diets.',
+            'preparation_method': 'Wash and dry eggshells thoroughly, bake at 200°F (93°C) for 10 minutes to sterilize, then grind into a very fine powder using a coffee grinder or food processor.',
+            'pro_tip': 'Calcium and phosphorus ratios are critical in pet diets (ideal ratio 1.2:1 to 1.8:1). Use this powder to balance homemade recipes under veterinary guidance. Approximately 1/2 teaspoon provides 1000mg calcium. Never exceed recommended amounts as excess calcium can interfere with other mineral absorption.',
+            'allergy_alert': 'Safe for pets with egg allergies, as allergies are typically to proteins in egg whites or yolks, not the mineral shell. However, ensure shells are thoroughly cleaned and sterilized.',
+            'storage_notes': 'Store in an airtight container in a cool, dry place. Properly prepared and stored eggshell powder can last up to 6 months. Label with preparation date.',
+            'data_source': 'Pet Nutrition Supplement Database'
+        },
+        {
+            'name': '牛磺酸', 'name_en': 'Taurine', 'category': IngredientCategory.SUPPLEMENTS,
+            'image_filename': 'taurine.png', 'seasonality': 'all_year',
+            'calories': 0, 'protein': 0.0, 'fat': 0.0, 'carbohydrate': 0.0, 'fiber': 0.0, 'moisture': 0.0, 'ash': 0.0,
+            'calcium': 0, 'phosphorus': 0, 'potassium': 0, 'sodium': 0, 'chloride': 0, 'magnesium': 0,
+            'iron': 0.0, 'copper': 0.0, 'manganese': 0.0, 'zinc': 0.0, 'iodine': 0.0, 'selenium': 0.0,
+            'vitamin_a': 0, 'vitamin_d': 0, 'vitamin_e': 0.0, 'vitamin_k': 0.0,
+            'thiamine': 0.0, 'riboflavin': 0.0, 'niacin': 0.0, 'pantothenic_acid': 0.0, 'pyridoxine': 0.0,
+            'folic_acid': 0.0, 'vitamin_b12': 0.0, 'biotin': 0.0, 'choline': 0.0,
+            'arginine': 0, 'histidine': 0, 'isoleucine': 0, 'leucine': 0, 'lysine': 0,
+            'methionine': 0, 'phenylalanine': 0, 'threonine': 0, 'tryptophan': 0, 'valine': 0,
+            'taurine': 1000000,  # 纯牛磺酸，100% = 1,000,000 mg/100g
+            'alpha_linolenic_acid': 0.0, 'eicosapentaenoic_acid': 0.0,
+            'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 0.0, 'omega_6_fatty_acids': 0.0,
+            'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
+            
+            'description': 'An essential amino sulfonic acid that is crucial for heart function, vision, and reproduction, especially in cats.',
+            'benefits': 'Critical for cats as they cannot synthesize sufficient amounts naturally. Supports cardiovascular health, retinal function, bile salt formation, and reproductive health. Also beneficial for dogs with heart conditions.',
+            'preparation_method': 'Available as powder or capsules. Mix powder with food or administer capsules as directed by veterinarian.',
+            'pro_tip': 'Cats require 400-500mg per day, while dogs typically get enough from meat sources but may need supplementation if on plant-based diets or have heart conditions. Always consult your veterinarian for proper dosing.',
+            'allergy_alert': 'Allergic reactions are extremely rare as taurine is naturally occurring in the body.',
+            'storage_notes': 'Store in a cool, dry place in an airtight container. Keep away from moisture and direct sunlight.',
+            'data_source': 'Pet Nutrition Supplement Database'
         },
         
         # 危险食材示例
         {
-            'name': '洋葱', 'name_en': 'Onion', 'category': IngredientCategory.VEGETABLES,
+            'name': '洋葱', 'name_en': 'Onion', 'category': IngredientCategory.DANGEROUS,
             'image_filename': 'onion.png', 'seasonality': 'all_year',
             'calories': 40, 'protein': 1.1, 'fat': 0.1, 'carbohydrate': 9.3, 'fiber': 1.7, 'moisture': 89.0, 'ash': 0.4,
             'calcium': 23, 'phosphorus': 29, 'potassium': 146, 'sodium': 4, 'chloride': 6, 'magnesium': 10,
@@ -1195,7 +1237,7 @@ def init_basic_ingredients(force_reinit=False):
             'data_source': 'USDA Food Database'
         },
         {
-            'name': '大蒜', 'name_en': 'Garlic', 'category': IngredientCategory.VEGETABLES,
+            'name': '大蒜', 'name_en': 'Garlic', 'category': IngredientCategory.DANGEROUS,
             'image_filename': 'garlic.png', 'seasonality': 'all_year',
             'calories': 149, 'protein': 6.4, 'fat': 0.5, 'carbohydrate': 33.1, 'fiber': 2.1, 'moisture': 59.0, 'ash': 1.5,
             'calcium': 181, 'phosphorus': 153, 'potassium': 401, 'sodium': 17, 'chloride': 26, 'magnesium': 25,
@@ -1218,7 +1260,7 @@ def init_basic_ingredients(force_reinit=False):
             'data_source': 'USDA Food Database'
         },
         {
-            'name': '巧克力', 'name_en': 'Chocolate', 'category': IngredientCategory.SUPPLEMENTS,
+            'name': '巧克力', 'name_en': 'Chocolate', 'category': IngredientCategory.DANGEROUS,
             'image_filename': 'chocolate.png', 'seasonality': 'all_year',
             'calories': 546, 'protein': 4.9, 'fat': 31.3, 'carbohydrate': 59.4, 'fiber': 7.0, 'moisture': 1.0, 'ash': 2.3,
             'calcium': 73, 'phosphorus': 308, 'potassium': 559, 'sodium': 24, 'chloride': 37, 'magnesium': 228,
@@ -1239,6 +1281,34 @@ def init_basic_ingredients(force_reinit=False):
             'allergy_alert': 'This is a toxin, not an allergen.',
             'storage_notes': 'Store securely away from pet access. Contact a vet immediately if ingested.',
             'data_source': 'USDA Food Database'
+        },
+        {
+            'name': '葡萄', 'name_en': 'Grapes', 'category': IngredientCategory.DANGEROUS,
+            'image_filename': 'grapes.png', 'seasonality': 'summer,autumn',
+            'calories': 67, 'protein': 0.6, 'fat': 0.4, 'carbohydrate': 17.2, 'fiber': 0.9, 'moisture': 81.0, 'ash': 0.5,
+            'is_safe_for_dogs': False, 'is_safe_for_cats': False, 'is_common_allergen': False,
+            
+            'description': 'Both grapes and raisins are highly toxic to dogs and potentially harmful to cats.',
+            'benefits': 'None. Grapes can cause kidney failure in pets.',
+            'preparation_method': 'DO NOT FEED. This item should never be given to a pet.',
+            'pro_tip': 'Even small amounts can cause acute kidney failure in dogs. The toxic mechanism is unknown, but all forms (fresh, dried as raisins, in baked goods) are dangerous.',
+            'allergy_alert': 'This is a toxin, not an allergen.',
+            'storage_notes': 'Store securely away from pet access. Seek immediate veterinary care if ingested.',
+            'data_source': 'USDA Food Database'
+        },
+        {
+            'name': '木糖醇', 'name_en': 'Xylitol', 'category': IngredientCategory.DANGEROUS,
+            'image_filename': 'xylitol.png', 'seasonality': 'all_year',
+            'calories': 236, 'protein': 0.0, 'fat': 0.0, 'carbohydrate': 99.0, 'fiber': 0.0, 'moisture': 1.0, 'ash': 0.0,
+            'is_safe_for_dogs': False, 'is_safe_for_cats': False, 'is_common_allergen': False,
+            
+            'description': 'An artificial sweetener that is extremely toxic to dogs and potentially harmful to cats.',
+            'benefits': 'None for pets. Xylitol can cause life-threatening hypoglycemia and liver failure.',
+            'preparation_method': 'DO NOT FEED. This item should never be given to a pet.',
+            'pro_tip': 'Found in sugar-free gum, mints, baked goods, and many diet products. Even small amounts can cause rapid insulin release, leading to severe hypoglycemia within 10-60 minutes.',
+            'allergy_alert': 'This is a toxin, not an allergen.',
+            'storage_notes': 'Keep all xylitol-containing products completely out of pet reach. This is a veterinary emergency.',
+            'data_source': 'Pet Toxicity Database'
         }
     ]
     

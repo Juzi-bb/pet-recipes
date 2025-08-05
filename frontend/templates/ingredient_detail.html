@@ -1,0 +1,1169 @@
+{% extends "base.html" %}
+
+{% block title %}Ingredient Details - Pet Nutrition Calculator{% endblock %}
+
+{% block content %}
+<div class="ingredient-detail-container">
+    <!-- 返回按钮 -->
+    <div class="back-button-container">
+        <button class="back-btn" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i> Back to Encyclopedia
+        </button>
+    </div>
+
+    <!-- 加载状态 -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading ingredient details...</p>
+        </div>
+    </div>
+
+    <!-- 食材详情内容 -->
+    <div class="ingredient-detail-content" id="ingredientContent" style="display: none;">
+        <!-- 基本信息区域 -->
+        <div class="ingredient-header">
+            <div class="ingredient-image-container">
+                <img id="ingredientImage" src="" alt="" class="ingredient-detail-image">
+                <div class="ingredient-category-badge" id="categoryBadge"></div>
+            </div>
+            <div class="ingredient-basic-info">
+                <h1 id="ingredientName" class="ingredient-title"></h1>
+                <p id="ingredientNameEn" class="ingredient-title-en"></p>
+                <div class="ingredient-tags-container" id="tagsContainer"></div>
+                <p id="ingredientDescription" class="ingredient-description"></p>
+            </div>
+        </div>
+
+        <!-- 营养成分表 -->
+        <div class="nutrition-section">
+            <h2><i class="fas fa-chart-pie"></i> Nutrition Facts (per 100g)</h2>
+            <div class="nutrition-grid">
+                <div class="nutrition-card">
+                    <div class="nutrition-header">
+                        <h3>Basic Nutrition</h3>
+                    </div>
+                    <div class="nutrition-items">
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Calories</span>
+                            <span class="nutrition-value" id="calories">-</span>
+                            <span class="nutrition-unit">kcal</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Protein</span>
+                            <span class="nutrition-value" id="protein">-</span>
+                            <span class="nutrition-unit">g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Fat</span>
+                            <span class="nutrition-value" id="fat">-</span>
+                            <span class="nutrition-unit">g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Carbohydrate</span>
+                            <span class="nutrition-value" id="carbohydrate">-</span>
+                            <span class="nutrition-unit">g</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Fiber</span>
+                            <span class="nutrition-value" id="fiber">-</span>
+                            <span class="nutrition-unit">g</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nutrition-card">
+                    <div class="nutrition-header">
+                        <h3>Minerals</h3>
+                    </div>
+                    <div class="nutrition-items">
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Calcium</span>
+                            <span class="nutrition-value" id="calcium">-</span>
+                            <span class="nutrition-unit">mg</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Phosphorus</span>
+                            <span class="nutrition-value" id="phosphorus">-</span>
+                            <span class="nutrition-unit">mg</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Potassium</span>
+                            <span class="nutrition-value" id="potassium">-</span>
+                            <span class="nutrition-unit">mg</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Sodium</span>
+                            <span class="nutrition-value" id="sodium">-</span>
+                            <span class="nutrition-unit">mg</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nutrition-card">
+                    <div class="nutrition-header">
+                        <h3>Vitamins</h3>
+                    </div>
+                    <div class="nutrition-items">
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Vitamin A</span>
+                            <span class="nutrition-value" id="vitamin_a">-</span>
+                            <span class="nutrition-unit">μg</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Vitamin C</span>
+                            <span class="nutrition-value" id="vitamin_c">-</span>
+                            <span class="nutrition-unit">mg</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Vitamin E</span>
+                            <span class="nutrition-value" id="vitamin_e">-</span>
+                            <span class="nutrition-unit">mg</span>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-label">Vitamin K</span>
+                            <span class="nutrition-value" id="vitamin_k">-</span>
+                            <span class="nutrition-unit">μg</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功效与建议 -->
+        <div class="benefits-section">
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <h3><i class="fas fa-heart"></i> Main Benefits</h3>
+                    <div id="benefitsContent" class="benefit-content"></div>
+                </div>
+                
+                <div class="benefit-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Seasonal Information</h3>
+                    <div id="seasonalityContent" class="benefit-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 专业建议 -->
+        <div class="professional-advice-section" id="professionalAdvice" style="display: none;">
+            <h2><i class="fas fa-user-md"></i> Professional Advice</h2>
+            <div class="advice-grid">
+                <div class="advice-item" id="preparationMethod">
+                    <h4><i class="fas fa-utensils"></i> Preparation Method</h4>
+                    <p></p>
+                </div>
+                <div class="advice-item" id="proTip">
+                    <h4><i class="fas fa-lightbulb"></i> Pro Tips</h4>
+                    <p></p>
+                </div>
+                <div class="advice-item" id="storageNotes">
+                    <h4><i class="fas fa-box"></i> Storage Recommendations</h4>
+                    <p></p>
+                </div>
+                <div class="advice-item" id="allergyAlert">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Allergy Alert</h4>
+                    <p></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 推荐搭配 -->
+        <div class="recommendations-section" id="recommendationsSection" style="display: none;">
+            <h2><i class="fas fa-thumbs-up"></i> Recommended Combinations</h2>
+            <div class="recommendations-grid" id="recommendationsGrid">
+                <!-- 推荐食材卡片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 数据来源 -->
+        <div class="data-source-section" id="dataSourceSection">
+            <div class="data-source-info">
+                <i class="fas fa-info-circle"></i>
+                <span>Data Source: <span id="dataSource">Professional Nutrition Database</span></span>
+                <span class="data-verified">Last Verified: <span id="lastVerified">-</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 错误提示 -->
+    <div class="error-container" id="errorContainer" style="display: none;">
+        <div class="error-content">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Loading Failed</h3>
+            <p id="errorMessage">An error occurred while loading ingredient information</p>
+            <button class="retry-btn" onclick="loadIngredientDetail()">
+                <i class="fas fa-redo"></i> Retry
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 基础容器样式 */
+.ingredient-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* 返回按钮样式 */
+.back-button-container {
+    margin-bottom: 20px;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: white;
+    border: 2px solid #A1B4B2;
+    border-radius: 25px;
+    color: #510B0B;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.back-btn:hover {
+    background: #A1B4B2;
+    color: white;
+    transform: translateX(-2px);
+}
+
+/* 加载状态样式 */
+.loading-container {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.loading-spinner i {
+    font-size: 3rem;
+    color: #5580AD;
+    margin-bottom: 20px;
+}
+
+.loading-spinner p {
+    color: #510B0B;
+    font-size: 1.1rem;
+}
+
+/* 食材头部信息区域 */
+.ingredient-header {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border: 2px solid #A1B4B2;
+}
+
+.ingredient-image-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 优化后的食材详情页面图片样式 - 参考create_recipe.html */
+.ingredient-detail-image {
+    width: 280px;
+    height: 280px;
+    /* 使用aspect-ratio确保正方形 */
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 15px;
+    background: #f8f9fa;
+    border: 3px solid #A1B4B2;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.ingredient-detail-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 25px rgba(85, 128, 173, 0.2);
+    border-color: #5580AD;
+}
+
+/* 图片加载失败处理 */
+.ingredient-detail-image.error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    color: #999;
+    font-style: italic;
+}
+
+.ingredient-detail-image.error::before {
+    content: "\f03e \A No Image";
+    font-family: "Font Awesome 5 Free", sans-serif;
+    font-weight: 400;
+    white-space: pre;
+    text-align: center;
+    font-size: 1rem;
+}
+
+/* 分类标签 */
+.ingredient-category-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(237, 191, 157, 0.95);
+    color: #510B0B;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 安全性标签 */
+.safety-badges {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.safety-badge {
+    background: #28a745;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.safety-badge.dogs {
+    background: #28a745;
+}
+
+.safety-badge.cats {
+    background: #17a2b8;
+}
+
+.safety-badge.allergen {
+    background: #dc3545;
+}
+
+/* 基本信息区域 */
+.ingredient-basic-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.ingredient-title {
+    font-size: 2.5rem;
+    color: #510B0B;
+    margin-bottom: 10px;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.ingredient-title-en {
+    font-size: 1.2rem;
+    color: #B82F0D;
+    margin-bottom: 20px;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.ingredient-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tag {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tag.safe-dogs {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.tag.safe-cats {
+    background: #cce7ff;
+    color: #0056b3;
+    border: 1px solid #99d6ff;
+}
+
+.tag.allergen {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f1b2bb;
+}
+
+.ingredient-description {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #5580AD;
+}
+
+/* 营养成分区域 */
+.nutrition-section {
+    margin-bottom: 40px;
+}
+
+.nutrition-section h2 {
+    color: #510B0B;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.nutrition-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 2px solid #A1B4B2;
+    transition: all 0.3s ease;
+}
+
+.nutrition-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(85, 128, 173, 0.15);
+    border-color: #5580AD;
+}
+
+.nutrition-header {
+    background: linear-gradient(135deg, #5580AD, #A1B4B2);
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+}
+
+.nutrition-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.nutrition-items {
+    padding: 20px;
+}
+
+.nutrition-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.nutrition-item:last-child {
+    border-bottom: none;
+}
+
+.nutrition-label {
+    color: #555;
+    font-weight: 500;
+    flex: 1;
+}
+
+.nutrition-value {
+    font-weight: bold;
+    color: #B82F0D;
+    font-size: 1.1rem;
+    text-align: right;
+    min-width: 60px;
+}
+
+.nutrition-unit {
+    color: #B82F0D;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-left: 4px;
+    min-width: 40px;
+    text-align: left;
+}
+
+/* 功效和时令信息区域 */
+.benefits-section {
+    margin-bottom: 40px;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+}
+
+.benefit-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 2px solid #A1B4B2;
+    transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(85, 128, 173, 0.15);
+    border-color: #5580AD;
+}
+
+.benefit-card h3 {
+    color: #510B0B;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.benefit-content {
+    color: #555;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+/* 专业建议区域 */
+.professional-advice-section {
+    margin-bottom: 40px;
+}
+
+.professional-advice-section h2 {
+    color: #510B0B;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.advice-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.advice-item {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: 2px solid #EDBF9D;
+    transition: all 0.3s ease;
+}
+
+.advice-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(237, 191, 157, 0.2);
+    border-color: #B82F0D;
+}
+
+.advice-item h4 {
+    color: #B82F0D;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.advice-item p {
+    color: #555;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* 推荐搭配区域 */
+.recommendations-section {
+    margin-bottom: 40px;
+}
+
+.recommendations-section h2 {
+    color: #510B0B;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.recommendation-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid #A1B4B2;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(85, 128, 173, 0.2);
+    border-color: #5580AD;
+}
+
+.recommendation-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    background: #f8f9fa;
+}
+
+.recommendation-info {
+    padding: 15px;
+}
+
+.recommendation-name {
+    font-weight: bold;
+    color: #510B0B;
+    margin-bottom: 8px;
+}
+
+.recommendation-nutrients {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #B82F0D;
+}
+
+/* 数据来源区域 */
+.data-source-section {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid #EDBF9D;
+}
+
+.data-source-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #B82F0D;
+    font-size: 0.9rem;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    border: 1px solid #EDBF9D;
+}
+
+.data-verified {
+    margin-left: auto;
+}
+
+/* 错误状态样式 */
+.error-container {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.error-content i {
+    font-size: 4rem;
+    color: #dc3545;
+    margin-bottom: 20px;
+}
+
+.error-content h3 {
+    color: #510B0B;
+    margin-bottom: 10px;
+}
+
+.error-content p {
+    color: #B82F0D;
+    margin-bottom: 25px;
+}
+
+.retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #B82F0D;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.retry-btn:hover {
+    background: #a02a0c;
+    transform: translateY(-2px);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .ingredient-detail-container {
+        padding: 15px;
+    }
+    
+    .ingredient-header {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .ingredient-detail-image {
+        width: 240px;
+        height: 240px;
+    }
+    
+    .ingredient-title {
+        font-size: 2rem;
+    }
+    
+    .nutrition-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .benefits-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .advice-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .recommendations-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .data-source-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .data-verified {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .ingredient-detail-image {
+        width: 200px;
+        height: 200px;
+    }
+    
+    .ingredient-title {
+        font-size: 1.8rem;
+    }
+    
+    .nutrition-card {
+        min-width: unset;
+    }
+}
+
+/* 为不支持aspect-ratio的浏览器提供备选方案 */
+@supports not (aspect-ratio: 1 / 1) {
+    .ingredient-detail-image {
+        position: relative;
+        width: 280px;
+        height: 280px;
+    }
+    
+    @media (max-width: 768px) {
+        .ingredient-detail-image {
+            width: 240px;
+            height: 240px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .ingredient-detail-image {
+            width: 200px;
+            height: 200px;
+        }
+    }
+}
+</style>
+
+<script>
+// 获取URL参数中的食材ID
+function getIngredientIdFromUrl() {
+    // 从URL路径中获取食材ID，例如 /ingredient/123
+    const pathParts = window.location.pathname.split('/');
+    const ingredientId = pathParts[pathParts.length - 1];
+    return ingredientId && !isNaN(ingredientId) ? parseInt(ingredientId) : null;
+}
+
+// 加载食材详情
+async function loadIngredientDetail() {
+    const ingredientId = getIngredientIdFromUrl();
+    
+    if (!ingredientId) {
+        showError('Invalid ingredient ID parameter');
+        return;
+    }
+    
+    try {
+        showLoading();
+        
+        // 使用正确的API路径
+        const response = await fetch(`/api/ingredients/${ingredientId}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            displayIngredientDetail(data.ingredient);
+            hideLoading();
+        } else {
+            throw new Error(data.error || 'Failed to get ingredient information');
+        }
+    } catch (error) {
+        console.error('Failed to load ingredient details:', error);
+        showError(`Network request failed: ${error.message}`);
+    }
+}
+
+// 显示食材详情
+function displayIngredientDetail(ingredient) {
+    try {
+        // 更新页面标题
+        document.title = `${ingredient.name} - Ingredient Encyclopedia`;
+
+        // 基本信息
+        const nameElement = document.getElementById('ingredientName');
+        const nameEnElement = document.getElementById('ingredientNameEn');
+        const descElement = document.getElementById('ingredientDescription');
+        const categoryBadgeElement = document.getElementById('categoryBadge');
+        
+        if (nameElement) nameElement.textContent = ingredient.name;
+        if (nameEnElement) nameEnElement.textContent = ingredient.name_en || '';
+        if (descElement) descElement.textContent = ingredient.description || '';
+        if (categoryBadgeElement) categoryBadgeElement.textContent = getCategoryName(ingredient.category);
+        
+        // 食材图片处理
+        const imageElement = document.getElementById('ingredientImage');
+        if (imageElement) {
+            if (ingredient.image_filename) {
+                imageElement.src = `/static/images/ingredients/${ingredient.image_filename}`;
+                imageElement.alt = ingredient.name;
+                imageElement.onerror = function() {
+                    this.classList.add('error');
+                    this.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjgwIiBoZWlnaHQ9IjI4MCIgdmlld0JveD0iMCAwIDI4MCAyODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyODAiIGhlaWdodD0iMjgwIiBmaWxsPSIjZjhmOWZhIi8+Cjx0ZXh0IHg9IjE0MCIgeT0iMTQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjOTk5IiBmb250LXNpemU9IjE0Ij5ObyBJbWFnZTwvdGV4dD4KPC9zdmc+';
+                };
+            } else {
+                imageElement.classList.add('error');
+                imageElement.src = '/static/images/ingredients/default.jpg';
+                imageElement.alt = 'Default ingredient image';
+            }
+        }
+        
+        // 安全性标签
+        displaySafetyBadges(ingredient);
+        
+        // 标签
+        displayTags(ingredient);
+        
+        // 营养成分
+        displayNutritionInfo(ingredient);
+        
+        // 功效和时令信息
+        displayBenefitsAndSeasonality(ingredient);
+        
+        // 专业建议
+        displayProfessionalAdvice(ingredient);
+        
+        // 推荐搭配
+        displayRecommendations(ingredient.recommended_ingredients || []);
+        
+        // 数据来源
+        displayDataSource(ingredient);
+        
+        // 显示内容
+        const contentElement = document.getElementById('ingredientContent');
+        if (contentElement) {
+            contentElement.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error displaying ingredient details:', error);
+        showError('Failed to display ingredient information');
+    }
+}
+
+// 显示安全性标签
+function displaySafetyBadges(ingredient) {
+    const safetyContainer = document.getElementById('safetyBadges');
+    if (!safetyContainer) {
+        console.warn('Safety badges container not found');
+        return;
+    }
+    
+    safetyContainer.innerHTML = '';
+    
+    if (ingredient.is_safe_for_dogs) {
+        safetyContainer.innerHTML += '<div class="safety-badge dogs"><i class="fas fa-dog"></i> Safe for Dogs</div>';
+    }
+    
+    if (ingredient.is_safe_for_cats) {
+        safetyContainer.innerHTML += '<div class="safety-badge cats"><i class="fas fa-cat"></i> Safe for Cats</div>';
+    }
+    
+    if (ingredient.is_common_allergen) {
+        safetyContainer.innerHTML += '<div class="safety-badge allergen"><i class="fas fa-exclamation-triangle"></i> Allergen</div>';
+    }
+}
+
+// 显示标签
+function displayTags(ingredient) {
+    const tagsContainer = document.getElementById('tagsContainer');
+    if (!tagsContainer) {
+        console.warn('Tags container not found');
+        return;
+    }
+    
+    tagsContainer.innerHTML = '';
+    
+    if (ingredient.is_safe_for_dogs) {
+        tagsContainer.innerHTML += '<span class="tag safe-dogs"><i class="fas fa-dog"></i> Safe for Dogs</span>';
+    }
+    
+    if (ingredient.is_safe_for_cats) {
+        tagsContainer.innerHTML += '<span class="tag safe-cats"><i class="fas fa-cat"></i> Safe for Cats</span>';
+    }
+    
+    if (ingredient.is_common_allergen) {
+        tagsContainer.innerHTML += '<span class="tag allergen"><i class="fas fa-exclamation-triangle"></i> Common Allergen</span>';
+    }
+}
+
+// 显示营养信息
+function displayNutritionInfo(ingredient) {
+    const nutritionFields = [
+        'calories', 'protein', 'fat', 'carbohydrate', 'fiber',
+        'calcium', 'phosphorus', 'potassium', 'sodium',
+        'vitamin_a', 'vitamin_c', 'vitamin_e', 'vitamin_k'
+    ];
+    
+    nutritionFields.forEach(field => {
+        const element = document.getElementById(field);
+        if (element) {
+            const value = ingredient[field];
+            if (value !== null && value !== undefined && value !== 0) {
+                element.textContent = parseFloat(value).toFixed(1);
+            } else {
+                element.textContent = '-';
+            }
+        }
+    });
+}
+
+// 显示功效和时令信息
+function displayBenefitsAndSeasonality(ingredient) {
+    const benefitsElement = document.getElementById('benefitsContent');
+    if (benefitsElement) {
+        benefitsElement.textContent = ingredient.benefits || 'No benefit information available';
+    }
+    
+    const seasonalityElement = document.getElementById('seasonalityContent');
+    if (seasonalityElement) {
+        const seasonality = ingredient.seasonality || 'all_year';
+        seasonalityElement.textContent = getSeasonalityText(seasonality);
+    }
+}
+
+// 显示专业建议
+function displayProfessionalAdvice(ingredient) {
+    const advice = ingredient.encyclopedia_info || {};
+    const adviceSection = document.getElementById('professionalAdvice');
+    
+    let hasAdvice = false;
+    
+    if (advice.preparation_method) {
+        const prepElement = document.querySelector('#preparationMethod p');
+        if (prepElement) {
+            prepElement.textContent = advice.preparation_method;
+            hasAdvice = true;
+        }
+    }
+    
+    if (advice.pro_tip) {
+        const tipElement = document.querySelector('#proTip p');
+        if (tipElement) {
+            tipElement.textContent = advice.pro_tip;
+            hasAdvice = true;
+        }
+    }
+    
+    if (advice.storage_notes) {
+        const storageElement = document.querySelector('#storageNotes p');
+        if (storageElement) {
+            storageElement.textContent = advice.storage_notes;
+            hasAdvice = true;
+        }
+    }
+    
+    if (advice.allergy_alert) {
+        const allergyElement = document.querySelector('#allergyAlert p');
+        if (allergyElement) {
+            allergyElement.textContent = advice.allergy_alert;
+            hasAdvice = true;
+        }
+    }
+    
+    if (hasAdvice && adviceSection) {
+        adviceSection.style.display = 'block';
+    }
+}
+
+// 显示推荐搭配
+function displayRecommendations(recommendations) {
+    const recommendationsSection = document.getElementById('recommendationsSection');
+    const recommendationsGrid = document.getElementById('recommendationsGrid');
+    
+    if (recommendations.length === 0) {
+        return;
+    }
+    
+    recommendationsGrid.innerHTML = '';
+    
+    recommendations.forEach(rec => {
+        const card = document.createElement('div');
+        card.className = 'recommendation-card';
+        card.onclick = () => window.location.href = `/ingredient/${rec.id}`;
+        
+        card.innerHTML = `
+            <img src="/static/images/ingredients/${rec.image_filename || 'default.jpg'}" 
+                alt="${rec.name}" class="recommendation-image"
+                onerror="this.src='/static/images/ingredients/default.jpg'">
+            <div class="recommendation-info">
+                <div class="recommendation-name">${rec.name}</div>
+                <div class="recommendation-nutrients">
+                    <span>${rec.calories || 0}kcal</span>
+                    <span>${rec.protein || 0}g protein</span>
+                </div>
+            </div>
+        `;
+        
+        recommendationsGrid.appendChild(card);
+    });
+    
+    recommendationsSection.style.display = 'block';
+}
+
+// 显示数据来源
+function displayDataSource(ingredient) {
+    const advice = ingredient.encyclopedia_info || {};
+    
+    const dataSourceElement = document.getElementById('dataSource');
+    if (dataSourceElement) {
+        dataSourceElement.textContent = advice.data_source || 'Professional Nutrition Database';
+    }
+    
+    const lastVerifiedElement = document.getElementById('lastVerified');
+    if (lastVerifiedElement) {
+        if (advice.last_verified) {
+            const date = new Date(advice.last_verified);
+            lastVerifiedElement.textContent = date.toLocaleDateString('en-US');
+        } else {
+            lastVerifiedElement.textContent = 'Unknown';
+        }
+    }
+}
+
+// 获取分类名称
+function getCategoryName(categoryValue) {
+    const categoryNames = {
+        'red_meat': 'Red Meat',
+        'white_meat': 'White Meat',
+        'fish': 'Fish',
+        'organs': 'Organs',
+        'vegetables': 'Vegetables',
+        'fruits': 'Fruits',
+        'grains': 'Grains',
+        'dairy': 'Dairy',
+        'supplements': 'Supplements',
+        'oils': 'Oils & Fats'
+    };
+    return categoryNames[categoryValue] || categoryValue;
+}
+
+// 获取季节文本
+function getSeasonalityText(seasonality) {
+    const seasonMap = {
+        'all_year': 'Available All Year',
+        'spring': 'Spring Season',
+        'summer': 'Summer Season',
+        'autumn': 'Autumn Season',
+        'winter': 'Winter Season',
+        'spring,summer': 'Spring & Summer',
+        'autumn,winter': 'Autumn & Winter',
+        '全年': 'Available All Year',
+        '春季': 'Spring Season',
+        '夏季': 'Summer Season',
+        '秋季': 'Autumn Season',
+        '冬季': 'Winter Season'
+    };
+    return seasonMap[seasonality] || seasonality;
+}
+
+// 显示加载状态
+function showLoading() {
+    document.getElementById('loadingContainer').style.display = 'block';
+    document.getElementById('ingredientContent').style.display = 'none';
+    document.getElementById('errorContainer').style.display = 'none';
+}
+
+// 隐藏加载状态
+function hideLoading() {
+    document.getElementById('loadingContainer').style.display = 'none';
+}
+
+// 显示错误
+function showError(message) {
+    document.getElementById('errorMessage').textContent = message;
+    document.getElementById('errorContainer').style.display = 'block';
+    document.getElementById('loadingContainer').style.display = 'none';
+    document.getElementById('ingredientContent').style.display = 'none';
+}
+
+// 页面加载时执行
+document.addEventListener('DOMContentLoaded', function() {
+    loadIngredientDetail();
+});
+</script>
+{% endblock %}

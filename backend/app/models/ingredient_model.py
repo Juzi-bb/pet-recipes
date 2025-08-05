@@ -14,6 +14,7 @@ class IngredientCategory(enum.Enum):
     DAIRY = "dairy"                 # 乳制品
     SUPPLEMENTS = "supplements"     # 营养补充剂
     OILS = "oils"                   # 油脂类
+    DANGEROUS = "dangerous"         # 危险食材 - 新添加的分类
 
 class Ingredient(db.Model):  # ------- 修改：继承db.Model而不是Base -------
     __tablename__ = 'ingredients'

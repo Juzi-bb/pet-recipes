@@ -4,6 +4,19 @@
 
 {% block content %}
 <style>
+    /* 基础样式变量定义 */
+    :root {
+        --primary-color: #510B0B;
+        --secondary-color: #B82F0D;
+        --accent-color: #5580AD;
+        --light-accent: #A1B4B2;
+        --warm-accent: #EDBF9D;
+        --success-color: #27ae60;
+        --error-color: #e74c3c;
+        --warning-color: #f39c12;
+    }
+
+    /* 用户欢迎区域样式 */
     .user-welcome {
         background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
         color: white;
@@ -23,6 +36,7 @@
         opacity: 0.9;
     }
 
+    /* 章节标题样式 */
     .section-title {
         font-size: 1.5rem;
         color: #510B0B;
@@ -62,20 +76,14 @@
         transform: translateY(-2px);
     }
 
-    /* 宠物卡片网格 */
+    /* ===============================
+        宠物卡片区域样式（保持原有设计）
+       =============================== */
     .pets-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        grid-template-columns: 1fr;
         gap: 1.5rem;
-        margin-bottom: 3rem;
-    }
-
-    /* 食谱卡片网格 */
-    .recipes-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 3rem;
+        margin-bottom: 2rem;
     }
 
     /* 迷你宠物卡片 */
@@ -100,383 +108,27 @@
     }
 
     /* 五种主题色轮换 */
-    .pet-card-mini:nth-child(2n+1) { border-color: #510B0B; background: linear-gradient(135deg, #510B0B05 0%, #510B0B10 100%); }
-    .pet-card-mini:nth-child(2n+2) { border-color: #B82F0D; background: linear-gradient(135deg, #B82F0D05 0%, #B82F0D10 100%); }
-    .pet-card-mini:nth-child(3n+1) { border-color: #5580AD; background: linear-gradient(135deg, #5580AD05 0%, #5580AD10 100%); }
-    .pet-card-mini:nth-child(4n+1) { border-color: #A1B4B2; background: linear-gradient(135deg, #A1B4B205 0%, #A1B4B210 100%); }
-    .pet-card-mini:nth-child(5n+1) { border-color: #EDBF9D; background: linear-gradient(135deg, #EDBF9D15 0%, #EDBF9D25 100%); }
-
-    /* 食谱卡片样式 */
-    .recipe-card {
-        background: white;
-        border-radius: 15px;
-        padding: 0;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        border: 2px solid #EDBF9D;
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
+    .pet-card-mini:nth-child(2n+1) { 
+        border-color: #510B0B; 
+        background: linear-gradient(135deg, rgba(81, 11, 11, 0.05) 0%, rgba(81, 11, 11, 0.1) 100%); 
+    }
+    .pet-card-mini:nth-child(2n+2) { 
+        border-color: #B82F0D; 
+        background: linear-gradient(135deg, rgba(184, 47, 13, 0.05) 0%, rgba(184, 47, 13, 0.1) 100%); 
+    }
+    .pet-card-mini:nth-child(3n+1) { 
+        border-color: #5580AD; 
+        background: linear-gradient(135deg, rgba(85, 128, 173, 0.05) 0%, rgba(85, 128, 173, 0.1) 100%); 
+    }
+    .pet-card-mini:nth-child(4n+1) { 
+        border-color: #A1B4B2; 
+        background: linear-gradient(135deg, rgba(161, 180, 178, 0.05) 0%, rgba(161, 180, 178, 0.1) 100%); 
+    }
+    .pet-card-mini:nth-child(5n+1) { 
+        border-color: #EDBF9D; 
+        background: linear-gradient(135deg, rgba(237, 191, 157, 0.15) 0%, rgba(237, 191, 157, 0.25) 100%); 
     }
 
-    .recipe-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        border-color: #5580AD;
-    }
-
-    /* 食谱卡片头部 - 折叠状态 */
-    .recipe-card-header {
-        padding: 1.5rem;
-        position: relative;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        border-bottom: 1px solid #f0f0f0;
-    }
-
-    .recipe-card.expanded .recipe-card-header {
-        border-bottom: 2px solid #5580AD;
-        background: linear-gradient(135deg, #5580AD10 0%, #5580AD20 100%);
-    }
-
-    /* 收藏星星按钮 */
-    .favorite-star {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: rgba(255,255,255,0.9);
-        border: none;
-        border-radius: 50%;
-        width: 35px;
-        height: 35px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 16px;
-        z-index: 10;
-    }
-
-    .favorite-star:hover {
-        background: white;
-        transform: scale(1.1);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-
-    .favorite-star.favorited {
-        color: #f1c40f;
-    }
-
-    .favorite-star:not(.favorited) {
-        color: #bdc3c7;
-    }
-
-    /* 展开/折叠指示器 */
-    .expand-indicator {
-        position: absolute;
-        bottom: 15px;
-        right: 15px;
-        background: #5580AD;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        font-size: 12px;
-    }
-
-    .expand-indicator:hover {
-        background: #A1B4B2;
-        transform: scale(1.1);
-    }
-
-    .recipe-card.expanded .expand-indicator {
-        transform: rotate(180deg);
-        background: #B82F0D;
-    }
-
-    /* 食谱信息 */
-    .recipe-info {
-        padding-right: 60px; /* 为右侧收藏按钮留出空间 */
-        display: flex;
-        flex-direction: column;
-        gap: 0.8rem;
-    }
-
-    .recipe-info h3 {
-        color: #510B0B;
-        margin: 0;
-        font-size: 1.2rem;
-        font-weight: bold;
-        line-height: 1.3;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .recipe-description {
-        color: #7f8c8d;
-        font-size: 0.9rem;
-        margin: 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        line-height: 1.4;
-    }
-
-    .recipe-card.expanded .recipe-description {
-        -webkit-line-clamp: unset;
-        display: block;
-    }
-
-    .recipe-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.75rem;
-        color: #95a5a6;
-        border-top: 1px solid #ecf0f1;
-        padding-top: 0.5rem;
-        margin-top: 0.5rem;
-    }
-
-    /* 食谱展开内容 */
-    .recipe-expanded-content {
-        display: none;
-        padding: 1.5rem;
-        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-        border-top: 1px solid #e9ecef;
-        animation: expandContent 0.3s ease-out;
-    }
-
-    .recipe-card.expanded .recipe-expanded-content {
-        display: block;
-    }
-
-    @keyframes expandContent {
-        from {
-            opacity: 0;
-            max-height: 0;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-        to {
-            opacity: 1;
-            max-height: 500px;
-            padding-top: 1.5rem;
-            padding-bottom: 1.5rem;
-        }
-    }
-
-    /* 食材列表样式 */
-    .ingredients-section {
-        margin-bottom: 1.5rem;
-    }
-
-    .ingredients-title {
-        font-size: 1rem;
-        font-weight: bold;
-        color: #510B0B;
-        margin-bottom: 0.8rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .ingredients-list {
-        background: white;
-        border-radius: 10px;
-        border: 1px solid #e9ecef;
-        max-height: 150px;
-        overflow-y: auto;
-    }
-
-    .ingredient-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.8rem 1rem;
-        border-bottom: 1px solid #f8f9fa;
-        font-size: 0.85rem;
-    }
-
-    .ingredient-item:last-child {
-        border-bottom: none;
-    }
-
-    .ingredient-item:hover {
-        background: linear-gradient(135deg, #EDBF9D10 0%, #EDBF9D20 100%);
-    }
-
-    .ingredient-name {
-        color: #510B0B;
-        font-weight: 500;
-    }
-
-    .ingredient-weight {
-        color: #5580AD;
-        font-weight: 600;
-    }
-
-    /* 营养信息样式 */
-    .nutrition-section {
-        margin-bottom: 1.5rem;
-    }
-
-    .nutrition-title {
-        font-size: 1rem;
-        font-weight: bold;
-        color: #510B0B;
-        margin-bottom: 0.8rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .nutrition-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: 0.8rem;
-    }
-
-    .nutrition-item {
-        background: white;
-        padding: 0.8rem;
-        border-radius: 8px;
-        text-align: center;
-        border: 1px solid #e9ecef;
-        transition: all 0.3s ease;
-    }
-
-    .nutrition-item:hover {
-        border-color: #5580AD;
-        transform: translateY(-2px);
-    }
-
-    .nutrition-value {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: #5580AD;
-        margin-bottom: 0.2rem;
-    }
-
-    .nutrition-label {
-        font-size: 0.7rem;
-        color: #7f8c8d;
-        font-weight: 500;
-    }
-
-    /* 展开内容的操作按钮 */
-    .recipe-actions {
-        display: flex;
-        gap: 0.8rem;
-        justify-content: flex-end;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid #e9ecef;
-    }
-
-    .action-btn {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.4rem;
-        text-decoration: none;
-    }
-
-    .btn-view {
-        background: #5580AD;
-        color: white;
-    }
-
-    .btn-view:hover {
-        background: #A1B4B2;
-        transform: translateY(-1px);
-    }
-
-    .btn-edit {
-        background: #EDBF9D;
-        color: #510B0B;
-    }
-
-    .btn-edit:hover {
-        background: #B82F0D;
-        color: white;
-        transform: translateY(-1px);
-    }
-
-    /* 收藏夹特殊卡片 */
-    .favorites-card {
-        background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%);
-        border: 2px dashed #f39c12;
-        cursor: pointer;
-        text-align: center;
-        min-height: 160px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 0.8rem;
-        padding: 1.5rem;
-    }
-
-    .favorites-card:hover {
-        border-color: #e67e22;
-        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
-        transform: translateY(-3px) scale(1.02);
-    }
-
-    .favorites-icon {
-        font-size: 2.5rem;
-        color: #f39c12;
-        position: relative;
-    }
-
-    .favorites-count {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background: #e74c3c;
-        color: white;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        font-weight: bold;
-        border: 2px solid white;
-    }
-
-    .favorites-title {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #e67e22;
-        margin: 0;
-    }
-
-    .favorites-subtitle {
-        color: #d68910;
-        font-size: 0.9rem;
-        margin: 0;
-    }
-
-    /* 宠物相关 */
     .pet-avatar-large {
         width: 80px;
         height: 80px;
@@ -565,7 +217,293 @@
         font-weight: bold;
     }
 
-    /* 模态框样式 */
+    /* ===============================
+        新设计：食谱区域样式
+       =============================== */
+
+    /* 搜索和筛选控制区域 */
+    .recipes-controls {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        border: 2px solid var(--warm-accent);
+    }
+
+    .search-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        align-items: center;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 0.8rem 1.2rem;
+        border: 2px solid #e9ecef;
+        border-radius: 25px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(85, 128, 173, 0.1);
+        background: white;
+    }
+
+    .filter-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-select {
+        padding: 0.6rem 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--accent-color);
+    }
+
+    .filter-label {
+        font-weight: 600;
+        color: var(--primary-color);
+        font-size: 0.9rem;
+    }
+
+    /* 收藏夹特殊卡片 - 固定大小设计 */
+    .favorites-section {
+        margin-bottom: 2rem;
+        max-width: 600px;
+    }
+
+    .favorites-card {
+        background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%);
+        border: 2px dashed #f39c12;
+        border-radius: 15px;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        height: 120px;
+        width: 100%;
+        max-width: none;
+    }
+
+    .favorites-card:hover {
+        border-color: #e67e22;
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        transform: translateY(-3px) scale(1.02);
+    }
+
+    .favorites-icon {
+        font-size: 2.5rem;
+        color: #f39c12;
+        position: relative;
+    }
+
+    .favorites-count {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: bold;
+        border: 2px solid white;
+    }
+
+    .favorites-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #e67e22;
+        margin: 0 0 0.3rem 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .favorites-subtitle {
+        color: #d68910;
+        font-size: 0.9rem;
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* 食谱网格布局 - 响应式4列设计 */
+    .recipes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    /* 新设计：竖向食谱卡片 */
+    .recipe-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 2px solid var(--warm-accent);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        height: 300px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .recipe-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        border-color: var(--accent-color);
+    }
+
+    /* 食谱卡片头部 - 包含图标和收藏按钮 */
+    .recipe-card-header {
+        position: relative;
+        background: linear-gradient(135deg, var(--warm-accent) 0%, var(--light-accent) 100%);
+        padding: 1.5rem;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .recipe-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    }
+
+    .recipe-favorite-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: rgba(255,255,255,0.9);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        z-index: 10;
+    }
+
+    .recipe-favorite-btn:hover {
+        background: white;
+        transform: scale(1.1);
+    }
+
+    .recipe-favorite-btn.favorited {
+        color: #f1c40f;
+    }
+
+    .recipe-favorite-btn:not(.favorited) {
+        color: #bdc3c7;
+    }
+
+    /* 食谱卡片内容区域 */
+    .recipe-card-content {
+        padding: 1.2rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .recipe-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-bottom: 0.6rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .recipe-description {
+        color: #7f8c8d;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        margin-bottom: 0.8rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        flex: 1;
+    }
+
+    .recipe-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        font-size: 0.75rem;
+        color: #95a5a6;
+        border-top: 1px solid #ecf0f1;
+        padding-top: 0.8rem;
+    }
+
+    .recipe-meta-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .recipe-pet {
+        color: var(--secondary-color);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .recipe-date {
+        color: #95a5a6;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    /* ===============================
+        模态框样式（保持原有设计）
+       =============================== */
     .modal {
         display: none;
         position: fixed;
@@ -643,7 +581,54 @@
         transform: rotate(90deg);
     }
 
-    /* 特殊需求标签 */
+    /* 宠物模态框专用样式 */
+    .modal-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 20px;
+        object-fit: cover;
+        border: 4px solid #EDBF9D;
+    }
+
+    .modal-pet-info {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .modal-details {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-weight: bold;
+        color: #510B0B;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-value {
+        color: #B82F0D;
+        font-weight: 500;
+    }
+
+    /* 特殊需求标签样式 */
     .special-needs-section {
         margin-top: 1.5rem;
     }
@@ -672,11 +657,31 @@
     }
 
     /* 不同类型的标签颜色 */
-    .need-tag.allergy { background: #ffebee; color: #c62828; border-color: #ef5350; }
-    .need-tag.health { background: #e8f5e8; color: #2e7d32; border-color: #66bb6a; }
-    .need-tag.diet { background: #e3f2fd; color: #1565c0; border-color: #42a5f5; }
-    .need-tag.beauty { background: #f3e5f5; color: #7b1fa2; border-color: #ab47bc; }
-    .need-tag.normal { background: #f5f5f5; color: #616161; border-color: #bdbdbd; }
+    .need-tag.allergy { 
+        background: #ffebee; 
+        color: #c62828; 
+        border-color: #ef5350; 
+    }
+    .need-tag.health { 
+        background: #e8f5e8; 
+        color: #2e7d32; 
+        border-color: #66bb6a; 
+    }
+    .need-tag.diet { 
+        background: #e3f2fd; 
+        color: #1565c0; 
+        border-color: #42a5f5; 
+    }
+    .need-tag.beauty { 
+        background: #f3e5f5; 
+        color: #7b1fa2; 
+        border-color: #ab47bc; 
+    }
+    .need-tag.normal { 
+        background: #f5f5f5; 
+        color: #616161; 
+        border-color: #bdbdbd; 
+    }
 
     /* 模态框操作按钮 */
     .modal-actions {
@@ -722,56 +727,9 @@
         transform: translateY(-2px);
     }
 
-    /* 确认对话框 */
-    .confirm-modal {
-        max-width: 400px;
-    }
-
-    .confirm-content {
-        text-align: center;
-        padding: 1rem 0;
-    }
-
-    .confirm-message {
-        font-size: 1.1rem;
-        color: #510B0B;
-        margin-bottom: 1.5rem;
-    }
-
-    .confirm-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-    }
-
-    .btn-confirm {
-        padding: 0.8rem 1.5rem;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .btn-cancel {
-        background: #95a5a6;
-        color: white;
-    }
-
-    .btn-cancel:hover {
-        background: #7f8c8d;
-    }
-
-    .btn-danger {
-        background: #e74c3c;
-        color: white;
-    }
-
-    .btn-danger:hover {
-        background: #c0392b;
-    }
-
-    /* 空状态样式 */
+    /* ===============================
+        空状态和加载状态样式
+       =============================== */
     .empty-state {
         grid-column: 1 / -1;
         text-align: center;
@@ -795,7 +753,7 @@
         margin-bottom: 1.5rem;
     }
 
-    /* 加载状态 */
+    /* 加载状态样式 */
     .loading {
         grid-column: 1 / -1;
         text-align: center;
@@ -804,65 +762,24 @@
         font-size: 1.1rem;
     }
 
-    .loading i {
-        animation: spin 2s linear infinite;
-        margin-right: 0.5rem;
+    .loading .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--accent-color);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
     }
 
     @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
-    /* Toast 消息样式 */
-    .toast {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 8px;
-        color: white;
-        font-weight: 500;
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        animation: slideInRight 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        max-width: 400px;
-    }
-
-    .toast-success {
-        background: #27ae60;
-    }
-
-    .toast-error {
-        background: #e74c3c;
-    }
-
-    @keyframes slideInRight {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-
-    @keyframes slideOutRight {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-
-    /* 成功消息动画 */
+    /* ===============================
+        成功消息动画样式
+       =============================== */
     .success-message {
         position: fixed;
         top: -80px;
@@ -906,7 +823,30 @@
         line-height: 1.4;
     }
 
-    /* 快速操作区域 */
+    /* 不同类型消息的颜色变体 */
+    .success-message.type-success {
+        background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
+        color: #510B0B;
+        border-color: #510B0B;
+    }
+
+    .success-message.type-info {
+        background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
+        color: white;
+        border-color: #5580AD;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .success-message.type-warning {
+        background: linear-gradient(135deg, #B82F0D 0%, #EDBF9D 100%);
+        color: white;
+        border-color: #B82F0D;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ===============================
+        快速操作区域样式
+       =============================== */
     .quick-actions-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -943,10 +883,56 @@
         font-size: 1rem;
     }
 
-    /* 响应式设计 */
+    /* Toast 消息样式 */
+    .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideInRight 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 400px;
+    }
+
+    .toast-success {
+        background: #27ae60;
+    }
+
+    .toast-error {
+        background: #e74c3c;
+    }
+
+    .toast-info {
+        background: #3498db;
+    }
+
+    .toast-warning {
+        background: #f39c12;
+    }
+
+    /* ===============================
+        响应式设计
+       =============================== */
+    @media (max-width: 1200px) {
+        .recipes-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+    }
+
     @media (max-width: 768px) {
-        .pets-grid, .recipes-grid {
-            grid-template-columns: 1fr;
+        .user-welcome {
+            padding: 1.5rem;
+        }
+        
+        .user-welcome h1 {
+            font-size: 1.8rem;
         }
         
         .section-title {
@@ -956,6 +942,33 @@
         }
         
         .section-actions {
+            justify-content: center;
+        }
+        
+        .pets-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .pet-basic-stats {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .recipes-grid {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        
+        .recipe-card {
+            height: 280px;
+        }
+        
+        .search-bar {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .filter-controls {
             justify-content: center;
         }
         
@@ -973,15 +986,6 @@
             flex-direction: column;
         }
         
-        .pet-basic-stats {
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .favorites-grid {
-            grid-template-columns: 1fr;
-        }
-
         .success-message {
             padding: 0.8rem 1.5rem;
             font-size: 0.9rem;
@@ -992,14 +996,50 @@
         .success-message.show {
             top: 15px;
         }
+    }
 
-        .recipe-info {
-            padding-left: 12px;
-            padding-right: 35px;
+    @media (max-width: 480px) {
+        .user-welcome {
+            padding: 1rem;
+        }
+        
+        .recipes-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .recipe-card {
+            height: 260px;
+        }
+        
+        .favorites-card {
+            max-width: 100%;
         }
 
-        .recipe-icon {
-            display: none; /* 在小屏幕上隐藏图标节省空间 */
+        .quick-actions-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* CSS动画定义 */
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(100%);
+            opacity: 0;
         }
     }
 </style>
@@ -1057,7 +1097,7 @@
     {% endif %}
 </div>
 
-<!-- 我的食谱部分 -->
+<!-- 我的食谱部分 - 全新设计 -->
 <div class="section-title">
     🍽️ My Recipes
     <div class="section-actions">
@@ -1067,28 +1107,62 @@
     </div>
 </div>
 
-<div class="recipes-grid">
-    <!-- 收藏夹卡片 -->
-    <div class="recipe-card favorites-card" onclick="showFavoritesModal()">
+<!-- 搜索和筛选控制区域 -->
+<div class="recipes-controls">
+    <div class="search-bar">
+        <input type="text" class="search-input" id="recipeSearch" 
+            placeholder="Search recipes by name or pet..." 
+            onkeyup="searchRecipes()">
+        <button class="btn-section btn-primary" onclick="clearSearch()">
+            <i class="fas fa-times"></i> Clear
+        </button>
+    </div>
+    <div class="filter-controls">
+        <span class="filter-label">Sort by:</span>
+        <select class="filter-select" id="sortSelect" onchange="sortRecipes()">
+            <option value="name">Name A-Z</option>
+            <option value="name-desc">Name Z-A</option>
+            <option value="date">Newest First</option>
+            <option value="date-desc">Oldest First</option>
+        </select>
+        
+        <span class="filter-label">Filter by Pet:</span>
+        <select class="filter-select" id="petFilter" onchange="filterRecipes()">
+            <option value="">All Pets</option>
+            {% for pet in pets %}
+                <option value="{{ pet.name }}">{{ pet.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<!-- 收藏夹区域 -->
+<div class="favorites-section">
+    <div class="favorites-card" onclick="showFavoritesModal()">
         <div class="favorites-icon">
             📁
             <span class="favorites-count" id="favoritesCount">0</span>
         </div>
-        <h3 class="favorites-title">My Favorites</h3>
-        <p class="favorites-subtitle">View saved recipes</p>
+        <div style="flex: 1;">
+            <h3 class="favorites-title">My Favorites</h3>
+            <p class="favorites-subtitle">Community recipes collection</p>
+        </div>
+        <div class="expand-icon">
+            <i class="fas fa-chevron-right"></i>
+        </div>
     </div>
+</div>
 
-    <!-- 用户创建的食谱列表 -->
-    <div id="userRecipesList">
-        <!-- 动态加载用户食谱 -->
-    </div>
+<!-- 食谱网格 -->
+<div class="recipes-grid" id="recipesGrid">
+    <!-- 动态加载食谱卡片 -->
+</div>
 
-    <!-- 空状态显示 -->
-    <div class="empty-state" id="recipesEmptyState" style="display: none;">
-        <div class="empty-state-icon">🍖</div>
-        <h3>No recipes created yet</h3>
-        <p>Click the "Create Recipe" button above to start creating healthy recipes for your pets!</p>
-    </div>
+<!-- 空状态 -->
+<div class="empty-state" id="recipesEmptyState" style="display: none;">
+    <div class="empty-state-icon">🍖</div>
+    <h3>No recipes found</h3>
+    <p id="emptyStateMessage">Click the "Create Recipe" button above to start creating healthy recipes for your pets!</p>
 </div>
 
 <!-- 快速操作区域 -->
@@ -1111,6 +1185,20 @@
         <div class="quick-action-icon">📚</div>
         <div class="quick-action-text">Browse Ingredient Encyclopedia</div>
     </a>
+</div>
+
+<!-- 食谱详情模态框 -->
+<div class="modal" id="recipeModal" onclick="closeRecipeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2 class="modal-title" id="modalRecipeTitle">Recipe Details</h2>
+            <button class="close-btn" onclick="closeRecipeModal()">&times;</button>
+        </div>
+        
+        <div id="modalRecipeContent">
+            <!-- 动态加载食谱详情内容 -->
+        </div>
+    </div>
 </div>
 
 <!-- 宠物详情模态框 -->
@@ -1171,45 +1259,6 @@
     </div>
 </div>
 
-<!-- 收藏夹模态框 -->
-<div class="modal" id="favoritesModal" onclick="closeFavoritesModal(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <div class="modal-header">
-            <h2 class="modal-title">📁 My Favorites</h2>
-            <button class="close-btn" onclick="closeFavoritesModal()">&times;</button>
-        </div>
-        
-        <div class="modal-body">
-            <div id="favoritesGrid" class="favorites-grid">
-                <!-- 动态加载收藏的食谱 -->
-            </div>
-            <div id="favoritesEmptyState" class="empty-state" style="display: none;">
-                <div class="empty-state-icon">💝</div>
-                <h3>No favorite recipes yet</h3>
-                <p>Start exploring and save your favorite recipes!</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 确认删除模态框 -->
-<div class="modal" id="confirmModal" onclick="closeConfirmModal(event)">
-    <div class="modal-content confirm-modal" onclick="event.stopPropagation()">
-        <div class="modal-header">
-            <h2 class="modal-title">⚠️ Confirm Action</h2>
-            <button class="close-btn" onclick="closeConfirmModal()">&times;</button>
-        </div>
-        
-        <div class="confirm-content">
-            <p class="confirm-message" id="confirmMessage">Are you sure you want to perform this action?</p>
-            <div class="confirm-actions">
-                <button class="btn-confirm btn-cancel" onclick="closeConfirmModal()">Cancel</button>
-                <button class="btn-confirm btn-danger" id="confirmButton">Confirm</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- 隐藏的宠物数据容器 -->
 <div id="pet-data-container" style="display: none;">
     {% for pet in pets %}
@@ -1228,24 +1277,33 @@
 </div>
 
 <script>
-// 全局变量
-let petData = [];
-let favoritesManager = null;
-let recipeDetailsCache = {}; // 缓存食谱详情
+// 全局变量定义
+let petData = []; // 宠物数据存储
+let allRecipes = []; // 所有食谱数据
+let filteredRecipes = []; // 筛选后的食谱数据
+let currentRecipeId = null; // 当前打开的食谱ID
+
+// 食材图标映射表 - 用于随机选择显示
+const ingredientIcons = [
+    '🥩', '🐟', '🍗', '🥕', '🥬', '🍠', '🌽', '🍎', '🥓', '🍖',
+    '🐠', '🦐', '🥦', '🥒', '🍅', '🥔', '🎃', '🍌', '🥚', '🧀',
+    '🍊', '🍐', '🍄', '🦪', '🦌', '🐓', '🦆', '🌾', '🌿', '🍓'
+];
 
 // 页面加载完成时初始化
 document.addEventListener('DOMContentLoaded', function() {
     initializePage();
 });
 
-// 初始化页面
+// 初始化页面数据和功能
 function initializePage() {
-    petData = getPetData();
-    favoritesManager = new FavoritesManager();
-    loadUserRecipes();
+    petData = getPetData(); // 读取宠物数据
+    loadUserRecipes(); // 加载用户食谱
+    loadFavoritesCount(); // 加载收藏数量
+    checkUrlParams(); // 检查URL参数显示消息
 }
 
-// 从隐藏的DOM元素中读取宠物数据
+// 从隐藏DOM元素中读取宠物数据
 function getPetData() {
     const petElements = document.querySelectorAll('.pet-data');
     const data = [];
@@ -1267,253 +1325,245 @@ function getPetData() {
     return data;
 }
 
-// 收藏功能管理类
-class FavoritesManager {
-    constructor() {
-        this.favoritesCount = 0;
-        this.favoritesCache = [];
-        this.init();
-    }
-
-    init() {
-        this.loadFavoritesCount();
-    }
-
-    async loadFavoritesCount() {
-        try {
-            const response = await fetch('/api/user/favorites');
-            const data = await response.json();
-            
-            if (data.success) {
-                this.favoritesCount = data.data.count;
-                this.updateFavoritesCountDisplay();
-            }
-        } catch (error) {
-            console.error('加载收藏数量失败:', error);
-        }
-    }
-
-    updateFavoritesCountDisplay() {
-        const countElement = document.getElementById('favoritesCount');
-        if (countElement) {
-            countElement.textContent = this.favoritesCount;
-        }
-    }
-
-    async toggleFavorite(recipeId, element, event) {
-        if (event) {
-            event.stopPropagation();
-        }
-        
-        const isFavorited = element.classList.contains('favorited');
-        
-        try {
-            element.disabled = true;
-            
-            const method = isFavorited ? 'DELETE' : 'POST';
-            const url = isFavorited ? `/api/recipe/favorite/${recipeId}` : '/api/recipe/favorite';
-            const body = isFavorited ? null : JSON.stringify({ recipe_id: recipeId });
-            
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: body
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                if (isFavorited) {
-                    element.classList.remove('favorited');
-                    this.favoritesCount--;
-                    showToast('Recipe removed from favorites', 'success');
-                } else {
-                    element.classList.add('favorited');
-                    this.favoritesCount++;
-                    showToast('Recipe added to favorites!', 'success');
-                }
-                this.updateFavoritesCountDisplay();
-            } else {
-                showToast(data.message, 'error');
-            }
-        } catch (error) {
-            console.error('切换收藏状态失败:', error);
-            showToast('Operation failed, please try again', 'error');
-        } finally {
-            element.disabled = false;
-        }
-    }
-
-    async showFavoritesModal() {
-        // 这里可以实现收藏夹模态框显示逻辑
-        showToast('Favorites feature is under development', 'info');
-    }
-}
-
-// 加载用户创建的食谱
+// 加载用户创建的食谱数据
 async function loadUserRecipes() {
     try {
-        const container = document.getElementById('userRecipesList');
-        const emptyState = document.getElementById('recipesEmptyState');
-        
-        container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i>Loading recipes...</div>';
-        emptyState.style.display = 'none';
-        
-        console.log('🔄 开始加载用户食谱...');
+        showLoadingState(); // 显示加载状态
         
         const response = await fetch('/api/user/recipes');
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
         const data = await response.json();
-        console.log('📦 接收到数据:', data);
         
         if (data.success) {
-            if (data.recipes && data.recipes.length > 0) {
-                console.log(`✅ 成功获取 ${data.recipes.length} 个食谱`);
-                renderRecipeCards(data.recipes);
-                emptyState.style.display = 'none';
-            } else {
-                console.log('📭 用户暂无食谱');
-                container.innerHTML = '';
-                emptyState.style.display = 'block';
-            }
+            allRecipes = data.recipes || [];
+            filteredRecipes = [...allRecipes]; // 复制数组避免引用问题
+            renderRecipes(); // 渲染食谱卡片
         } else {
-            throw new Error(data.message || '未知错误');
+            throw new Error(data.message || 'Failed to load recipes');
         }
     } catch (error) {
-        console.error('❌ 加载用户食谱失败:', error);
-        const container = document.getElementById('userRecipesList');
-        if (container) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-state-icon">⚠️</div>
-                    <h3>Failed to load recipes</h3>
-                    <p>Error: ${error.message}</p>
-                    <p>Please check the console for details and try again.</p>
-                    <button onclick="loadUserRecipes()" class="btn-section btn-primary" style="margin-top: 1rem;">
-                        🔄 Retry
-                    </button>
-                </div>
-            `;
-        }
+        console.error('加载用户食谱失败:', error);
+        showErrorState('Failed to load recipes: ' + error.message);
     }
 }
 
-// 渲染食谱卡片
-function renderRecipeCards(recipes) {
-    const container = document.getElementById('userRecipesList');
+// 显示加载状态
+function showLoadingState() {
+    const grid = document.getElementById('recipesGrid');
+    const emptyState = document.getElementById('recipesEmptyState');
     
-    const recipesHtml = recipes.map(recipe => `
-        <div class="recipe-card" data-recipe-id="${recipe.id}">
-            <!-- 食谱卡片头部 - 折叠状态 -->
-            <div class="recipe-card-header" onclick="toggleRecipeCard(${recipe.id}, event)">
-                <button class="favorite-star ${recipe.is_favorited ? 'favorited' : ''}" 
-                        onclick="favoritesManager.toggleFavorite(${recipe.id}, this, event)">
-                    <i class="fas fa-star"></i>
-                </button>
-                
-                <button class="expand-indicator">
-                    <i class="fas fa-chevron-down"></i> 
-                </button>
-                
-                <div class="recipe-info">
-                    <h3>${escapeHtml(recipe.name)}</h3>
-                    <p class="recipe-description">${escapeHtml(recipe.description || 'No description available')}</p>
-                    <div class="recipe-meta">
-                        <span><i class="fas fa-calendar-alt"></i> ${formatDate(recipe.created_at)}</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 食谱展开内容 -->
-            <div class="recipe-expanded-content">
-                <div class="loading-indicator">
-                    <i class="fas fa-spinner fa-spin"></i> Loading details...
-                </div>
-            </div>
-        </div>
-    `).join('');
-    
-    container.innerHTML = recipesHtml;
+    grid.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading recipes...</p></div>';
+    emptyState.style.display = 'none';
 }
 
-// 切换食谱卡片展开/折叠状态
-async function toggleRecipeCard(recipeId, event) {
-    // 阻止收藏按钮和展开按钮的点击事件冒泡
-    if (event.target.closest('.favorite-star') || event.target.closest('.expand-indicator')) {
+// 显示错误状态
+function showErrorState(message) {
+    const grid = document.getElementById('recipesGrid');
+    const emptyState = document.getElementById('recipesEmptyState');
+    
+    grid.innerHTML = '';
+    emptyState.style.display = 'block';
+    document.getElementById('emptyStateMessage').textContent = message;
+}
+
+// 渲染食谱卡片列表
+function renderRecipes() {
+    const grid = document.getElementById('recipesGrid');
+    const emptyState = document.getElementById('recipesEmptyState');
+    
+    if (filteredRecipes.length === 0) {
+        grid.innerHTML = '';
+        emptyState.style.display = 'block';
+        
+        // 根据搜索状态显示不同的空状态消息
+        const searchInput = document.getElementById('recipeSearch');
+        const petFilter = document.getElementById('petFilter');
+        
+        if (searchInput.value.trim() || petFilter.value) {
+            document.getElementById('emptyStateMessage').textContent = 'No recipes match your search criteria. Try adjusting your filters.';
+        } else if (allRecipes.length === 0) {
+            document.getElementById('emptyStateMessage').textContent = 'Click the "Create Recipe" button above to start creating healthy recipes for your pets!';
+        }
         return;
     }
     
-    const card = document.querySelector(`[data-recipe-id="${recipeId}"]`);
-    const expandedContent = card.querySelector('.recipe-expanded-content');
+    emptyState.style.display = 'none';
     
-    if (card.classList.contains('expanded')) {
-        // 折叠卡片
-        card.classList.remove('expanded');
-    } else {
-        // 展开卡片
-        card.classList.add('expanded');
+    // 生成食谱卡片HTML
+    const recipesHtml = filteredRecipes.map((recipe, index) => {
+        const randomIcon = ingredientIcons[index % ingredientIcons.length]; // 随机选择图标
+        const petName = recipe.pet_name || 'All Pets';
         
-        // 如果还没有加载详情，则加载
-        if (!recipeDetailsCache[recipeId]) {
-            await loadRecipeDetails(recipeId, expandedContent);
-        }
-    }
+        return `
+            <div class="recipe-card" onclick="showRecipeModal(${recipe.id})">
+                <div class="recipe-card-header">
+                    <div class="recipe-icon">${randomIcon}</div>
+                    <button class="recipe-favorite-btn ${recipe.is_favorited ? 'favorited' : ''}" 
+                            onclick="toggleFavorite(${recipe.id}, this, event)">
+                        <i class="fas fa-star"></i>
+                    </button>
+                </div>
+                <div class="recipe-card-content">
+                    <h3 class="recipe-title">${escapeHtml(recipe.name)}</h3>
+                    <p class="recipe-description">${escapeHtml(recipe.description || 'No description available')}</p>
+                    <div class="recipe-meta">
+                        <div class="recipe-meta-row">
+                            <span class="recipe-pet">
+                                <i class="fas fa-paw"></i>
+                                ${escapeHtml(petName)}
+                            </span>
+                        </div>
+                        <div class="recipe-meta-row">
+                            <span class="recipe-date">
+                                <i class="fas fa-calendar-alt"></i>
+                                ${formatDate(recipe.created_at)}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    grid.innerHTML = recipesHtml;
 }
 
-// 加载食谱详情
-async function loadRecipeDetails(recipeId, contentContainer) {
+// 搜索食谱功能
+function searchRecipes() {
+    const searchTerm = document.getElementById('recipeSearch').value.toLowerCase().trim();
+    
+    if (searchTerm === '') {
+        filteredRecipes = [...allRecipes];
+    } else {
+        filteredRecipes = allRecipes.filter(recipe => {
+            const nameMatch = recipe.name.toLowerCase().includes(searchTerm);
+            const petMatch = recipe.pet_name && recipe.pet_name.toLowerCase().includes(searchTerm);
+            return nameMatch || petMatch;
+        });
+    }
+    
+    renderRecipes();
+}
+
+// 清除搜索和筛选条件
+function clearSearch() {
+    document.getElementById('recipeSearch').value = '';
+    document.getElementById('petFilter').value = '';
+    document.getElementById('sortSelect').value = 'name';
+    filteredRecipes = [...allRecipes];
+    renderRecipes();
+}
+
+// 排序食谱功能
+function sortRecipes() {
+    const sortBy = document.getElementById('sortSelect').value;
+    
+    filteredRecipes.sort((a, b) => {
+        switch (sortBy) {
+            case 'name':
+                return a.name.localeCompare(b.name);
+            case 'name-desc':
+                return b.name.localeCompare(a.name);
+            case 'date':
+                return new Date(b.created_at) - new Date(a.created_at);
+            case 'date-desc':
+                return new Date(a.created_at) - new Date(b.created_at);
+            default:
+                return 0;
+        }
+    });
+    
+    renderRecipes();
+}
+
+// 按宠物筛选食谱功能
+function filterRecipes() {
+    const petFilter = document.getElementById('petFilter').value;
+    const searchTerm = document.getElementById('recipeSearch').value.toLowerCase().trim();
+    
+    filteredRecipes = allRecipes.filter(recipe => {
+        const petMatch = !petFilter || recipe.pet_name === petFilter;
+        const searchMatch = !searchTerm || 
+            recipe.name.toLowerCase().includes(searchTerm) || 
+            (recipe.pet_name && recipe.pet_name.toLowerCase().includes(searchTerm));
+        
+        return petMatch && searchMatch;
+    });
+    
+    renderRecipes();
+}
+
+// 显示食谱详情模态框
+async function showRecipeModal(recipeId) {
+    currentRecipeId = recipeId;
+    const modal = document.getElementById('recipeModal');
+    const content = document.getElementById('modalRecipeContent');
+    
+    // 显示加载状态
+    content.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading recipe details...</p></div>';
+    
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('show'), 10);
+    document.body.style.overflow = 'hidden';
+    
     try {
         const response = await fetch(`/api/recipe/${recipeId}/detail`);
         const data = await response.json();
         
         if (data.success) {
             const recipe = data.recipe;
-            recipeDetailsCache[recipeId] = recipe;
+            document.getElementById('modalRecipeTitle').textContent = recipe.name;
             
             // 渲染详情内容
-            contentContainer.innerHTML = renderRecipeDetails(recipe);
+            content.innerHTML = renderRecipeModalContent(recipe, data.current_user_id);
         } else {
-            contentContainer.innerHTML = `
-                <div style="text-align: center; padding: 1rem; color: #e74c3c;">
-                    <i class="fas fa-exclamation-triangle"></i>
+            content.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: #e74c3c;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                     <p>Failed to load recipe details</p>
                 </div>
             `;
         }
     } catch (error) {
         console.error('加载食谱详情失败:', error);
-        contentContainer.innerHTML = `
-            <div style="text-align: center; padding: 1rem; color: #e74c3c;">
-                <i class="fas fa-exclamation-triangle"></i>
+        content.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #e74c3c;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
                 <p>Network error, please try again</p>
             </div>
         `;
     }
 }
 
-// 渲染食谱详情内容
-function renderRecipeDetails(recipe) {
+// 渲染食谱模态框内容
+function renderRecipeModalContent(recipe, currentUserId) {
     let html = '';
     
-    // 食材列表
+    // 食谱描述区域
+    if (recipe.description) {
+        html += `
+            <div style="margin-bottom: 2rem;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-info-circle"></i> Description
+                </h3>
+                <p style="background: #f8f9fa; padding: 1rem; border-radius: 8px; line-height: 1.6;">
+                    ${escapeHtml(recipe.description)}
+                </p>
+            </div>
+        `;
+    }
+    
+    // 食材列表区域
     if (recipe.ingredients && recipe.ingredients.length > 0) {
         html += `
-            <div class="ingredients-section">
-                <div class="ingredients-title">
-                    <i class="fas fa-list"></i>
-                    Ingredients (${recipe.ingredients.length})
-                </div>
-                <div class="ingredients-list">
+            <div style="margin-bottom: 2rem;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-list"></i> Ingredients (${recipe.ingredients.length})
+                </h3>
+                <div style="background: #f8f9fa; border-radius: 8px; overflow: hidden;">
                     ${recipe.ingredients.map(ingredient => `
-                        <div class="ingredient-item">
-                            <span class="ingredient-name">${escapeHtml(ingredient.name)}</span>
-                            <span class="ingredient-weight">${ingredient.weight}g</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1rem; border-bottom: 1px solid #e9ecef;">
+                            <span style="font-weight: 600; color: var(--primary-color);">${escapeHtml(ingredient.name)}</span>
+                            <span style="color: var(--accent-color); font-weight: 700;">${ingredient.weight}g</span>
                         </div>
                     `).join('')}
                 </div>
@@ -1521,59 +1571,50 @@ function renderRecipeDetails(recipe) {
         `;
     }
     
-    // 营养信息
+    // 营养信息区域
     if (recipe.nutrition) {
         html += `
-            <div class="nutrition-section">
-                <div class="nutrition-title">
-                    <i class="fas fa-chart-pie"></i>
-                    Nutrition Information
-                </div>
-                <div class="nutrition-grid">
-                    <div class="nutrition-item">
-                        <div class="nutrition-value">${recipe.nutrition.total_calories.toFixed(1)}</div>
-                        <div class="nutrition-label">Calories</div>
+            <div style="margin-bottom: 2rem;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">
+                    <i class="fas fa-chart-pie"></i> Nutrition Information
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem;">
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-color);">${recipe.nutrition.total_calories.toFixed(1)}</div>
+                        <div style="font-size: 0.8rem; color: #666;">Calories</div>
                     </div>
-                    <div class="nutrition-item">
-                        <div class="nutrition-value">${recipe.nutrition.total_protein.toFixed(1)}</div>
-                        <div class="nutrition-label">Protein (g)</div>
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-color);">${recipe.nutrition.total_protein.toFixed(1)}</div>
+                        <div style="font-size: 0.8rem; color: #666;">Protein (g)</div>
                     </div>
-                    <div class="nutrition-item">
-                        <div class="nutrition-value">${recipe.nutrition.total_fat.toFixed(1)}</div>
-                        <div class="nutrition-label">Fat (g)</div>
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-color);">${recipe.nutrition.total_fat.toFixed(1)}</div>
+                        <div style="font-size: 0.8rem; color: #666;">Fat (g)</div>
                     </div>
-                    <div class="nutrition-item">
-                        <div class="nutrition-value">${recipe.nutrition.total_carbs.toFixed(1)}</div>
-                        <div class="nutrition-label">Carbs (g)</div>
-                    </div>
-                    <div class="nutrition-item">
-                        <div class="nutrition-value">${recipe.nutrition.total_fiber.toFixed(1)}</div>
-                        <div class="nutrition-label">Fiber (g)</div>
-                    </div>
-                    <div class="nutrition-item">
-                        <div class="nutrition-value">${recipe.nutrition.total_calcium.toFixed(1)}</div>
-                        <div class="nutrition-label">Calcium (mg)</div>
+                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-color);">${recipe.nutrition.total_carbs.toFixed(1)}</div>
+                        <div style="font-size: 0.8rem; color: #666;">Carbs (g)</div>
                     </div>
                 </div>
             </div>
         `;
     }
     
-    // 操作按钮
+    // 操作按钮区域
     html += `
-        <div class="recipe-actions">
-            <a href="/recipe/detail/${recipe.id}" class="action-btn btn-view">
-                <i class="fas fa-eye"></i>
-                View Details
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e9ecef;">
+            <a href="/recipe/detail/${recipe.id}" 
+                style="padding: 0.8rem 1.5rem; background: var(--accent-color); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                <i class="fas fa-eye"></i> View Full Details
             </a>
     `;
     
     // 只有食谱创建者可以编辑
-    if (recipe.user_id === getCurrentUserId()) {
+    if (recipe.user_id === currentUserId) {
         html += `
-            <a href="/recipe/edit/${recipe.id}" class="action-btn btn-edit">
-                <i class="fas fa-edit"></i>
-                Edit
+            <a href="/recipe/edit/${recipe.id}" 
+                style="padding: 0.8rem 1.5rem; background: var(--warning-color); color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+                <i class="fas fa-edit"></i> Edit Recipe
             </a>
         `;
     }
@@ -1583,89 +1624,95 @@ function renderRecipeDetails(recipe) {
     return html;
 }
 
-// 获取当前用户ID（从session或其他方式获取）
-function getCurrentUserId() {
-    // 这里需要根据您的实际实现来获取当前用户ID
-    // 可以从页面的隐藏元素、session数据等获取
-    return window.currentUserId || null;
-}
-
-// 格式化日期
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    });
-}
-
-// HTML转义函数
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-// 显示提示消息
-function showToast(message, type = 'success') {
-    // 移除已存在的toast
-    const existingToasts = document.querySelectorAll('.toast');
-    existingToasts.forEach(toast => toast.remove());
+// 关闭食谱模态框
+function closeRecipeModal(event) {
+    if (event && event.target !== event.currentTarget) return;
     
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 8px;
-        color: white;
-        font-weight: 500;
-        z-index: 10000;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        animation: slideInRight 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        max-width: 400px;
-    `;
-    
-    // 根据类型设置背景色
-    const colors = {
-        success: '#27ae60',
-        error: '#e74c3c',
-        info: '#3498db',
-        warning: '#f39c12'
-    };
-    
-    toast.style.background = colors[type] || colors.success;
-    
-    const icon = type === 'success' ? 'check-circle' :
-                 type === 'error' ? 'exclamation-circle' :
-                 type === 'warning' ? 'exclamation-triangle' : 'info-circle';
-    
-    toast.innerHTML = `
-        <i class="fas fa-${icon}"></i>
-        <span>${escapeHtml(message)}</span>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    // 3秒后自动消失
+    const modal = document.getElementById('recipeModal');
+    modal.classList.remove('show');
     setTimeout(() => {
-        toast.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
-            }
-        }, 300);
-    }, 3000);
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        currentRecipeId = null;
+    }, 300);
 }
 
-// 宠物模态框相关函数
+// 切换收藏状态功能
+async function toggleFavorite(recipeId, element, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    
+    const isFavorited = element.classList.contains('favorited');
+    
+    try {
+        element.disabled = true;
+        
+        const method = isFavorited ? 'DELETE' : 'POST';
+        const url = isFavorited ? `/api/recipe/favorite/${recipeId}` : '/api/recipe/favorite';
+        const body = isFavorited ? null : JSON.stringify({ recipe_id: recipeId });
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: body
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            if (isFavorited) {
+                element.classList.remove('favorited');
+                showToast('Recipe removed from favorites', 'success');
+            } else {
+                element.classList.add('favorited');
+                showToast('Recipe added to favorites!', 'success');
+            }
+            
+            // 更新本地数据中的收藏状态
+            const recipe = allRecipes.find(r => r.id === recipeId);
+            if (recipe) {
+                recipe.is_favorited = !isFavorited;
+            }
+            
+            loadFavoritesCount(); // 更新收藏数量
+        } else {
+            showToast(data.message, 'error');
+        }
+    } catch (error) {
+        console.error('切换收藏状态失败:', error);
+        showToast('Operation failed, please try again', 'error');
+    } finally {
+        element.disabled = false;
+    }
+}
+
+// 加载收藏数量
+async function loadFavoritesCount() {
+    try {
+        const response = await fetch('/api/user/favorites');
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('favoritesCount').textContent = data.data.count;
+        }
+    } catch (error) {
+        console.error('加载收藏数量失败:', error);
+    }
+}
+
+// 显示收藏夹模态框（待社区功能完成）
+function showFavoritesModal() {
+    showToast('Community feature is under development, stay tuned!', 'info');
+}
+
+// ===============================
+// 宠物相关功能函数（保持原有逻辑）
+// ===============================
+
+// 显示宠物详情模态框
 function showPetModal(petId) {
     const pet = petData.find(p => p.id == petId);
     if (!pet) return;
@@ -1730,7 +1777,7 @@ function closePetModal(event) {
     }, 300);
 }
 
-// 获取特殊需求标签的CSS类
+// 获取特殊需求标签的CSS类名
 function getNeedTagClass(need) {
     if (need.includes('Allergy')) return 'allergy';
     if (need.includes('Obesity') || need.includes('Diabetes') || need.includes('Kidney') || 
@@ -1739,121 +1786,85 @@ function getNeedTagClass(need) {
     return 'normal';
 }
 
-// 收藏夹相关的全局函数（为了向后兼容）
-function showFavoritesModal() {
-    if (favoritesManager) {
-        return favoritesManager.showFavoritesModal();
-    }
-}
+// ===============================
+// 工具函数定义
+// ===============================
 
-function closeFavoritesModal(event) {
-    if (event && event.target !== event.currentTarget) return;
-    if (favoritesManager) {
-        return favoritesManager.closeFavoritesModal();
-    }
-}
-
-function closeConfirmModal(event) {
-    if (event && event.target !== event.currentTarget) return;
-    if (favoritesManager) {
-        return favoritesManager.closeConfirmModal();
-    }
-}
-
-// CSS动画定义
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideInRight {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-
-    @keyframes slideOutRight {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
-
-// 显示成功消息函数
-function showSuccessMessage(message, type = 'success', duration = 3000) {
-    // 移除已存在的消息
-    const existingMessage = document.querySelector('.success-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-    
-    const messageEl = document.createElement('div');
-    
-    // 根据消息长度判断是否需要多行显示
-    const isLongMessage = message.length > 20;
-    
-    // 动态设置CSS类
-    messageEl.className = 'success-message type-' + type;
-    if (isLongMessage) {
-        messageEl.className += ' multiline';
-    }
-    
-    messageEl.textContent = message;
-    
-    // 将消息添加到body的最前面，确保在最顶层
-    document.body.insertBefore(messageEl, document.body.firstChild);
-    
-    // 显示动画
-    requestAnimationFrame(() => {
-        setTimeout(() => {
-            messageEl.classList.add('show');
-        }, 50);
+// 格式化日期显示
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
     });
+}
+
+// HTML内容转义防止XSS攻击
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 显示提示消息
+function showToast(message, type = 'success') {
+    // 移除已存在的toast消息
+    const existingToasts = document.querySelectorAll('.toast');
+    existingToasts.forEach(toast => toast.remove());
     
-    // 自动隐藏
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    
+    // 根据消息类型设置背景色
+    const colors = {
+        success: '#27ae60',
+        error: '#e74c3c',
+        info: '#3498db',
+        warning: '#f39c12'
+    };
+    
+    toast.style.background = colors[type] || colors.success;
+    
+    // 根据消息类型选择图标
+    const icon = type === 'success' ? 'check-circle' :
+                 type === 'error' ? 'exclamation-circle' :
+                 type === 'warning' ? 'exclamation-triangle' : 'info-circle';
+    
+    toast.innerHTML = `
+        <i class="fas fa-${icon}"></i>
+        <span>${escapeHtml(message)}</span>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // 3秒后自动消失
     setTimeout(() => {
-        messageEl.classList.add('hide');
+        toast.style.animation = 'slideOutRight 0.3s ease';
         setTimeout(() => {
-            if (messageEl.parentNode) {
-                messageEl.parentNode.removeChild(messageEl);
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
             }
-        }, 500);
-    }, duration);
+        }, 300);
+    }, 3000);
 }
 
-// 便捷的消息类型函数
-function showInfoMessage(message, duration) {
-    showSuccessMessage(message, 'info', duration);
-}
-
-function showWarningMessage(message, duration) {
-    showSuccessMessage(message, 'warning', duration);
-}
-
-// 显示开发中提示
+// 显示开发中功能提示
 function showComingSoon(feature) {
-    showInfoMessage(feature + ' is under development, stay tuned!', 4000);
+    showToast(feature + ' is under development, stay tuned!', 'info');
 }
 
-// 检查是否有成功消息需要显示
-document.addEventListener('DOMContentLoaded', function() {
-    // 检查URL参数中的成功消息
+// 检查URL参数中的成功消息
+function checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const successMsg = urlParams.get('success');
     if (successMsg) {
-        showSuccessMessage(decodeURIComponent(successMsg));
-        // 清除URL参数
+        showToast(decodeURIComponent(successMsg));
+        // 清除URL参数避免重复显示
         const newUrl = window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
     }
-});
+}
 </script>
 {% endblock %}

@@ -84,6 +84,8 @@ def create_app(config_class=Config):
     from .routes.nutrition_api import nutrition_api_bp
     from .routes.favorite_api import favorite_api
     from .routes.recipe_detail_api import recipe_detail_bp
+    from .routes.ingredient_encyclopedia import ingredient_encyclopedia_bp
+    from .routes.ingredient_pages import ingredient_pages_bp
 
     # 修复：条件性导入 allergen_api
     try:
@@ -103,6 +105,8 @@ def create_app(config_class=Config):
     app.register_blueprint(recipe_save_api_bp)
     app.register_blueprint(favorite_api)
     app.register_blueprint(recipe_detail_bp)
+    app.register_blueprint(ingredient_encyclopedia_bp)
+    app.register_blueprint(ingredient_pages_bp)
     
     # 修复：条件性注册 allergen_api
     if ALLERGEN_API_AVAILABLE:
