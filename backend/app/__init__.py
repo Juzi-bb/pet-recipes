@@ -53,7 +53,8 @@ def create_app(config_class=Config):
         nutrition_requirements_model,
         recipe_ingredient_model,
         pet_allergen_model,
-        recipe_favorite_model
+        recipe_favorite_model,
+        recipe_like_model
     )
 
     # 创建数据库表
@@ -86,6 +87,7 @@ def create_app(config_class=Config):
     from .routes.recipe_detail_api import recipe_detail_bp
     from .routes.ingredient_encyclopedia import ingredient_encyclopedia_bp
     from .routes.ingredient_pages import ingredient_pages_bp
+    from .routes.community_api import community_api
 
     # 修复：条件性导入 allergen_api
     try:
@@ -107,6 +109,7 @@ def create_app(config_class=Config):
     app.register_blueprint(recipe_detail_bp)
     app.register_blueprint(ingredient_encyclopedia_bp)
     app.register_blueprint(ingredient_pages_bp)
+    app.register_blueprint(community_api)
     
     # 修复：条件性注册 allergen_api
     if ALLERGEN_API_AVAILABLE:

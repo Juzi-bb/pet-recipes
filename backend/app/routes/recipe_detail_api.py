@@ -5,6 +5,8 @@ from app.models.recipe_model import Recipe
 from app.models.user_model import User
 from app.models.ingredient_model import Ingredient
 from app.models.recipe_ingredient_model import RecipeIngredient
+from app.models.recipe_like_model import RecipeLike
+from app.models.recipe_favorite_model import RecipeFavorite
 from sqlalchemy import text
 import logging
 
@@ -26,6 +28,18 @@ def get_recipe_detail(recipe_id):
         if not recipe:
             return jsonify({'success': False, 'message': '食谱不存在'}), 404
         
+        # 检查权限：只有公开食谱或自己的食谱可以查看
+        if not recipe.is_public and recipe.user_id != current_user_id:
+            return jsonify({'success': False, 'message': '没有权限查看此食谱'}), 403
+        
+        # 获取食谱作者信息
+        author = User.query.get(recipe.user_id)
+        author_info = {
+            'id': author.id if author else None,
+            'username': author.username if author else 'Unknown',
+            'nickname': author.nickname if author else 'Unknown User'
+        }
+
         # 获取食谱食材信息
         try:
             recipe_ingredients = db.session.query(
@@ -69,6 +83,32 @@ def get_recipe_detail(recipe_id):
             except Exception as pet_error:
                 print(f"⚠️ 获取宠物信息出错: {pet_error}")
         
+        # 【新增】获取点赞和收藏统计及当前用户状态
+        try:
+            # 获取点赞数量
+            likes_count = RecipeLike.query.filter_by(recipe_id=recipe_id).count()
+            
+            # 获取收藏数量
+            favorites_count = RecipeFavorite.query.filter_by(recipe_id=recipe_id).count()
+            
+            # 检查当前用户是否已点赞
+            user_liked = RecipeLike.query.filter_by(
+                user_id=current_user_id,
+                recipe_id=recipe_id
+            ).first() is not None
+            
+            # 检查当前用户是否已收藏
+            user_favorited = RecipeFavorite.query.filter_by(
+                user_id=current_user_id,
+                recipe_id=recipe_id
+            ).first() is not None
+            
+        except Exception as stats_error:
+            print(f"⚠️ 获取统计信息出错: {stats_error}")
+            likes_count = 0
+            favorites_count = 0
+            user_liked = False
+            user_favorited = False
         
         # 构建返回数据
         recipe_data = {
@@ -80,7 +120,20 @@ def get_recipe_detail(recipe_id):
             'status': recipe.status.value if recipe.status else 'draft',
             'pet_name': pet_name,
             'ingredients': ingredients_list,
-            'nutrition': nutrition
+            'nutrition': nutrition,
+            # 【新增】点赞收藏信息
+            'stats': {
+                'likes_count': likes_count,
+                'favorites_count': favorites_count,
+                'usage_count': recipe.usage_count or 0,
+                'is_loved': user_liked,
+                'is_favorited': user_favorited
+            },
+            'permissions': {
+                'can_edit': recipe.user_id == current_user_id,
+                'can_delete': recipe.user_id == current_user_id,
+                'can_interact': True  # 登录用户都可以点赞收藏
+            }
         }
         
         return jsonify({
@@ -107,46 +160,37 @@ def get_user_favorites():
         
         user_id = session['user_id']
         
-        # 获取收藏数量
+        # 使用模型查询替代原生SQL
         try:
-            favorites_count = db.session.execute(
-                text('SELECT COUNT(*) FROM user_recipe_favorites WHERE user_id = :user_id'),
-                {'user_id': user_id}
-            ).scalar()
-        except Exception as count_error:
-            print(f"⚠️ 获取收藏数量出错: {count_error}")
+            # 获取收藏数量
+            favorites_count = RecipeFavorite.query.filter_by(user_id=user_id).count()
+            
+            # 获取收藏的食谱列表
+            favorites_query = db.session.query(RecipeFavorite, Recipe).join(
+                Recipe, RecipeFavorite.recipe_id == Recipe.id
+            ).filter(RecipeFavorite.user_id == user_id).order_by(
+                RecipeFavorite.created_at.desc()
+            ).all()
+            
+        except Exception as query_error:
+            print(f"⚠️ 查询收藏信息出错: {query_error}")
             favorites_count = 0
-        
-        # 获取收藏的食谱列表
-        try:
-            favorites_query = db.session.execute(
-                text('''
-                    SELECT r.id, r.name, r.description, r.created_at, f.created_at as favorited_at
-                    FROM user_recipe_favorites f
-                    JOIN recipes r ON f.recipe_id = r.id
-                    WHERE f.user_id = :user_id
-                    ORDER BY f.created_at DESC
-                '''),
-                {'user_id': user_id}
-            ).fetchall()
-        except Exception as list_error:
-            print(f"⚠️ 获取收藏列表出错: {list_error}")
             favorites_query = []
         
         favorites_data = []
-        for fav in favorites_query:
+        for favorite, recipe in favorites_query:
             favorites_data.append({
-                'id': fav[0],
-                'name': fav[1],
-                'description': fav[2],
-                'created_at': fav[3],
-                'favorited_at': fav[4]
+                'id': recipe.id,
+                'name': recipe.name,
+                'description': recipe.description or '',
+                'created_at': recipe.created_at.isoformat() if recipe.created_at else None,
+                'favorited_at': favorite.created_at.isoformat() if favorite.created_at else None
             })
         
         return jsonify({
             'success': True,
             'data': {
-                'count': favorites_count or 0,
+                'count': favorites_count,
                 'favorites': favorites_data
             }
         })
@@ -179,22 +223,30 @@ def add_recipe_favorite():
             return jsonify({'success': False, 'message': '食谱不存在'}), 404
         
         # 检查是否已经收藏
-        existing_count = db.session.execute(
-            text('SELECT COUNT(*) FROM user_recipe_favorites WHERE user_id = :user_id AND recipe_id = :recipe_id'),
-            {'user_id': user_id, 'recipe_id': recipe_id}
-        ).scalar()
+        existing_favorite = RecipeFavorite.query.filter_by(
+            user_id=user_id, 
+            recipe_id=recipe_id
+        ).first()
         
-        if existing_count > 0:
+        if existing_favorite:
             return jsonify({'success': False, 'message': '已经收藏过此食谱'}), 400
         
         # 添加收藏
-        db.session.execute(
-            text('INSERT INTO user_recipe_favorites (user_id, recipe_id, created_at) VALUES (:user_id, :recipe_id, datetime("now"))'),
-            {'user_id': user_id, 'recipe_id': recipe_id}
-        )
+        favorite = RecipeFavorite(user_id=user_id, recipe_id=recipe_id)
+        db.session.add(favorite)
         db.session.commit()
         
-        return jsonify({'success': True, 'message': '收藏成功'})
+        # 获取新的收藏数量
+        new_count = RecipeFavorite.query.filter_by(recipe_id=recipe_id).count()
+        
+        return jsonify({
+            'success': True, 
+            'message': '收藏成功',
+            'data': {
+                'is_favorited': True,
+                'favorites_count': new_count
+            }
+        })
         
     except Exception as e:
         print(f"❌ 添加收藏出错: {e}")
@@ -214,23 +266,30 @@ def remove_recipe_favorite(recipe_id):
         
         user_id = session['user_id']
         
-        # 检查是否已收藏
-        existing_count = db.session.execute(
-            text('SELECT COUNT(*) FROM user_recipe_favorites WHERE user_id = :user_id AND recipe_id = :recipe_id'),
-            {'user_id': user_id, 'recipe_id': recipe_id}
-        ).scalar()
+        # 查找收藏记录
+        favorite = RecipeFavorite.query.filter_by(
+            user_id=user_id, 
+            recipe_id=recipe_id
+        ).first()
         
-        if existing_count == 0:
+        if not favorite:
             return jsonify({'success': False, 'message': '未收藏此食谱'}), 404
         
         # 移除收藏
-        db.session.execute(
-            text('DELETE FROM user_recipe_favorites WHERE user_id = :user_id AND recipe_id = :recipe_id'),
-            {'user_id': user_id, 'recipe_id': recipe_id}
-        )
+        db.session.delete(favorite)
         db.session.commit()
         
-        return jsonify({'success': True, 'message': '取消收藏成功'})
+        # 获取新的收藏数量
+        new_count = RecipeFavorite.query.filter_by(recipe_id=recipe_id).count()
+        
+        return jsonify({
+            'success': True, 
+            'message': '取消收藏成功',
+            'data': {
+                'is_favorited': False,
+                'favorites_count': new_count
+            }
+        })
         
     except Exception as e:
         print(f"❌ 取消收藏出错: {e}")

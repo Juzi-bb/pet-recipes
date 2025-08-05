@@ -75,8 +75,9 @@ class Recipe(db.Model):  # 修复：继承 db.Model 而不是 Base
     is_public = Column(Boolean, nullable=False, default=False)  # 是否公开分享
     tags = Column(Text, nullable=True)  # JSON格式的标签
     
-    # 使用统计
+    # 使用统计和社区功能
     usage_count = Column(Integer, nullable=False, default=0)    # 使用次数
+    likes_count = Column(Integer, nullable=False, default=0)    # 点赞数量（新增）
     rating_avg = Column(Float, nullable=True)                  # 平均评分
     rating_count = Column(Integer, nullable=False, default=0)  # 评分次数
     
@@ -238,9 +239,75 @@ class Recipe(db.Model):  # 修复：继承 db.Model 而不是 Base
             'nutrition_score': self.nutrition_score,
             'balance_score': self.balance_score,
             'usage_count': self.usage_count,
+            'likes_count': self.likes_count,
             'rating_avg': self.rating_avg,
             'rating_count': self.rating_count,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
             'ingredients': [ri.to_dict() for ri in self.ingredients]
+        }
+    
+    def update_likes_count(self):
+        """更新点赞数量缓存"""
+        from .recipe_like_model import RecipeLike
+        self.likes_count = RecipeLike.query.filter_by(recipe_id=self.id).count()
+    
+    def get_hot_score(self):
+        """计算热度评分（用于排序）"""
+        # 热度评分 = 点赞数 * 2 + 收藏数 * 1.5 + 使用次数 * 1 + 时间衰减
+        from .recipe_favorite_model import RecipeFavorite
+        
+        favorites_count = RecipeFavorite.query.filter_by(recipe_id=self.id).count()
+        
+        # 时间衰减：最近创建的食谱获得加成
+        days_old = (datetime.utcnow() - self.created_at).days
+        time_decay = max(0, 1 - (days_old / 30))  # 30天内的食谱有时间加成
+        
+        hot_score = (
+            (self.likes_count or 0) * 2 + 
+            favorites_count * 1.5 + 
+            (self.usage_count or 0) * 1 +
+            time_decay * 10
+        )
+        
+        return hot_score
+    
+    def get_community_data(self):
+        """获取社区展示用的数据"""
+        from .recipe_favorite_model import RecipeFavorite
+        from .recipe_like_model import RecipeLike
+        
+        # 获取实时统计数据
+        likes_count = RecipeLike.query.filter_by(recipe_id=self.id).count()
+        favorites_count = RecipeFavorite.query.filter_by(recipe_id=self.id).count()
+        
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'stats': {
+                'likes_count': likes_count,
+                'favorites_count': favorites_count,
+                'usage_count': self.usage_count or 0,
+                'hot_score': self.get_hot_score()
+            },
+            'nutrition': {
+                'calories': round(self.total_calories or 0, 1),
+                'protein': round(self.total_protein or 0, 1),
+                'fat': round(self.total_fat or 0, 1),
+                'carbohydrate': round(self.total_carbohydrate or 0, 1),
+                'fiber': round(self.total_fiber or 0, 1)
+            },
+            'scores': {
+                'nutrition_score': self.nutrition_score,
+                'balance_score': self.balance_score
+            },
+            'suitability': {
+                'dogs': self.suitable_for_dogs,
+                'cats': self.suitable_for_cats,
+                'puppies': self.suitable_for_puppies,
+                'kittens': self.suitable_for_kittens,
+                'seniors': self.suitable_for_seniors
+            }
         }
