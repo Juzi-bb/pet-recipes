@@ -1188,6 +1188,29 @@ def init_basic_ingredients(force_reinit=False):
             'data_source': 'Pet Nutrition Supplement Database'
         },
         {
+            'name': '亚麻籽油', 'name_en': 'Flax seed oil', 'category': IngredientCategory.SUPPLEMENTS,
+            'image_filename': 'flax_seed_oil.png', 'seasonality': 'all_year',
+            'calories': 884, 'protein': 0.0, 'fat': 100.0, 'carbohydrate': 0.0, 'fiber': 0.0, 'moisture': 0.0, 'ash': 0.0,
+            'calcium': 0, 'phosphorus': 0, 'potassium': 0, 'sodium': 0, 'chloride': 0, 'magnesium': 0,
+            'iron': 0.0, 'copper': 0.0, 'manganese': 0.0, 'zinc': 0.0, 'iodine': 0.0, 'selenium': 0.0,
+            'vitamin_a': 0, 'vitamin_d': 0, 'vitamin_e': 17.5, 'vitamin_k': 9.3,
+            'thiamine': 0.0, 'riboflavin': 0.0, 'niacin': 0.0, 'pantothenic_acid': 0.0, 'pyridoxine': 0.0,
+            'folic_acid': 0.0, 'vitamin_b12': 0.0, 'biotin': 0.0, 'choline': 0.2,
+            'arginine': 0, 'histidine': 0, 'isoleucine': 0, 'leucine': 0, 'lysine': 0,
+            'methionine': 0, 'phenylalanine': 0, 'threonine': 0, 'tryptophan': 0, 'valine': 0,
+            'taurine': 0, 'alpha_linolenic_acid': 53.3, 'eicosapentaenoic_acid': 0.0,
+            'docosahexaenoic_acid': 0.0, 'arachidonic_acid': 0.0, 'omega_3_fatty_acids': 53.3, 'omega_6_fatty_acids': 12.7,
+            'is_safe_for_dogs': True, 'is_safe_for_cats': True, 'is_common_allergen': False,
+            
+            'description': 'A plant-based oil extracted from flax seeds, exceptionally rich in alpha-linolenic acid (ALA), an essential omega-3 fatty acid.',
+            'benefits': 'Outstanding source of plant-based omega-3 fatty acids, particularly ALA. Supports skin and coat health, reduces inflammation, and provides essential fatty acids for pets on limited diets. Beneficial for joint health and immune function.',
+            'preparation_method': 'Add small amounts directly to food after cooking. Do not heat or cook with flax seed oil as high temperatures destroy beneficial fatty acids. Start with very small amounts.',
+            'pro_tip': 'Flax seed oil is highly perishable and prone to rancidity. Store in the refrigerator and use within 6-8 weeks of opening. A little goes a long way - typically 1/4 teaspoon per 10 pounds of body weight daily is sufficient.',
+            'allergy_alert': 'Generally well-tolerated, but introduce gradually. Some pets may experience digestive upset if given too much too quickly.',
+            'storage_notes': 'Store in dark glass containers in the refrigerator. Do not freeze. Discard if oil smells fishy or rancid.',
+            'data_source': 'USDA Food Database'
+        },
+        {
             'name': '牛磺酸', 'name_en': 'Taurine', 'category': IngredientCategory.SUPPLEMENTS,
             'image_filename': 'taurine.png', 'seasonality': 'all_year',
             'calories': 0, 'protein': 0.0, 'fat': 0.0, 'carbohydrate': 0.0, 'fiber': 0.0, 'moisture': 0.0, 'ash': 0.0,

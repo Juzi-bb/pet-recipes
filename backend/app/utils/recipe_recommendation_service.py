@@ -6,6 +6,7 @@
 import math
 from typing import List, Dict, Tuple, Set
 from collections import defaultdict
+from datetime import datetime, timedelta
 from app.models.ingredient_model import Ingredient, IngredientCategory
 from app.models.recipe_model import Recipe
 from app.models.recipe_ingredient_model import RecipeIngredient
@@ -72,6 +73,9 @@ class RecipeRecommendationService:
                         'total_score': score_data['total_score']
                     })
             
+            # ------------新增：确保推荐多样性------------
+            recommendations = self._ensure_recommendation_diversity(recommendations)
+            
             # 按分数排序并限制数量
             recommendations.sort(key=lambda x: x['total_score'], reverse=True)
             recommendations = recommendations[:limit]
@@ -84,8 +88,12 @@ class RecipeRecommendationService:
             return []
     
     def _get_candidate_recipes(self, allergen_ids: Set[int]) -> List[Recipe]:
-        """获取候选食谱（排除过敏食材）"""
-        query = db.session.query(Recipe).filter(
+        """获取候选食谱（排除过敏食材）- 优化查询性能"""
+        # ------------性能优化：使用联接加载减少数据库查询次数------------
+        query = db.session.query(Recipe).options(
+            db.joinedload(Recipe.ingredients).joinedload(RecipeIngredient.ingredient),
+            db.joinedload(Recipe.user)
+        ).filter(
             Recipe.status == 'published',
             Recipe.is_public == True,
             Recipe.total_weight > 0  # 确保食谱有实际内容
@@ -99,44 +107,160 @@ class RecipeRecommendationService:
             
             query = query.filter(~Recipe.id.in_(subquery))
         
-        return query.limit(50).all()  # 限制候选数量以提高性能
+        # ------------性能优化：添加排序和限制，优先返回热门食谱------------
+        return query.order_by(
+            Recipe.likes_count.desc(), 
+            Recipe.created_at.desc()
+        ).limit(50).all()  # 限制候选数量以提高性能
     
     def _calculate_recommendation_score(self,
                                     recipe: Recipe, 
                                     selected_ingredients: List[Ingredient],
                                     pet: Pet = None) -> Dict:
         """
-        计算推荐分数
+        计算推荐分数 - 改进版本
         
         权重分配：
-        - 食材相似性：40%
-        - 营养匹配度：35%
-        - 宠物适用性：25%
+        - 食材相似性：35%
+        - 营养匹配度：30%
+        - 宠物适用性：20%
+        - 社区热度：10% ------------新增------------
+        - 时间因子：5% ------------新增------------
         """
-        # 1. 食材相似性分数 (40%)
+        # 1. 食材相似性分数 (35%)
         ingredient_similarity = self._calculate_ingredient_similarity(
             recipe, selected_ingredients
         )
         
-        # 2. 营养匹配度分数 (35%)
+        # 2. 营养匹配度分数 (30%)
         nutrition_match = self._calculate_nutrition_match(recipe, pet)
         
-        # 3. 宠物适用性分数 (25%)
+        # 3. 宠物适用性分数 (20%)
         pet_suitability = self._calculate_pet_suitability(recipe, pet)
+        
+        # ------------新增：4. 社区热度分数 (10%)------------
+        popularity_score = self._calculate_popularity_score(recipe)
+        
+        # ------------新增：5. 时间因子分数 (5%)------------
+        time_factor = self._calculate_time_factor(recipe)
         
         # 计算加权总分
         total_score = (
-            ingredient_similarity * 0.40 +
-            nutrition_match * 0.35 +
-            pet_suitability * 0.25
+            ingredient_similarity * 0.35 +
+            nutrition_match * 0.30 +
+            pet_suitability * 0.20 +
+            popularity_score * 0.10 +  # ------------新增------------
+            time_factor * 0.05         # ------------新增------------
         )
         
         return {
             'ingredient_similarity': ingredient_similarity,
             'nutrition_match': nutrition_match,
             'pet_suitability': pet_suitability,
+            'popularity_score': popularity_score,  # ------------新增------------
+            'time_factor': time_factor,            # ------------新增------------
             'total_score': total_score
         }
+    
+    # ------------新增：计算社区热度分数------------
+    def _calculate_popularity_score(self, recipe: Recipe) -> float:
+        """计算社区热度分数"""
+        try:
+            # 权重设置
+            likes_weight = 0.4
+            favorites_weight = 0.4
+            usage_weight = 0.2
+            
+            # 获取收藏数（需要查询关联表）
+            from app.models.recipe_favorite_model import RecipeFavorite
+            favorites_count = RecipeFavorite.query.filter_by(recipe_id=recipe.id).count()
+            
+            # 标准化分数（基于网站整体数据的合理假设）
+            normalized_likes = min((recipe.likes_count or 0) / 50, 1.0)  # 假设50个赞为满分
+            normalized_favorites = min(favorites_count / 20, 1.0)        # 假设20个收藏为满分
+            normalized_usage = min((recipe.usage_count or 0) / 10, 1.0)  # 假设10次使用为满分
+            
+            popularity_score = (
+                normalized_likes * likes_weight +
+                normalized_favorites * favorites_weight +
+                normalized_usage * usage_weight
+            )
+            
+            return popularity_score
+            
+        except Exception as e:
+            print(f"计算热度分数错误: {e}")
+            return 0.0
+    
+    # ------------新增：计算时间因子分数------------
+    def _calculate_time_factor(self, recipe: Recipe) -> float:
+        """计算时间因子 - 新发布的食谱获得适当加权"""
+        try:
+            if not recipe.created_at:
+                return 0.0
+            
+            days_since_created = (datetime.utcnow() - recipe.created_at).days
+            
+            # 新食谱(7天内)获得加成，逐渐衰减
+            if days_since_created <= 7:
+                return 0.8 * (1 - days_since_created / 7)  # 最高80%加成，逐渐衰减到0
+            elif days_since_created <= 30:
+                # 一个月内的食谱获得较小加成
+                return 0.3 * (1 - (days_since_created - 7) / 23)
+            
+            return 0.0
+            
+        except Exception as e:
+            print(f"计算时间因子错误: {e}")
+            return 0.0
+    
+    # ------------新增：确保推荐多样性------------
+    def _ensure_recommendation_diversity(self, recommendations: List[Dict]) -> List[Dict]:
+        """确保推荐结果的多样性，避免推荐过于相似的食谱"""
+        if len(recommendations) <= 2:
+            return recommendations
+        
+        diverse_recommendations = [recommendations[0]]  # 保留最佳推荐
+        
+        for candidate in recommendations[1:]:
+            # 检查与已选推荐的相似度
+            is_diverse = True
+            for selected in diverse_recommendations:
+                similarity = self._calculate_recipe_ingredient_similarity(
+                    candidate['recipe'], selected['recipe']
+                )
+                if similarity > 0.8:  # 食材相似度过高，跳过
+                    is_diverse = False
+                    break
+            
+            if is_diverse:
+                diverse_recommendations.append(candidate)
+                
+            if len(diverse_recommendations) >= 3:  # 限制推荐数量
+                break
+        
+        return diverse_recommendations
+    
+    # ------------新增：计算两个食谱之间的食材相似度------------
+    def _calculate_recipe_ingredient_similarity(self, recipe1: Recipe, recipe2: Recipe) -> float:
+        """计算两个食谱之间的食材相似度"""
+        try:
+            # 获取两个食谱的食材ID集合
+            ingredients1 = {ri.ingredient_id for ri in recipe1.ingredients}
+            ingredients2 = {ri.ingredient_id for ri in recipe2.ingredients}
+            
+            if not ingredients1 or not ingredients2:
+                return 0.0
+            
+            # 计算Jaccard相似度 (交集/并集)
+            intersection = len(ingredients1.intersection(ingredients2))
+            union = len(ingredients1.union(ingredients2))
+            
+            return intersection / union if union > 0 else 0.0
+            
+        except Exception as e:
+            print(f"计算食谱相似度错误: {e}")
+            return 0.0
     
     def _calculate_ingredient_similarity(self, 
                                     recipe: Recipe, 
@@ -434,7 +558,7 @@ class RecipeRecommendationService:
         return [need.strip() for need in special_needs.split(',') if need.strip()]
     
     def _format_recommendation(self, recommendation: Dict) -> Dict:
-        """格式化推荐结果"""
+        """格式化推荐结果 - 增强版本"""
         recipe = recommendation['recipe']
         score_data = recommendation['score_data']
         
@@ -459,6 +583,9 @@ class RecipeRecommendationService:
                 'calories_per_100g': round((recipe.total_calories / recipe.total_weight) * 100, 1)
             }
         
+        # ------------增强：生成详细的推荐亮点------------
+        match_highlights = self._generate_detailed_match_highlights(score_data, recipe)
+        
         return {
             'recipe_id': recipe.id,
             'name': recipe.name,
@@ -471,28 +598,94 @@ class RecipeRecommendationService:
             'score_breakdown': {
                 'ingredient_similarity': round(score_data['ingredient_similarity'], 3),
                 'nutrition_match': round(score_data['nutrition_match'], 3),
-                'pet_suitability': round(score_data['pet_suitability'], 3)
+                'pet_suitability': round(score_data['pet_suitability'], 3),
+                'popularity_score': round(score_data.get('popularity_score', 0), 3),  # ------------新增------------
+                'time_factor': round(score_data.get('time_factor', 0), 3)             # ------------新增------------
             },
-            'match_highlights': self._generate_match_highlights(score_data)
+            'match_highlights': match_highlights,  # ------------增强版本------------
+            # ------------新增：社区数据------------
+            'community_stats': {
+                'likes_count': recipe.likes_count or 0,
+                'usage_count': recipe.usage_count or 0,
+                'created_days_ago': (datetime.utcnow() - recipe.created_at).days if recipe.created_at else None
+            }
         }
     
-    def _generate_match_highlights(self, score_data: Dict) -> List[str]:
-        """生成匹配亮点说明"""
+    # ------------增强：生成详细的推荐亮点------------
+    def _generate_detailed_match_highlights(self, score_data: Dict, recipe: Recipe) -> List[str]:
+        """生成详细的匹配亮点说明"""
         highlights = []
         
-        if score_data['ingredient_similarity'] > 0.7:
-            highlights.append("食材选择高度匹配")
+        # 食材匹配亮点
+        if score_data['ingredient_similarity'] > 0.8:
+            highlights.append("食材选择高度匹配您的偏好")
+        elif score_data['ingredient_similarity'] > 0.6:
+            highlights.append("包含多种您选择的食材")
         elif score_data['ingredient_similarity'] > 0.4:
             highlights.append("食材类型相似")
         
+        # 营养匹配亮点
         if score_data['nutrition_match'] > 0.8:
-            highlights.append("营养配比优秀")
+            highlights.append("营养配比优秀，完美符合需求")
         elif score_data['nutrition_match'] > 0.6:
             highlights.append("营养搭配合理")
+        elif score_data['nutrition_match'] > 0.4:
+            highlights.append("基本满足营养需求")
         
-        if score_data['pet_suitability'] > 0.8:
+        # 宠物适用性亮点
+        if score_data['pet_suitability'] > 0.9:
+            highlights.append("专为您的宠物量身定制")
+        elif score_data['pet_suitability'] > 0.7:
             highlights.append("非常适合您的宠物")
-        elif score_data['pet_suitability'] > 0.6:
+        elif score_data['pet_suitability'] > 0.5:
             highlights.append("适合您的宠物")
         
-        return highlights
+        # ------------新增：社区热度亮点------------
+        popularity_score = score_data.get('popularity_score', 0)
+        if popularity_score > 0.8:
+            highlights.append("社区热门推荐，备受好评")
+        elif popularity_score > 0.6:
+            highlights.append("受到社区用户喜爱")
+        elif popularity_score > 0.4:
+            highlights.append("获得社区认可")
+        
+        # ------------新增：新鲜度亮点------------
+        time_factor = score_data.get('time_factor', 0)
+        if time_factor > 0.6:
+            highlights.append("最新发布的创新食谱")
+        elif time_factor > 0.3:
+            highlights.append("近期热门食谱")
+        
+        # ------------新增：特殊营养亮点（基于食谱具体数据）------------
+        if recipe.total_weight > 0:
+            protein_percent = (recipe.total_protein / recipe.total_weight) * 100
+            fat_percent = (recipe.total_fat / recipe.total_weight) * 100
+            calories_per_100g = (recipe.total_calories / recipe.total_weight) * 100
+            
+            # 高蛋白亮点
+            if protein_percent >= 30:
+                highlights.append("高蛋白配方，有助肌肉发育")
+            elif protein_percent >= 25:
+                highlights.append("蛋白质含量丰富")
+            
+            # 低热量亮点
+            if calories_per_100g <= 250:
+                highlights.append("低热量配方，适合控重")
+            
+            # 均衡营养亮点
+            if 20 <= protein_percent <= 35 and 8 <= fat_percent <= 18:
+                highlights.append("营养均衡，比例适中")
+            
+            # 钙磷比亮点
+            if recipe.total_calcium > 0 and recipe.total_phosphorus > 0:
+                ca_p_ratio = recipe.total_calcium / recipe.total_phosphorus
+                if 1.0 <= ca_p_ratio <= 2.0:
+                    highlights.append("钙磷比例理想，有益骨骼健康")
+        
+        # 如果没有足够的亮点，添加通用推荐理由
+        if len(highlights) < 2:
+            highlights.append("经过智能算法精心筛选")
+            if recipe.likes_count and recipe.likes_count > 0:
+                highlights.append("获得其他用户好评")
+        
+        return highlights[:4]  # 最多返回4个亮点

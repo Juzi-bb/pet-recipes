@@ -1,14 +1,14 @@
 # 预设食谱初始化脚本
-# 请将此文件保存为 backend/init_preset_recipes.py
 
 import os
 import sys
 from datetime import datetime
 
-# 添加项目路径
+# 添加项目路径到系统路径
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
+# 导入应用和数据库模型
 from app import create_app, db
 from app.models.user_model import User
 from app.models.recipe_model import Recipe, RecipeStatus
@@ -20,214 +20,292 @@ def create_system_user():
     system_user = User.query.filter_by(username='PetNutritionSystem').first()
     
     if not system_user:
+        # 创建新的系统用户
         system_user = User(
             username='PetNutritionSystem',
-            nickname='系统推荐'
+            nickname='System Recommendations'
         )
         system_user.set_password('system_password_2025')
         db.session.add(system_user)
         db.session.commit()
-        print("✅ 创建系统用户成功")
+        print("✅ System user created successfully")
     else:
-        print("📍 系统用户已存在")
+        print("📍 System user already exists")
     
     return system_user
 
-def ensure_basic_ingredients():
-    """确保基础食材存在"""
-    basic_ingredients = [
-        # 蛋白质来源
-        {'name': '鸡胸肉', 'category': IngredientCategory.WHITE_MEAT, 'calories': 165, 'protein': 31.0, 'fat': 3.6, 'carbohydrate': 0.0},
-        {'name': '牛肉', 'category': IngredientCategory.RED_MEAT, 'calories': 250, 'protein': 26.0, 'fat': 17.0, 'carbohydrate': 0.0},
-        {'name': '三文鱼', 'category': IngredientCategory.FISH, 'calories': 208, 'protein': 25.4, 'fat': 12.4, 'carbohydrate': 0.0},
-        {'name': '鸡肝', 'category': IngredientCategory.ORGANS, 'calories': 119, 'protein': 24.5, 'fat': 4.8, 'carbohydrate': 0.6},
-        
-        # 碳水化合物来源
-        {'name': '糙米', 'category': IngredientCategory.GRAINS, 'calories': 112, 'protein': 2.6, 'fat': 0.9, 'carbohydrate': 22.0},
-        {'name': '红薯', 'category': IngredientCategory.VEGETABLES, 'calories': 86, 'protein': 1.6, 'fat': 0.1, 'carbohydrate': 20.1},
-        
-        # 蔬菜
-        {'name': '胡萝卜', 'category': IngredientCategory.VEGETABLES, 'calories': 41, 'protein': 0.9, 'fat': 0.2, 'carbohydrate': 9.6},
-        {'name': '西兰花', 'category': IngredientCategory.VEGETABLES, 'calories': 34, 'protein': 2.8, 'fat': 0.4, 'carbohydrate': 7.0},
-        {'name': '菠菜', 'category': IngredientCategory.VEGETABLES, 'calories': 23, 'protein': 2.9, 'fat': 0.4, 'carbohydrate': 3.6},
-        
-        # 水果
-        {'name': '蓝莓', 'category': IngredientCategory.FRUITS, 'calories': 57, 'protein': 0.7, 'fat': 0.3, 'carbohydrate': 14.5},
-        {'name': '苹果', 'category': IngredientCategory.FRUITS, 'calories': 52, 'protein': 0.3, 'fat': 0.2, 'carbohydrate': 13.8},
-        
-        # 健康脂肪
-        {'name': '亚麻籽油', 'category': IngredientCategory.OILS, 'calories': 884, 'protein': 0.0, 'fat': 100.0, 'carbohydrate': 0.0}
-    ]
+def verify_ingredients_exist(ingredient_names):
+    """验证所有需要的食材是否存在于数据库中"""
+    print("🔍 Verifying ingredients exist in database...")
     
-    created_count = 0
-    for ingredient_data in basic_ingredients:
-        if not Ingredient.query.filter_by(name=ingredient_data['name']).first():
-            ingredient = Ingredient(**ingredient_data)
-            # 设置营养详细信息
-            if ingredient_data['name'] == '鸡胸肉':
-                ingredient.calcium = 15
-                ingredient.phosphorus = 228
-                ingredient.taurine = 16
-                ingredient.lysine = 2200
-                ingredient.methionine = 800
-                ingredient.omega_3_fatty_acids = 0.1
-                ingredient.omega_6_fatty_acids = 0.8
-            elif ingredient_data['name'] == '三文鱼':
-                ingredient.calcium = 12
-                ingredient.phosphorus = 289
-                ingredient.taurine = 130  # 鱼类富含牛磺酸
-                ingredient.omega_3_fatty_acids = 2.3
-                ingredient.omega_6_fatty_acids = 0.9
-                ingredient.vitamin_d = 988
-            elif ingredient_data['name'] == '鸡肝':
-                ingredient.calcium = 8
-                ingredient.phosphorus = 297
-                ingredient.vitamin_a = 11078
-                ingredient.iron = 11.9
-                ingredient.taurine = 110
-            elif ingredient_data['name'] == '胡萝卜':
-                ingredient.calcium = 33
-                ingredient.vitamin_a = 16706
-                ingredient.fiber = 2.8
-            elif ingredient_data['name'] == '菠菜':
-                ingredient.calcium = 99
-                ingredient.iron = 2.7
-                ingredient.fiber = 2.2
-            elif ingredient_data['name'] == '亚麻籽油':
-                ingredient.omega_3_fatty_acids = 53.3
-                ingredient.omega_6_fatty_acids = 12.7
-            
-            db.session.add(ingredient)
-            created_count += 1
+    missing_ingredients = []  # 缺失的食材列表
+    found_ingredients = {}    # 找到的食材字典
     
-    if created_count > 0:
-        db.session.commit()
-        print(f"✅ 创建了 {created_count} 个基础食材")
-    else:
-        print("📍 基础食材已存在")
+    # 遍历检查每个食材
+    for name in ingredient_names:
+        ingredient = Ingredient.query.filter_by(name=name).first()
+        if ingredient:
+            found_ingredients[name] = ingredient
+            print(f"  ✅ Found: {name}")
+        else:
+            missing_ingredients.append(name)
+            print(f"  ❌ Missing: {name}")
+    
+    # 如果有缺失的食材，显示警告信息
+    if missing_ingredients:
+        print(f"\n⚠️ Warning: {len(missing_ingredients)} ingredients not found:")
+        for name in missing_ingredients:
+            print(f"  - {name}")
+        print("\nPlease run 'python init_nutrition_data.py' first to ensure all ingredients are available.")
+        return found_ingredients, missing_ingredients
+    
+    print(f"✅ All {len(ingredient_names)} ingredients found in database!")
+    return found_ingredients, missing_ingredients
 
 def create_preset_recipes(system_user):
-    """创建预设食谱"""
+    """使用数据库中现有的食材创建预设食谱"""
     
+    # 定义所有食谱需要的食材清单）
+    all_required_ingredients = [
+        # 蛋白质来源
+        'Chicken breast', 'Beef (lean)', 'Salmon', 'Chicken liver', 'Turkey', 'Duck', 
+        'Chicken heart', 'Beef liver', 'Cod', 'Sardine', 'Chicken egg',
+        
+        # 碳水化合物来源
+        'Brown rice', 'Sweet potato', 'Pumpkin', 'Oats', 'Quinoa',
+        
+        # 蔬菜类
+        'Carrot', 'Broccoli', 'Spinach', 'Bell pepper', 'Zucchini', 'Green peas',
+        
+        # 水果类
+        'Blueberry', 'Apple', 'Strawberry',
+        
+        # 营养补充剂
+        'Flax seed oil', 'Fish oil', 'Eggshell powder'
+    ]
+    
+    # 验证所需食材是否存在于数据库中
+    found_ingredients, missing_ingredients = verify_ingredients_exist(all_required_ingredients)
+    
+    if missing_ingredients:
+        print(f"\n❌ Cannot proceed: {len(missing_ingredients)} required ingredients are missing from database.")
+        return False
+    
+    # 预设食谱数据定义
     preset_recipes = [
-        # 狗狗食谱
+        # ============ 狗狗食谱 ============
         {
-            'name': '🐕 幼犬成长高蛋白配方',
-            'description': '专为2-12个月幼犬设计的高蛋白配方，支持健康成长发育。富含DHA促进大脑发育，钙磷比例科学配比强化骨骼。',
+            'name': '🐕 Puppy Growth High-Protein Formula',  # 幼犬成长高蛋白配方
+            'description': 'Specially designed high-protein formula for 2-12 month puppies to support healthy growth and development. Rich in DHA for brain development, with scientifically balanced calcium-phosphorus ratio for strong bones.',
             'suitable_for_dogs': True,
             'suitable_for_cats': False,
             'suitable_for_puppies': True,
             'ingredients': [
-                {'name': '鸡胸肉', 'weight': 300},  # 主要蛋白质
-                {'name': '三文鱼', 'weight': 150},   # DHA来源
-                {'name': '鸡肝', 'weight': 80},     # 维生素A和铁
-                {'name': '糙米', 'weight': 200},    # 碳水化合物
-                {'name': '红薯', 'weight': 120},    # 易消化碳水
-                {'name': '胡萝卜', 'weight': 80},   # 维生素A
-                {'name': '菠菜', 'weight': 50},     # 钙和铁
-                {'name': '亚麻籽油', 'weight': 10}  # Omega-3
+                {'name': 'Chicken breast', 'weight': 280},
+                {'name': 'Salmon', 'weight': 150},
+                {'name': 'Chicken liver', 'weight': 70},
+                {'name': 'Brown rice', 'weight': 180},
+                {'name': 'Sweet potato', 'weight': 120},
+                {'name': 'Carrot', 'weight': 80},
+                {'name': 'Spinach', 'weight': 50},
+                {'name': 'Blueberry', 'weight': 40},
+                {'name': 'Flax seed oil', 'weight': 8},
+                {'name': 'Eggshell powder', 'weight': 2}
             ]
         },
         {
-            'name': '🐕 成犬均衡营养配方',
-            'description': '为1-7岁成年犬提供均衡营养的全价配方。蛋白质含量适中，纤维丰富，维持理想体重和活力状态。',
+            'name': '🐕 Adult Dog Balanced Nutrition Formula',  # 成犬均衡营养配方
+            'description': 'Complete and balanced nutrition for 1-7 year old adult dogs. Moderate protein content with rich fiber to maintain ideal weight and vitality. Perfect for daily feeding.',
             'suitable_for_dogs': True,
             'suitable_for_cats': False,
             'suitable_for_puppies': False,
             'ingredients': [
-                {'name': '牛肉', 'weight': 250},      # 优质蛋白质
-                {'name': '鸡胸肉', 'weight': 200},    # 易消化蛋白
-                {'name': '糙米', 'weight': 250},      # 主要碳水
-                {'name': '红薯', 'weight': 150},      # 膳食纤维
-                {'name': '西兰花', 'weight': 100},    # 维生素C和K
-                {'name': '胡萝卜', 'weight': 100},    # β-胡萝卜素
-                {'name': '蓝莓', 'weight': 40},       # 抗氧化剂
-                {'name': '亚麻籽油', 'weight': 8}     # 必需脂肪酸
+                {'name': 'Beef (lean)', 'weight': 220},
+                {'name': 'Chicken breast', 'weight': 180},
+                {'name': 'Turkey', 'weight': 100},
+                {'name': 'Brown rice', 'weight': 200},
+                {'name': 'Sweet potato', 'weight': 150},
+                {'name': 'Broccoli', 'weight': 100},
+                {'name': 'Carrot', 'weight': 80},
+                {'name': 'Green peas', 'weight': 60},
+                {'name': 'Apple', 'weight': 50},
+                {'name': 'Flax seed oil', 'weight': 6},
+                {'name': 'Eggshell powder', 'weight': 2}
             ]
         },
         {
-            'name': '🐕 老年犬关节护理配方',
-            'description': '为7岁以上老年犬设计的护理配方。蛋白质适中，低磷配方保护肾脏，富含抗氧化成分延缓衰老。',
+            'name': '🐕 Senior Dog Joint Care Formula',  # 老年犬关节护理配方
+            'description': 'Designed for dogs 7+ years old with joint care focus. Moderate protein with low phosphorus to protect kidneys, rich in antioxidants to slow aging process.',
             'suitable_for_dogs': True,
             'suitable_for_cats': False,
             'suitable_for_seniors': True,
             'ingredients': [
-                {'name': '鸡胸肉', 'weight': 280},    # 优质低脂蛋白
-                {'name': '三文鱼', 'weight': 100},     # Omega-3抗炎
-                {'name': '红薯', 'weight': 200},      # 易消化碳水
-                {'name': '糙米', 'weight': 150},      # 温和碳水
-                {'name': '西兰花', 'weight': 120},    # 抗氧化
-                {'name': '菠菜', 'weight': 80},       # 叶酸和铁
-                {'name': '蓝莓', 'weight': 60},       # 花青素
-                {'name': '亚麻籽油', 'weight': 8}     # 关节保护
+                {'name': 'Chicken breast', 'weight': 250},
+                {'name': 'Salmon', 'weight': 120},
+                {'name': 'Cod', 'weight': 80},
+                {'name': 'Sweet potato', 'weight': 180},
+                {'name': 'Pumpkin', 'weight': 100},
+                {'name': 'Broccoli', 'weight': 90},
+                {'name': 'Spinach', 'weight': 60},
+                {'name': 'Blueberry', 'weight': 50},
+                {'name': 'Fish oil', 'weight': 5},
+                {'name': 'Eggshell powder', 'weight': 2}
+            ]
+        },
+        {
+            'name': '🐕 Active Dog High-Energy Formula',  # 活跃犬高能量配方
+            'description': 'High-energy formula for working dogs, sporting dogs, and highly active breeds. Increased fat content for sustained energy with premium protein sources.',
+            'suitable_for_dogs': True,
+            'suitable_for_cats': False,
+            'suitable_for_puppies': False,
+            'ingredients': [
+                {'name': 'Beef (lean)', 'weight': 250},
+                {'name': 'Salmon', 'weight': 180},
+                {'name': 'Duck', 'weight': 120},
+                {'name': 'Quinoa', 'weight': 150},
+                {'name': 'Sweet potato', 'weight': 120},
+                {'name': 'Carrot', 'weight': 80},
+                {'name': 'Bell pepper', 'weight': 60},
+                {'name': 'Strawberry', 'weight': 40},
+                {'name': 'Fish oil', 'weight': 8},
+                {'name': 'Flax seed oil', 'weight': 5}
             ]
         },
         
-        # 猫咪食谱
+        # ============ 猫咪食谱 ============
         {
-            'name': '🐱 幼猫发育高蛋白配方',
-            'description': '专为2-12个月幼猫设计的高蛋白配方。牛磺酸含量充足，DHA促进神经发育，高能量密度满足快速成长需求。',
+            'name': '🐱 Kitten Development High-Protein Formula',  # 幼猫发育高蛋白配方
+            'description': 'Specially formulated for 2-12 month kittens with high protein content. Adequate taurine levels, DHA for neural development, and high energy density for rapid growth.',
             'suitable_for_dogs': False,
             'suitable_for_cats': True,
             'suitable_for_kittens': True,
             'ingredients': [
-                {'name': '鸡胸肉', 'weight': 320},    # 主要蛋白质
-                {'name': '三文鱼', 'weight': 180},     # DHA和牛磺酸
-                {'name': '鸡肝', 'weight': 120},      # 维生素A和牛磺酸
-                {'name': '糙米', 'weight': 80},       # 少量碳水
-                {'name': '胡萝卜', 'weight': 60},     # 维生素A
-                {'name': '菠菜', 'weight': 30},       # 叶酸
-                {'name': '亚麻籽油', 'weight': 8}     # 必需脂肪酸
+                {'name': 'Chicken breast', 'weight': 300},
+                {'name': 'Salmon', 'weight': 160},
+                {'name': 'Chicken liver', 'weight': 100},
+                {'name': 'Chicken heart', 'weight': 80},
+                {'name': 'Sweet potato', 'weight': 60},
+                {'name': 'Carrot', 'weight': 50},
+                {'name': 'Spinach', 'weight': 30},
+                {'name': 'Blueberry', 'weight': 25},
+                {'name': 'Fish oil', 'weight': 6}
             ]
         },
         {
-            'name': '🐱 成猫泌尿健康配方',
-            'description': '为1-7岁成年猫设计的泌尿健康配方。低镁配方预防结石，高蛋白低碳水符合猫咪天性，充足水分促进排尿。',
+            'name': '🐱 Adult Cat Urinary Health Formula',  # 成猫泌尿健康配方
+            'description': 'Designed for 1-7 year old adult cats with urinary health focus. Low magnesium to prevent stones, high protein low carb matching feline nature, adequate moisture for urination.',
             'suitable_for_dogs': False,
             'suitable_for_cats': True,
             'suitable_for_puppies': False,
             'ingredients': [
-                {'name': '牛肉', 'weight': 280},      # 优质蛋白
-                {'name': '三文鱼', 'weight': 150},     # Omega-3和牛磺酸
-                {'name': '鸡肝', 'weight': 100},      # 维生素A
-                {'name': '红薯', 'weight': 60},       # 最小碳水
-                {'name': '西兰花', 'weight': 80},     # 维生素C
-                {'name': '蓝莓', 'weight': 30},       # 泌尿道健康
-                {'name': '亚麻籽油', 'weight': 6}     # 毛发健康
+                {'name': 'Beef (lean)', 'weight': 260},
+                {'name': 'Salmon', 'weight': 140},
+                {'name': 'Chicken liver', 'weight': 90},
+                {'name': 'Turkey', 'weight': 100},
+                {'name': 'Sweet potato', 'weight': 50},
+                {'name': 'Broccoli', 'weight': 60},
+                {'name': 'Zucchini', 'weight': 40},
+                {'name': 'Blueberry', 'weight': 25},
+                {'name': 'Fish oil', 'weight': 5}
             ]
         },
         {
-            'name': '🐱 老年猫肾脏护理配方',
-            'description': '为7岁以上老年猫设计的肾脏护理配方。适度蛋白质减轻肾脏负担，低磷配方保护肾功能，抗氧化成分延缓衰老。',
+            'name': '🐱 Senior Cat Kidney Care Formula',  # 老年猫肾脏护理配方
+            'description': 'Designed for cats 7+ years old with kidney care focus. Moderate protein to reduce kidney burden, low phosphorus to protect kidney function, antioxidants to slow aging.',
             'suitable_for_dogs': False,
             'suitable_for_cats': True,
             'suitable_for_seniors': True,
             'ingredients': [
-                {'name': '鸡胸肉', 'weight': 300},    # 优质蛋白
-                {'name': '三文鱼', 'weight': 120},     # Omega-3
-                {'name': '红薯', 'weight': 80},       # 易消化碳水
-                {'name': '胡萝卜', 'weight': 70},     # 抗氧化
-                {'name': '西兰花', 'weight': 60},     # 维生素K
-                {'name': '蓝莓', 'weight': 40},       # 花青素
-                {'name': '亚麻籽油', 'weight': 5}     # 必需脂肪酸
+                {'name': 'Chicken breast', 'weight': 280},
+                {'name': 'Cod', 'weight': 120},
+                {'name': 'Chicken heart', 'weight': 60},
+                {'name': 'Sweet potato', 'weight': 70},
+                {'name': 'Pumpkin', 'weight': 60},
+                {'name': 'Carrot', 'weight': 50},
+                {'name': 'Broccoli', 'weight': 40},
+                {'name': 'Blueberry', 'weight': 30},
+                {'name': 'Fish oil', 'weight': 4}
+            ]
+        },
+        {
+            'name': '🐱 Indoor Cat Weight Management Formula',  # 室内猫体重管理配方
+            'description': 'Perfect for indoor cats with lower activity levels. Controlled calories with high fiber to promote satiety, premium protein to maintain muscle mass.',
+            'suitable_for_dogs': False,
+            'suitable_for_cats': True,
+            'suitable_for_puppies': False,
+            'ingredients': [
+                {'name': 'Chicken breast', 'weight': 280},
+                {'name': 'Cod', 'weight': 150},
+                {'name': 'Turkey', 'weight': 100},
+                {'name': 'Pumpkin', 'weight': 80},
+                {'name': 'Green peas', 'weight': 70},
+                {'name': 'Zucchini', 'weight': 60},
+                {'name': 'Spinach', 'weight': 40},
+                {'name': 'Apple', 'weight': 30},
+                {'name': 'Flax seed oil', 'weight': 3}
+            ]
+        },
+        
+        # ============ 特殊膳食食谱 ============
+        {
+            'name': '🌟 Novel Protein Allergy-Friendly Formula',  # 新奇蛋白过敏友好配方
+            'description': 'Hypoallergenic recipe using novel proteins for dogs and cats with food sensitivities. Limited ingredient formula to minimize allergic reactions.',
+            'suitable_for_dogs': True,
+            'suitable_for_cats': True,
+            'suitable_for_puppies': False,
+            'ingredients': [
+                {'name': 'Duck', 'weight': 350},
+                {'name': 'Quinoa', 'weight': 150},
+                {'name': 'Sweet potato', 'weight': 120},
+                {'name': 'Zucchini', 'weight': 80},
+                {'name': 'Bell pepper', 'weight': 60},
+                {'name': 'Blueberry', 'weight': 30},
+                {'name': 'Flax seed oil', 'weight': 5}
+            ]
+        },
+        {
+            'name': '🌟 Digestive Support Gentle Formula',  # 消化支持温和配方
+            'description': 'Easy-to-digest recipe for pets recovering from digestive issues or with sensitive stomachs. Simple ingredients with probiotics support.',
+            'suitable_for_dogs': True,
+            'suitable_for_cats': True,
+            'suitable_for_puppies': True,
+            'ingredients': [
+                {'name': 'Chicken breast', 'weight': 300},
+                {'name': 'Brown rice', 'weight': 200},
+                {'name': 'Pumpkin', 'weight': 150},
+                {'name': 'Carrot', 'weight': 80},
+                {'name': 'Sweet potato', 'weight': 80},
+                {'name': 'Chicken egg', 'weight': 50},
+                {'name': 'Flax seed oil', 'weight': 3}
             ]
         }
     ]
     
-    created_count = 0
+    created_count = 0  # 成功创建的食谱计数
     
+    # 遍历所有预设食谱进行创建
     for recipe_data in preset_recipes:
-        # 检查是否已存在
+        # 检查食谱是否已经存在
         existing_recipe = Recipe.query.filter_by(
             name=recipe_data['name'],
             user_id=system_user.id
         ).first()
         
         if existing_recipe:
-            print(f"📍 食谱已存在: {recipe_data['name']}")
+            print(f"📍 Recipe already exists: {recipe_data['name']}")
             continue
         
-        # 创建食谱
+        # 验证此食谱的所有食材是否存在
+        recipe_ingredients_missing = []
+        for ingredient_data in recipe_data['ingredients']:
+            if ingredient_data['name'] not in found_ingredients:
+                recipe_ingredients_missing.append(ingredient_data['name'])
+        
+        if recipe_ingredients_missing:
+            print(f"⚠️ Skipping recipe '{recipe_data['name']}' - missing ingredients: {recipe_ingredients_missing}")
+            continue
+        
+        # 创建食谱记录
         recipe = Recipe(
             name=recipe_data['name'],
             description=recipe_data['description'],
@@ -237,25 +315,26 @@ def create_preset_recipes(system_user):
             suitable_for_puppies=recipe_data.get('suitable_for_puppies', False),
             suitable_for_kittens=recipe_data.get('suitable_for_kittens', False),
             suitable_for_seniors=recipe_data.get('suitable_for_seniors', False),
-            status=RecipeStatus.PUBLISHED,
-            is_public=True,
-            created_at=datetime.utcnow()
+            status=RecipeStatus.PUBLISHED,  # 设置为已发布状态
+            is_public=True,                 # 设置为公开
+            created_at=datetime.utcnow()    # 设置创建时间
         )
         
         db.session.add(recipe)
-        db.session.flush()  # 获取recipe.id
+        db.session.flush()  # 获取食谱ID
         
-        # 添加食材
-        total_weight = 0
+        # 添加食材到食谱中
+        total_weight = 0                    # 总重量
+        successfully_added_ingredients = 0  # 成功添加的食材数量
+        
         for ingredient_data in recipe_data['ingredients']:
-            ingredient = Ingredient.query.filter_by(
-                name=ingredient_data['name']
-            ).first()
+            ingredient = found_ingredients.get(ingredient_data['name'])
             
             if not ingredient:
-                print(f"⚠️ 警告: 食材 '{ingredient_data['name']}' 不存在，跳过")
+                print(f"⚠️ Warning: Ingredient '{ingredient_data['name']}' not found, skipping")
                 continue
             
+            # 创建食谱-食材关联记录
             recipe_ingredient = RecipeIngredient.create_from_data(
                 recipe_id=recipe.id,
                 ingredient_id=ingredient.id,
@@ -264,31 +343,42 @@ def create_preset_recipes(system_user):
             
             db.session.add(recipe_ingredient)
             total_weight += ingredient_data['weight']
+            successfully_added_ingredients += 1
+        
+        # 只有成功添加了食材才继续处理
+        if successfully_added_ingredients == 0:
+            print(f"❌ Failed to add any ingredients to recipe '{recipe_data['name']}', skipping")
+            db.session.rollback()
+            continue
         
         # 计算营养成分
-        recipe.calculate_nutrition()
-        recipe.check_suitability()
+        recipe.calculate_nutrition()  # 计算总营养成分
+        recipe.check_suitability()    # 检查适用性
         
         # 设置初始统计数据（让食谱看起来有一定的社区互动）
         import random
-        recipe.usage_count = random.randint(5, 25)
-        recipe.nutrition_score = round(random.uniform(85, 95), 1)
-        recipe.balance_score = round(random.uniform(88, 96), 1)
+        recipe.usage_count = random.randint(5, 25)           # 随机使用次数
+        recipe.nutrition_score = round(random.uniform(85, 95), 1)  # 营养评分
+        recipe.balance_score = round(random.uniform(88, 96), 1)    # 平衡评分
         
         created_count += 1
-        print(f"✅ 创建食谱: {recipe_data['name']} (总重量: {total_weight}g)")
+        print(f"✅ Created recipe: {recipe_data['name']} (Total weight: {total_weight}g, Ingredients: {successfully_added_ingredients})")
     
+    # 提交数据库变更
     if created_count > 0:
         db.session.commit()
-        print(f"🎉 成功创建 {created_count} 个预设食谱!")
+        print(f"🎉 Successfully created {created_count} preset recipes!")
     else:
-        print("📍 所有预设食谱已存在")
+        print("📍 All preset recipes already exist or could not be created")
+    
+    return created_count > 0
 
 def init_preset_recipes():
     """初始化预设食谱的主函数"""
-    print("🚀 开始初始化预设食谱...")
+    print("🚀 Starting preset recipe initialization...")
     print("=" * 50)
     
+    # 创建Flask应用实例
     app = create_app()
     
     with app.app_context():
@@ -296,32 +386,36 @@ def init_preset_recipes():
             # 1. 创建系统用户
             system_user = create_system_user()
             
-            # 2. 确保基础食材存在
-            ensure_basic_ingredients()
-            
-            # 3. 创建预设食谱
-            create_preset_recipes(system_user)
+            # 2. 创建预设食谱（仅使用现有食材）
+            success = create_preset_recipes(system_user)
             
             print("=" * 50)
-            print("🎊 预设食谱初始化完成!")
+            if success:
+                print("🎊 Preset recipe initialization completed successfully!")
+            else:
+                print("⚠️ Preset recipe initialization completed with warnings!")
             
             # 显示统计信息
             total_recipes = Recipe.query.filter_by(user_id=system_user.id).count()
-            print(f"📊 系统推荐食谱总数: {total_recipes}")
+            total_ingredients = Ingredient.query.count()
+            print(f"📊 System recommended recipes: {total_recipes}")
+            print(f"📊 Total ingredients in database: {total_ingredients}")
             
             return True
             
         except Exception as e:
-            print(f"❌ 初始化失败: {str(e)}")
-            db.session.rollback()
+            print(f"❌ Initialization failed: {str(e)}")
+            db.session.rollback()  # 回滚数据库事务
             import traceback
-            traceback.print_exc()
+            traceback.print_exc()  # 打印详细错误信息
             return False
 
+
+# 主程序入口
 if __name__ == '__main__':
     success = init_preset_recipes()
     if success:
-        print("\n✨ 现在可以启动应用查看预设食谱了!")
-        print("运行命令: cd backend && python run.py")
+        print("\n✨ You can now start the application to view preset recipes!")
+        print("Run command: cd backend && python run.py")
     else:
-        print("\n💔 初始化失败，请检查错误信息")
+        print("\n💔 Initialization failed, please check error messages")

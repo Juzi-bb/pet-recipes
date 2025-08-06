@@ -29,7 +29,7 @@
         opacity: 0.9;
     }
 
-    /* 步骤进度条 */
+    /* 步骤进度条样式 */
     .progress-container {
         margin-bottom: 3rem;
     }
@@ -101,7 +101,7 @@
         font-weight: 500;
     }
 
-    /* 步骤内容 */
+    /* 步骤内容样式 */
     .step-content {
         background: white;
         border-radius: 15px;
@@ -124,7 +124,7 @@
         gap: 1rem;
     }
 
-    /* 第一步：选择宠物 */
+    /* 第一步：选择宠物样式 */
     .pet-selector {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -174,7 +174,7 @@
         line-height: 1.4;
     }
 
-    /* 第二步：选择食材 */
+    /* 第二步：选择食材样式 */
     .category-tabs {
         display: flex;
         flex-wrap: wrap;
@@ -236,7 +236,6 @@
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
-        /* 确保卡片有足够高度 */
         min-height: 240px;
         display: flex;
         flex-direction: column;
@@ -280,7 +279,6 @@
 
     .ingredient-image {
         width: 50%;
-        /* 使用aspect-ratio创建正方形容器 */
         aspect-ratio: 1 / 1;
         background: #f8f9fa;
         border-radius: 10px;
@@ -293,7 +291,6 @@
         border: 2px solid #e9ecef;
         transition: all 0.3s ease;
         position: relative;
-        /* 确保图片容器在flex布局中不会被压缩 */
         flex-shrink: 0;
     }
 
@@ -302,14 +299,11 @@
         box-shadow: 0 4px 12px rgba(85, 128, 173, 0.15);
     }
 
-    /* 图片样式 - 保持完整显示 */
     .ingredient-image img {
         width: 100%;
         height: 100%;
-        /* 使用contain确保图片完整显示，保持比例 */
         object-fit: contain;
         transition: transform 0.3s ease;
-        /* 添加一些内边距，避免图片贴边 */
         padding: 8px;
         box-sizing: border-box;
     }
@@ -318,7 +312,6 @@
         transform: scale(1.05);
     }
 
-    /* 图片加载失败时的样式 */
     .ingredient-image div {
         font-style: italic;
         text-align: center;
@@ -327,14 +320,12 @@
         font-size: 0.9rem;
     }
 
-    /* 食材名称和营养信息 - 调整为flex布局底部对齐 */
     .ingredient-name {
         font-size: 1.2rem;
         font-weight: bold;
         color: #510B0B;
         margin-bottom: 0.5rem;
         text-align: center;
-        /* 在flex容器中占据剩余空间 */
         flex-grow: 1;
         display: flex;
         align-items: center;
@@ -346,14 +337,12 @@
         color: #B82F0D;
         text-align: center;
         line-height: 1.3;
-        /* 固定在底部 */
         margin-top: auto;
     }
 
-    /* 响应式优化 - 不同屏幕尺寸下的网格调整 */
+    /* 响应式设计 */
     @media (max-width: 768px) {
         .ingredients-grid {
-            /* 手机端：最小180px */
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 1rem;
         }
@@ -378,34 +367,31 @@
 
     @media (min-width: 769px) and (max-width: 1024px) {
         .ingredients-grid {
-            /* 平板端：最小190px */
             grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
         }
     }
 
     @media (min-width: 1025px) and (max-width: 1440px) {
         .ingredients-grid {
-            /* 桌面端：最小200px */
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         }
     }
 
     @media (min-width: 1441px) {
         .ingredients-grid {
-            /* 大屏幕：最小210px，最多一行5个 */
             grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
             max-width: 1800px;
             margin: 0 auto 2rem auto;
         }
     }
 
-    /* 为不支持aspect-ratio的浏览器提供备选方案 */
+    /* 兼容性支持 */
     @supports not (aspect-ratio: 1 / 1) {
         .ingredient-image {
             position: relative;
             width: 100%;
             height: 0;
-            padding-bottom: 100%; /* 创建正方形 */
+            padding-bottom: 100%;
         }
         
         .ingredient-image img,
@@ -418,7 +404,7 @@
         }
     }
 
-    /* 已选食材显示 */
+    /* 已选食材显示样式 */
     .selected-ingredients-panel {
         background: #f8f9fa;
         border-radius: 15px;
@@ -481,7 +467,7 @@
         transform: scale(1.1);
     }
 
-    /* 第三步：重量设置 */
+    /* 第三步：重量设置样式 */
     .weight-table {
         width: 100%;
         border-collapse: collapse;
@@ -523,7 +509,7 @@
         border-color: #5580AD;
     }
 
-    /* 导航按钮 */
+    /* 导航按钮样式 */
     .navigation-buttons {
         display: flex;
         justify-content: space-between;
@@ -582,7 +568,7 @@
         font-weight: 500;
     }
 
-    /* 加载状态 */
+    /* 加载状态样式 */
     .loading {
         display: flex;
         align-items: center;
@@ -604,7 +590,7 @@
         100% { transform: rotate(360deg); }
     }
 
-    /* ------- 新增：消息提示样式 ------- */
+    /* 消息提示样式 */
     .success-message {
         position: fixed;
         top: 20px;
@@ -641,7 +627,7 @@
         background: #2196F3;
     }
 
-    /* 营养成分分析 */
+    /* 营养配比方案样式 */
     .nutrition-plan-section {
         margin-top: 3rem;
         padding-top: 2rem;
@@ -682,7 +668,7 @@
     }
 
     .nutrition-plan-card.recommended::before {
-        content: "推荐";
+        content: "Recommended";
         position: absolute;
         top: -8px;
         right: 15px;
@@ -872,6 +858,35 @@
     .btn-secondary:hover {
         background: #8a9a99;
     }
+
+    /* 表单样式 */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #510B0B;
+        font-weight: 600;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #A1B4B2;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #5580AD;
+    }
 </style>
 
 <div class="create-recipe-container">
@@ -924,7 +939,7 @@
                 <div class="pet-info">
                     <h3>{{ pet.name }}</h3>
                     <div class="pet-stats">
-                        {{ pet.species }} | {{ pet.weight }}kg | {{ pet.age }}years old
+                        {{ pet.species }} | {{ pet.weight }}kg | {{ pet.age }} years old
                         {% if pet.breed %}
                         <br>{{ pet.breed }}
                         {% endif %}
@@ -934,21 +949,21 @@
             {% endfor %}
         </div>
 
-        <!-- 新增：营养配比方案选择 -->
+        <!-- 营养配比方案选择 -->
         <div class="nutrition-plan-section" id="nutritionPlanSection" style="display: none;">
             <h3 style="color: #510B0B; margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-chart-pie"></i>
-                选择营养配比方案
+                Select Nutrition Plan
             </h3>
             <p style="color: #B82F0D; margin-bottom: 1.5rem;">
-                根据您的宠物特点，我们推荐以下营养配比方案。点击卡片查看详细比例。
+                Based on your pet's characteristics, we recommend the following nutrition plans. Click on a card to view detailed ratios.
             </p>
             
             <!-- 配比方案加载状态 -->
             <div class="nutrition-plans-loading" id="nutritionPlansLoading">
                 <div class="loading">
                     <div class="spinner"></div>
-                    <span style="margin-left: 1rem;">正在加载营养方案...</span>
+                    <span style="margin-left: 1rem;">Loading nutrition plans...</span>
                 </div>
             </div>
             
@@ -963,7 +978,7 @@
     <div class="modal-overlay" id="planDetailModal" style="display: none;">
         <div class="modal-content plan-detail-modal">
             <div class="modal-header">
-                <h3 id="planDetailTitle">营养配比方案详情</h3>
+                <h3 id="planDetailTitle">Nutrition Plan Details</h3>
                 <button class="modal-close" onclick="closePlanDetail()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -972,8 +987,8 @@
                 <!-- 动态生成的方案详情 -->
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closePlanDetail()">取消</button>
-                <button class="btn btn-primary" id="selectPlanBtn" onclick="selectNutritionPlan()">选择此方案</button>
+                <button class="btn btn-secondary" onclick="closePlanDetail()">Cancel</button>
+                <button class="btn btn-primary" id="selectPlanBtn" onclick="selectNutritionPlan()">Select This Plan</button>
             </div>
         </div>
     </div>
@@ -1023,7 +1038,7 @@
         </div>
         <p style="color: #B82F0D; margin-bottom: 2rem;">Set the appropriate weight (in grams) for each ingredient. The system will calculate the nutritional content in real-time.</p>
         
-        <!-- 新增：表格上方的操作区域 -->
+        <!-- 表格上方的操作区域 -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; border: 1px solid #A1B4B2;">
             <div style="color: #510B0B;">
                 <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
@@ -1155,6 +1170,11 @@ document.addEventListener('DOMContentLoaded', function() {
     updateStepVisibility();
     updateProgressBar();
     updatePrevButtonState();
+
+    // 检查并恢复之前的进度
+    setTimeout(() => {
+        checkAndRestoreProgress();
+    }, 1000); // 延迟1秒执行，确保页面完全加载
 });
 
 // 选择宠物
@@ -1170,7 +1190,7 @@ function selectPet(petId) {
     // 显示营养配比方案选择
     showNutritionPlanSection(petId);
     
-    showSuccessMessage('宠物已选择，请选择营养配比方案');
+    showSuccessMessage('Pet selected, please choose a nutrition plan');
 }
 
 // 显示营养配比方案选择
@@ -1199,7 +1219,7 @@ async function showNutritionPlanSection(petId) {
         
     } catch (error) {
         console.error('Failed to load nutrition plans:', error);
-        loading.innerHTML = '<div style="color: #dc3545; text-align: center;">加载营养方案失败，请重试</div>';
+        loading.innerHTML = '<div style="color: #dc3545; text-align: center;">Failed to load nutrition plans, please try again</div>';
     }
 }
 
@@ -1222,7 +1242,7 @@ function renderNutritionPlans() {
                     ${highlights.map(note => `<span class="plan-highlight-tag">${note}</span>`).join('')}
                 </div>
                 <div style="margin-top: 1rem; text-align: center; color: #5580AD; font-size: 0.9rem;">
-                    <i class="fas fa-eye"></i> 点击查看详细配比
+                    <i class="fas fa-eye"></i> Click to view detailed ratios
                 </div>
             </div>
         `;
@@ -1242,13 +1262,13 @@ function showPlanDetail(planId) {
     document.getElementById('planDetailTitle').textContent = plan.name;
     
     const ratioItems = [
-        { label: '红肉', key: 'red_meat', color: '#dc3545' },
-        { label: '白肉', key: 'white_meat', color: '#28a745' },
-        { label: '鱼类', key: 'fish', color: '#007bff' },
-        { label: '内脏', key: 'organs', color: '#6f42c1' },
-        { label: '蔬菜', key: 'vegetables', color: '#20c997' },
-        { label: '水果', key: 'fruits', color: '#fd7e14' },
-        { label: '谷物', key: 'grains', color: '#6c757d' }
+        { label: 'Red Meat', key: 'red_meat', color: '#dc3545' },
+        { label: 'White Meat', key: 'white_meat', color: '#28a745' },
+        { label: 'Fish', key: 'fish', color: '#007bff' },
+        { label: 'Organs', key: 'organs', color: '#6f42c1' },
+        { label: 'Vegetables', key: 'vegetables', color: '#20c997' },
+        { label: 'Fruits', key: 'fruits', color: '#fd7e14' },
+        { label: 'Grains', key: 'grains', color: '#6c757d' }
     ].filter(item => plan.category_ratios[item.key] > 0);
     
     const ratioChartHtml = ratioItems.map(item => {
@@ -1266,19 +1286,19 @@ function showPlanDetail(planId) {
     
     const contentHtml = `
         <div>
-            <h4 style="color: #510B0B; margin-bottom: 1rem;">方案说明</h4>
+            <h4 style="color: #510B0B; margin-bottom: 1rem;">Plan Description</h4>
             <p style="color: #666; line-height: 1.6;">${plan.description}</p>
         </div>
         
         <div>
-            <h4 style="color: #510B0B; margin-bottom: 1rem;">食材配比</h4>
+            <h4 style="color: #510B0B; margin-bottom: 1rem;">Ingredient Ratios</h4>
             <div class="ratio-chart">
                 ${ratioChartHtml}
             </div>
         </div>
         
         <div>
-            <h4 style="color: #510B0B; margin-bottom: 1rem;">特点说明</h4>
+            <h4 style="color: #510B0B; margin-bottom: 1rem;">Special Features</h4>
             <ul style="color: #666; line-height: 1.6;">
                 ${plan.special_notes.map(note => `<li>${note}</li>`).join('')}
             </ul>
@@ -1313,7 +1333,7 @@ function selectNutritionPlan() {
     // 启用下一步按钮
     updateNextButtonState();
     
-    showSuccessMessage('已选择 "${currentPlanDetail.name}" 配比方案');
+    showSuccessMessage(`Selected "${currentPlanDetail.name}" nutrition plan`);
 }
 
 // 加载食材分类
@@ -1362,7 +1382,7 @@ async function loadCategories() {
     }
 }
 
-// ------- 修改：修复selectCategory函数的事件处理 -------
+// 选择分类
 function selectCategory(categoryValue, tabElement) {
     // 更新分类标签状态
     document.querySelectorAll('.category-tab').forEach(tab => {
@@ -1393,7 +1413,7 @@ async function loadIngredients(category = null) {
         gridContainer.innerHTML = '';
         
         if (ingredients.length === 0) {
-            gridContainer.innerHTML = '<div style="text-align: center; color: #666; grid-column: 1/-1; padding: 2rem;">该分类暂无可用食材</div>';
+            gridContainer.innerHTML = '<div style="text-align: center; color: #666; grid-column: 1/-1; padding: 2rem;">No ingredients available in this category</div>';
             return;
         }
         
@@ -1520,7 +1540,7 @@ function getSeasonalityText(seasonality) {
     return seasonMap[seasonality] || seasonality;
 }
 
-// ------- 修改：补全updateWeightTable函数 -------
+// 更新重量表格
 function updateWeightTable() {
     const tbody = document.getElementById('weightTableBody');
     
@@ -1555,7 +1575,7 @@ function updateWeightTable() {
     }).join('');
 }
 
-// ------- 新增：更新食材重量函数 -------
+// 更新食材重量
 function updateIngredientWeight(ingredientId, weight) {
     const numWeight = parseFloat(weight) || 0;
     
@@ -1641,10 +1661,10 @@ function updateNextButtonState() {
     }
 }
 
-// 修改第三步的一键分配重量功能，使用选择的营养方案
+// 自动分配重量功能，使用选择的营养方案
 async function autoDistributeWeights() {
     if (!selectedNutritionPlan || selectedIngredients.length === 0) {
-        showErrorMessage('请先选择营养方案和食材');
+        showErrorMessage('Please select nutrition plan and ingredients first');
         return;
     }
     
@@ -1683,11 +1703,11 @@ async function autoDistributeWeights() {
         updateWeightTable();
         updateNextButtonState();
         
-        showSuccessMessage(`已根据 "${selectedNutritionPlan.name}" 方案自动分配重量`);
+        showSuccessMessage(`Auto-distributed weights based on "${selectedNutritionPlan.name}" plan`);
         
     } catch (error) {
         console.error('Failed to get weight suggestions:', error);
-        showErrorMessage('获取重量建议失败，请手动设置');
+        showErrorMessage('Failed to get weight suggestions, please set manually');
     } finally {
         // 恢复按钮状态
         btn.innerHTML = originalText;
@@ -1704,7 +1724,7 @@ document.getElementById('planDetailModal').addEventListener('click', function(e)
     }
 });
 
-// ------- 新增：更新上一步按钮状态函数 -------
+// 更新上一步按钮状态
 function updatePrevButtonState() {
     const prevBtn = document.getElementById('prevBtn');
     prevBtn.disabled = currentStep === 1;
@@ -1783,12 +1803,12 @@ function updateProgressBar() {
 // ------- 新增：计算营养成分函数 -------
 async function calculateNutrition() {
     if (!selectedPetId) {
-        showErrorMessage('请先选择宠物');
+        showErrorMessage('Please select a pet first');
         return;
     }
     
     if (selectedIngredients.length === 0) {
-        showErrorMessage('请先选择食材');
+        showErrorMessage('Please select ingredients first');
         return;
     }
     
@@ -1799,7 +1819,7 @@ async function calculateNutrition() {
     })).filter(item => item.weight > 0);
     
     if (ingredientsWithWeights.length === 0) {
-        showErrorMessage('请为食材设置重量');
+        showErrorMessage('Please set ingredient weights');
         return;
     }
     
@@ -2060,6 +2080,45 @@ function displayNutritionAnalysis(data) {
                 </table>
             </div>
         </div>
+
+        <!-- ------------新增：推荐功能入口------------ -->
+        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 2rem; border-radius: 15px; border: 2px solid #A1B4B2; margin-top: 2rem;">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+                <h4 style="color: #510B0B; margin-bottom: 0.5rem;">
+                    <i class="fas fa-lightbulb" style="color: #5580AD;"></i>
+                    想要更多灵感？
+                </h4>
+                <p style="color: #666; margin: 0; line-height: 1.5;">
+                    基于您选择的食材，我们可以为您推荐社区中的相似食谱，<br>
+                    帮助您发现更多营养搭配的可能性！
+                </p>
+            </div>
+            
+            <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                <button type="button" 
+                        class="recommendation-action-btn primary" 
+                        onclick="goToRecommendations()" 
+                        style="background: #5580AD; color: white; border: none; border-radius: 25px; padding: 1rem 2rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(85, 128, 173, 0.3);">
+                    <i class="fas fa-magic"></i>
+                    Get Recipe Recommendations
+                </button>
+                
+                <button type="button" 
+                        class="recommendation-action-btn secondary" 
+                        onclick="showRecommendationHelp()" 
+                        style="background: transparent; color: #5580AD; border: 2px solid #5580AD; border-radius: 25px; padding: 1rem 2rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-question-circle"></i>
+                    How It Works
+                </button>
+            </div>
+            
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <small style="color: #666; font-style: italic;">
+                    <i class="fas fa-info-circle" style="margin-right: 0.3rem;"></i>
+                    Don't worry - your current recipe progress will be saved and you can return anytime!
+                </small>
+            </div>
+        </div>
         
         <!-- 成功提示 -->
         <div style="margin-top: 2rem; padding: 1rem; background: #d4edda; border-radius: 10px; border-left: 4px solid #28a745;">
@@ -2069,6 +2128,304 @@ function displayNutritionAnalysis(data) {
             </p>
         </div>
     `;
+
+    // ------------新增：为推荐按钮添加悬停效果------------
+    addRecommendationButtonEffects();
+}
+
+// ------------新增：添加推荐按钮悬停效果------------
+function addRecommendationButtonEffects() {
+    const primaryBtn = document.querySelector('.recommendation-action-btn.primary');
+    const secondaryBtn = document.querySelector('.recommendation-action-btn.secondary');
+    
+    if (primaryBtn) {
+        primaryBtn.addEventListener('mouseenter', function() {
+            this.style.background = '#4a73a0';
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 6px 20px rgba(85, 128, 173, 0.4)';
+        });
+        
+        primaryBtn.addEventListener('mouseleave', function() {
+            this.style.background = '#5580AD';
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 4px 12px rgba(85, 128, 173, 0.3)';
+        });
+    }
+    
+    if (secondaryBtn) {
+        secondaryBtn.addEventListener('mouseenter', function() {
+            this.style.background = '#5580AD';
+            this.style.color = 'white';
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        secondaryBtn.addEventListener('mouseleave', function() {
+            this.style.background = 'transparent';
+            this.style.color = '#5580AD';
+            this.style.transform = 'translateY(0)';
+        });
+    }
+}
+
+// ------------新增：跳转到推荐页面函数------------
+function goToRecommendations() {
+    // 获取当前选择的食材ID
+    const ingredientIds = selectedIngredients.map(ing => ing.id);
+    
+    if (ingredientIds.length === 0) {
+        showErrorMessage('推荐失败', '请先选择食材');
+        return;
+    }
+    
+    // 保存当前进度到sessionStorage（以便用户返回时恢复）
+    const recipeProgress = {
+        step: currentStep,
+        selectedPetId: selectedPetId,
+        selectedNutritionPlan: selectedNutritionPlan,
+        selectedIngredients: selectedIngredients,
+        ingredientWeights: ingredientWeights,
+        nutritionData: nutritionData,
+        timestamp: Date.now()
+    };
+    
+    try {
+        sessionStorage.setItem('recipeCreateProgress', JSON.stringify(recipeProgress));
+        console.log('Recipe progress saved:', recipeProgress);
+    } catch (error) {
+        console.warn('Failed to save recipe progress:', error);
+    }
+    
+    // 构建推荐页面URL
+    const params = new URLSearchParams({
+        ingredients: ingredientIds.join(','),
+        from: 'create_recipe',
+        pet_id: selectedPetId || ''
+    });
+    
+    // 显示跳转提示
+    showSuccessMessage(
+        'Redirecting to recommendations...', 
+        'Your recipe progress has been saved and you can return anytime!'
+    );
+    
+    // 延迟跳转以显示提示消息
+    setTimeout(() => {
+        window.location.href = `/recipe/recommendations?${params.toString()}`;
+    }, 1500);
+}
+
+// ------------新增：显示推荐功能说明------------
+function showRecommendationHelp() {
+    const helpModal = document.createElement('div');
+    helpModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    `;
+    
+    helpModal.innerHTML = `
+        <div style="background: white; border-radius: 15px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; padding: 2rem; position: relative;">
+            <button onclick="this.parentElement.parentElement.remove()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">×</button>
+            
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h3 style="color: #510B0B; margin-bottom: 0.5rem;">
+                    <i class="fas fa-lightbulb" style="color: #5580AD; margin-right: 0.5rem;"></i>
+                    Recipe Recommendations
+                </h3>
+                <p style="color: #666; margin: 0;">Discover similar recipes from our community</p>
+            </div>
+            
+            <div style="display: grid; gap: 1.5rem;">
+                <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                    <div style="background: #5580AD; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">1</div>
+                    <div>
+                        <h6 style="color: #510B0B; margin-bottom: 0.5rem;">Intelligent Matching</h6>
+                        <p style="color: #666; margin: 0; line-height: 1.5;">Our AI analyzes your selected ingredients and finds recipes with similar nutritional profiles and ingredient combinations.</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                    <div style="background: #B82F0D; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">2</div>
+                    <div>
+                        <h6 style="color: #510B0B; margin-bottom: 0.5rem;">Personalized for Your Pet</h6>
+                        <p style="color: #666; margin: 0; line-height: 1.5;">Recommendations are tailored based on your pet's species, age, and special dietary needs.</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                    <div style="background: #28a745; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">3</div>
+                    <div>
+                        <h6 style="color: #510B0B; margin-bottom: 0.5rem;">Community-Proven</h6>
+                        <p style="color: #666; margin: 0; line-height: 1.5;">All recommendations come from recipes created and tested by fellow pet owners in our community.</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                    <div style="background: #A1B4B2; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0;">4</div>
+                    <div>
+                        <h6 style="color: #510B0B; margin-bottom: 0.5rem;">Easy to Use</h6>
+                        <p style="color: #666; margin: 0; line-height: 1.5;">You can view recipe details, copy them to your account, or return to continue creating your original recipe.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; text-align: center;">
+                <p style="color: #666; margin: 0; font-style: italic;">
+                    <i class="fas fa-shield-alt" style="color: #28a745; margin-right: 0.5rem;"></i>
+                    Your current recipe progress is automatically saved and you can return anytime!
+                </p>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(helpModal);
+    
+    // 点击外部关闭
+    helpModal.addEventListener('click', function(e) {
+        if (e.target === helpModal) {
+            helpModal.remove();
+        }
+    });
+}
+
+// ------------新增：页面加载时恢复之前的进度------------
+function checkAndRestoreProgress() {
+    try {
+        const savedProgress = sessionStorage.getItem('recipeCreateProgress');
+        if (savedProgress) {
+            const progress = JSON.parse(savedProgress);
+            
+            // 检查数据是否过期（24小时）
+            const isExpired = (Date.now() - progress.timestamp) > 24 * 60 * 60 * 1000;
+            
+            if (!isExpired && progress.selectedIngredients && progress.selectedIngredients.length > 0) {
+                // 显示恢复进度的提示
+                showRestoreProgressPrompt(progress);
+            } else if (isExpired) {
+                // 清除过期数据
+                sessionStorage.removeItem('recipeCreateProgress');
+            }
+        }
+    } catch (error) {
+        console.warn('Failed to restore progress:', error);
+        sessionStorage.removeItem('recipeCreateProgress');
+    }
+}
+
+// ------------新增：显示恢复进度提示------------
+function showRestoreProgressPrompt(progress) {
+    const promptModal = document.createElement('div');
+    promptModal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    `;
+    
+    promptModal.innerHTML = `
+        <div style="background: white; border-radius: 15px; max-width: 500px; width: 90%; padding: 2rem; text-align: center;">
+            <div style="margin-bottom: 1.5rem;">
+                <i class="fas fa-history" style="font-size: 3rem; color: #5580AD; margin-bottom: 1rem;"></i>
+                <h4 style="color: #510B0B; margin-bottom: 0.5rem;">Welcome Back!</h4>
+                <p style="color: #666; margin: 0;">We found your previous recipe creation progress. Would you like to continue where you left off?</p>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                <small style="color: #666;">
+                    <strong>Saved progress:</strong> ${progress.selectedIngredients.length} ingredients selected
+                    ${progress.selectedPetId ? '• Pet selected' : ''}
+                    ${progress.nutritionData ? '• Nutrition analyzed' : ''}
+                </small>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button onclick="restoreProgress(); this.parentElement.parentElement.parentElement.remove();" style="background: #5580AD; color: white; border: none; border-radius: 8px; padding: 0.75rem 1.5rem; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-play" style="margin-right: 0.5rem;"></i>
+                    Continue Previous Recipe
+                </button>
+                <button onclick="clearProgress(); this.parentElement.parentElement.parentElement.remove();" style="background: #A1B4B2; color: white; border: none; border-radius: 8px; padding: 0.75rem 1.5rem; cursor: pointer;">
+                    <i class="fas fa-plus" style="margin-right: 0.5rem;"></i>
+                    Start New Recipe
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(promptModal);
+}
+
+// ------------新增：恢复进度函数------------
+function restoreProgress() {
+    try {
+        const savedProgress = JSON.parse(sessionStorage.getItem('recipeCreateProgress'));
+        
+        if (savedProgress) {
+            // 恢复全局变量
+            selectedPetId = savedProgress.selectedPetId;
+            selectedNutritionPlan = savedProgress.selectedNutritionPlan;
+            selectedIngredients = savedProgress.selectedIngredients || [];
+            ingredientWeights = savedProgress.ingredientWeights || {};
+            nutritionData = savedProgress.nutritionData;
+            
+            // 恢复到对应步骤
+            currentStep = Math.max(savedProgress.step || 1, 1);
+            
+            // 更新UI
+            updateStepVisibility();
+            updateProgressBar();
+            updatePrevButtonState();
+            updateNextButtonState();
+            
+            // 恢复宠物选择UI
+            if (selectedPetId) {
+                document.querySelectorAll('.pet-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                const petOption = document.querySelector(`[data-pet-id="${selectedPetId}"]`);
+                if (petOption) {
+                    petOption.classList.add('selected');
+                }
+            }
+            
+            // 恢复营养方案UI
+            if (selectedNutritionPlan && selectedPetId) {
+                showNutritionPlanSection(selectedPetId);
+            }
+            
+            // 如果在步骤3或4，恢复相关UI
+            if (currentStep >= 3) {
+                updateWeightTable();
+            }
+            
+            if (currentStep >= 4 && nutritionData) {
+                displayNutritionAnalysis(nutritionData);
+            }
+            
+            showSuccessMessage('Progress restored!', 'Welcome back! Your recipe creation progress has been restored.');
+        }
+    } catch (error) {
+        console.error('Failed to restore progress:', error);
+        clearProgress();
+    }
+}
+
+// ------------新增：清除进度函数------------
+function clearProgress() {
+    sessionStorage.removeItem('recipeCreateProgress');
+    showSuccessMessage('Starting fresh!', 'Ready to create a new recipe from scratch.');
 }
 
 // ------- 新增：保存食谱函数 -------

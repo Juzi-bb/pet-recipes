@@ -1,605 +1,1668 @@
 {% extends "base.html" %}
 
-{% block title %}食谱推荐 - 宠物食谱网站{% endblock %}
+{% block title %}Recipe Recommendations - Pet Recipe Website{% endblock %}
 
-{% block extra_css %}
+{% block content %}
 <style>
-    .recommendation-card {
-        border: 2px solid #A1B4B2;
-        border-radius: 15px;
-        transition: all 0.3s ease;
-        overflow: hidden;
+    /* =============================== 
+        基础变量和全局样式
+       =============================== */
+    :root {
+        --primary-color: #510B0B;
+        --secondary-color: #B82F0D;
+        --accent-color: #5580AD;
+        --light-accent: #A1B4B2;
+        --warm-accent: #EDBF9D;
+        --success-color: #27ae60;
+        --error-color: #e74c3c;
+        --warning-color: #f39c12;
+        --info-color: #3498db;
     }
-    
-    .recommendation-card:hover {
-        border-color: #5580AD;
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(85, 128, 173, 0.2);
+
+    /* 主容器样式 - 与创建页面一致 */
+    .recommendations-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1rem;
     }
-    
-    .score-badge {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: linear-gradient(135deg, #510B0B, #B82F0D);
+
+    /* 页面标题区域 - 与创建页面样式一致 */
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
         color: white;
-        border-radius: 20px;
-        padding: 5px 12px;
-        font-size: 0.85rem;
-        font-weight: bold;
-    }
-    
-    .match-highlight {
-        background: linear-gradient(45deg, #EDBF9D, #A1B4B2);
-        color: #510B0B;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-size: 0.75rem;
-        margin: 2px;
-        display: inline-block;
-    }
-    
-    .ingredient-pill {
-        background: #5580AD;
-        color: white;
-        padding: 3px 8px;
-        border-radius: 12px;
-        font-size: 0.7rem;
-        margin: 2px;
-        display: inline-block;
-    }
-    
-    .nutrition-mini-chart {
-        height: 80px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 8px;
-    }
-    
-    .selected-ingredients-summary {
-        background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%);
         border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
-    
+
+    .page-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .page-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    /* 返回按钮样式 */
     .back-button {
-        background: #A1B4B2;
+        background: linear-gradient(135deg, #A1B4B2 0%, #5580AD 100%);
         color: white;
         border: none;
         border-radius: 25px;
-        padding: 10px 20px;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(85, 128, 173, 0.3);
+        margin-bottom: 2rem;
+        width: fit-content;
+    }
+
+    .back-button:hover {
+        background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(85, 128, 173, 0.4);
+    }
+
+    /* 推荐算法信息卡片 */
+    .algorithm-info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        border: 2px solid var(--warm-accent);
+    }
+
+    .algorithm-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid var(--warm-accent);
+    }
+
+    .algorithm-title {
+        font-size: 1.3rem;
+        color: var(--primary-color);
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+    }
+
+    .processing-time {
+        background: linear-gradient(135deg, var(--success-color) 0%, #2ecc71 100%);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-item {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid var(--light-accent);
         transition: all 0.3s ease;
     }
-    
-    .back-button:hover {
-        background: #5580AD;
+
+    .stat-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--accent-color);
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-top: 0.3rem;
+    }
+
+    /* 选中食材摘要卡片 */
+    .ingredients-summary-card {
+        background: linear-gradient(135deg, var(--warm-accent) 0%, var(--light-accent) 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .summary-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+    }
+
+    .ingredients-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ingredient-pill {
+        background: rgba(255, 255, 255, 0.9);
+        color: var(--primary-color);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(81, 11, 11, 0.2);
+    }
+
+    .ingredient-pill:hover {
+        background: white;
         transform: scale(1.05);
     }
-    
-    .recommendation-actions {
-        background: #f8f9fa;
-        border-top: 1px solid #e9ecef;
-        padding: 15px;
-        margin: -15px -15px 0 -15px;
+
+    .pet-info-summary {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-top: 1rem;
+        border: 1px dashed rgba(81, 11, 11, 0.3);
     }
-    
-    .empty-recommendations {
+
+    .pet-info-title {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pet-info-details {
+        color: var(--secondary-color);
+        font-size: 0.95rem;
+    }
+
+    /* 推荐食谱网格 */
+    .recommendations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    /* 推荐食谱卡片 - 完全重新设计 */
+    .recommendation-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border: 2px solid var(--warm-accent);
+        transition: all 0.3s ease;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .recommendation-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        border-color: var(--accent-color);
+    }
+
+    /* 卡片标题区域 */
+    .card-header-section {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--light-accent) 100%);
+        padding: 1.5rem;
+        position: relative;
+        color: white;
+    }
+
+    .recipe-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .recipe-description {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        line-height: 1.4;
+    }
+
+    /* 匹配度徽章 */
+    .match-score-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: 25px;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        font-weight: bold;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    }
+
+    /* 特殊徽章样式 */
+    .special-badge {
+        position: absolute;
+        top: 50px;
+        right: 15px;
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .popular-badge {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+    }
+
+    .new-badge {
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    }
+
+    /* 卡片内容区域 */
+    .card-content {
+        padding: 1.5rem;
+    }
+
+    /* 推荐亮点显示 */
+    .match-highlights-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .highlights-title {
+        font-size: 1rem;
+        color: var(--success-color);
+        font-weight: bold;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .match-highlights {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .match-highlight {
+        background: linear-gradient(45deg, var(--warm-accent), var(--light-accent));
+        color: var(--primary-color);
+        padding: 0.3rem 0.7rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        animation: highlight-glow 2s ease-in-out infinite alternate;
+        border: 1px solid rgba(81, 11, 11, 0.2);
+    }
+
+    @keyframes highlight-glow {
+        from { box-shadow: 0 0 3px rgba(237, 191, 157, 0.5); }
+        to { box-shadow: 0 0 8px rgba(237, 191, 157, 0.8); }
+    }
+
+    /* 详细评分展示 */
+    .score-breakdown {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .score-breakdown-title {
+        font-size: 0.9rem;
+        color: var(--primary-color);
+        font-weight: bold;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .score-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.6rem;
+    }
+
+    .score-label {
+        min-width: 90px;
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .score-bar {
+        flex: 1;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        margin: 0 0.8rem;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .score-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-color), var(--secondary-color));
+        border-radius: 4px;
+        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .score-percent {
+        min-width: 35px;
+        text-align: right;
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: var(--accent-color);
+    }
+
+    /* 营养摘要 */
+    .nutrition-summary {
+        margin-bottom: 1.5rem;
+    }
+
+    .nutrition-title {
+        font-size: 1rem;
+        color: var(--accent-color);
+        font-weight: bold;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .nutrition-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.8rem;
         text-align: center;
-        padding: 60px 20px;
+    }
+
+    .nutrition-item {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 0.8rem 0.5rem;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+
+    .nutrition-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        display: block;
+    }
+
+    .nutrition-label {
+        font-size: 0.7rem;
+        color: #666;
+        margin-top: 0.2rem;
+    }
+
+    /* 食材展示 */
+    .ingredients-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .ingredients-title {
+        font-size: 1rem;
+        color: var(--light-accent);
+        font-weight: bold;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .ingredients-pills-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    .ingredient-badge {
+        background: var(--light-accent);
+        color: white;
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .more-ingredients-badge {
+        background: #6c757d;
+        color: white;
+        padding: 0.25rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+    }
+
+    /* 社区统计 */
+    .community-stats {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 0 0 0;
+        margin-top: 1rem;
+        border-top: 1px solid #e9ecef;
+        font-size: 0.8rem;
         color: #6c757d;
     }
-    
-    .community-link {
-        background: linear-gradient(135deg, #510B0B, #B82F0D);
-        color: white;
-        text-decoration: none;
-        padding: 12px 25px;
-        border-radius: 25px;
-        transition: all 0.3s ease;
-        display: inline-block;
+
+    .stat-group {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
     }
-    
-    .community-link:hover {
+
+    /* 操作按钮区域 */
+    .card-actions {
+        background: #f8f9fa;
+        padding: 1rem 1.5rem;
+        display: flex;
+        gap: 0.8rem;
+        justify-content: flex-end;
+    }
+
+    .action-btn {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-decoration: none;
+    }
+
+    .btn-view {
+        background: var(--info-color);
         color: white;
-        transform: scale(1.05);
-        box-shadow: 0 4px 15px rgba(184, 47, 13, 0.3);
+    }
+
+    .btn-view:hover {
+        background: #2980b9;
+        transform: translateY(-1px);
+    }
+
+    .btn-copy {
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        color: white;
+    }
+
+    .btn-copy:hover {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        transform: translateY(-1px);
+    }
+
+    /* 无推荐结果页面 */
+    .empty-recommendations {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        border: 2px solid var(--warm-accent);
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        color: var(--light-accent);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-title {
+        font-size: 1.8rem;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .empty-description {
+        color: #7f8c8d;
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .empty-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .empty-btn {
+        padding: 1rem 2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .empty-btn-primary {
+        background: linear-gradient(135deg, var(--accent-color), var(--light-accent));
+        color: white;
+    }
+
+    .empty-btn-secondary {
+        background: transparent;
+        color: var(--accent-color);
+        border: 2px solid var(--accent-color);
+    }
+
+    .empty-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    /* 社区链接区域 */
+    .community-section {
+        text-align: center;
+        margin-top: 3rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .community-description {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .community-link {
+        background: linear-gradient(135deg, var(--warm-accent), #f39c12);
+        color: var(--primary-color);
+        text-decoration: none;
+        padding: 1rem 2.5rem;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .community-link:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        background: linear-gradient(135deg, #f39c12, var(--warm-accent));
+    }
+
+    /* 模态框样式 - 与其他页面保持一致 */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+        opacity: 1;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        max-width: 800px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+        position: relative;
+        transform: scale(0.7) translateY(-50px);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .modal-overlay.show .modal-content {
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+        padding: 2rem 2rem 1rem 2rem;
+        border-bottom: 2px solid var(--warm-accent);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-size: 1.8rem;
+        color: var(--primary-color);
+        margin: 0;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: var(--secondary-color);
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+        background: var(--secondary-color);
+        color: white;
+        transform: rotate(90deg);
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .modal-footer {
+        padding: 1rem 2rem 2rem 2rem;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .modal-btn {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-btn-secondary {
+        background: var(--light-accent);
+        color: white;
+    }
+
+    .modal-btn-primary {
+        background: var(--secondary-color);
+        color: white;
+    }
+
+    .modal-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    /* 成功消息样式 - 与其他页面一致 */
+    .success-message {
+        position: fixed;
+        top: -80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, var(--warm-accent) 0%, var(--light-accent) 100%);
+        color: var(--primary-color);
+        padding: 1rem 2rem;
+        min-width: 300px;
+        max-width: 80vw;
+        text-align: center;
+        border-radius: 25px;
+        box-shadow: 0 8px 32px rgba(81, 11, 11, 0.3);
+        border: 2px solid var(--primary-color);
+        z-index: 9999;
+        font-weight: bold;
+        font-size: 1rem;
+        transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        opacity: 0;
+        text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+    }
+
+    .success-message.show {
+        top: 20px;
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    .success-message.hide {
+        top: -80px;
+        opacity: 0;
+        transform: translateX(-50%) scale(0.8);
+    }
+
+    .success-message.type-error {
+        background: linear-gradient(135deg, var(--error-color) 0%, #c0392b 100%);
+        color: white;
+        border-color: var(--error-color);
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .success-message.type-info {
+        background: linear-gradient(135deg, var(--info-color) 0%, #2980b9 100%);
+        color: white;
+        border-color: var(--info-color);
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 1200px) {
+        .recommendations-grid {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .recommendations-container {
+            padding: 0.5rem;
+        }
+
+        .page-header {
+            padding: 1.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+        }
+
+        .page-header p {
+            font-size: 1rem;
+        }
+
+        .recommendations-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .nutrition-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .ingredients-pills {
+            gap: 0.5rem;
+        }
+
+        .ingredient-pill {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .card-actions {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            justify-content: center;
+        }
+
+        .empty-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .modal-content {
+            width: 95%;
+            margin: 1rem;
+        }
+
+        .modal-header,
+        .modal-body,
+        .modal-footer {
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .nutrition-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .success-message {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            min-width: 250px;
+        }
     }
 </style>
-{% endblock %}
 
-{% block content %}
-<div class="container mt-4">
+<div class="recommendations-container">
     <!-- 返回按钮 -->
-    <div class="mb-4">
-        <button class="back-button" onclick="history.back()">
-            <i class="fas fa-arrow-left me-2"></i>返回食谱创建
-        </button>
-    </div>
+    <button class="back-button" onclick="handleBackNavigation()">
+        <i class="fas fa-arrow-left"></i>
+        <span id="backButtonText">Back to Recipe Creation</span>
+    </button>
 
     <!-- 页面标题 -->
-    <div class="text-center mb-4">
-        <h2 style="color: #510B0B;">
-            <i class="fas fa-lightbulb"></i> 为您推荐的食谱
-        </h2>
-        <p class="text-muted">基于您选择的食材和宠物信息智能推荐</p>
+    <div class="page-header">
+        <h1>🤖 Smart Recipe Recommendations</h1>
+        <p>Personalized suggestions based on your ingredients and pet profile</p>
     </div>
 
-    <!-- 选择的食材摘要 -->
-    {% if selected_ingredients %}
-    <div class="selected-ingredients-summary">
-        <h5 style="color: #510B0B; margin-bottom: 15px;">
-            <i class="fas fa-check-circle"></i> 您选择的食材
-        </h5>
-        <div class="row">
-            <div class="col-md-8">
-                <div class="selected-ingredients-list">
-                    {% for ingredient in selected_ingredients %}
-                    <span class="ingredient-pill">{{ ingredient.name }}</span>
-                    {% endfor %}
-                </div>
+    <!-- 推荐算法信息展示 -->
+    {% if recommendation_info %}
+    <div class="algorithm-info-card">
+        <div class="algorithm-header">
+            <h3 class="algorithm-title">
+                <i class="fas fa-brain"></i>
+                AI Recommendation Engine v{{ recommendation_info.algorithm_version }}
+            </h3>
+            <div class="processing-time">
+                <i class="fas fa-stopwatch"></i>
+                {{ recommendation_info.processing_time }}
             </div>
-            <div class="col-md-4 text-end">
-                {% if pet %}
-                <small class="text-muted">
-                    <i class="fas fa-paw"></i> 为 {{ pet.name }} 推荐<br>
-                    {{ pet.species }} · {{ pet.weight }}kg · {{ pet.age }}岁
-                </small>
-                {% endif %}
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-number">{{ recommendation_info.total_analyzed }}</span>
+                <div class="stat-label">Recipes Analyzed</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ "%.1f"|format(recommendation_info.avg_score * 100) }}%</span>
+                <div class="stat-label">Avg Match Score</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{{ recommendation_info.score_distribution.excellent }}</span>
+                <div class="stat-label">Excellent Matches</div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">{% if recommendation_info.diversity_ensured %}✓{% else %}○{% endif %}</span>
+                <div class="stat-label">Diversity Ensured</div>
             </div>
         </div>
     </div>
     {% endif %}
 
-    <!-- 过敏安全检查 -->
-    <div id="recipe-safety-warnings"></div>
-
-    <!-- 推荐食谱列表 -->
-    <div class="row">
-        {% if recommendations %}
-            {% for rec in recommendations %}
-            <div class="col-lg-6 mb-4">
-                <div class="recommendation-card card h-100">
-                    <div class="card-header position-relative" style="background: linear-gradient(135deg, #EDBF9D, #A1B4B2); color: #510B0B;">
-                        <h5 class="card-title mb-0">{{ rec.name }}</h5>
-                        <div class="score-badge">
-                            匹配度 {{ (rec.recommendation_score * 100)|round|int }}%
-                        </div>
-                    </div>
-                    
-                    <div class="card-body">
-                        <!-- 推荐亮点 -->
-                        {% if rec.match_highlights %}
-                        <div class="mb-3">
-                            {% for highlight in rec.match_highlights %}
-                            <span class="match-highlight">{{ highlight }}</span>
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        
-                        <!-- 食谱描述 -->
-                        {% if rec.description %}
-                        <p class="text-muted mb-3">{{ rec.description }}</p>
-                        {% endif %}
-                        
-                        <!-- 食材列表 -->
-                        <div class="mb-3">
-                            <h6 style="color: #510B0B;">
-                                <i class="fas fa-list"></i> 食材组成 ({{ rec.total_weight }}g)
-                            </h6>
-                            <div class="ingredient-list">
-                                {% for ingredient in rec.ingredients[:5] %}
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="small">{{ ingredient.name }}</span>
-                                    <span class="text-muted small">{{ ingredient.weight }}g ({{ ingredient.percentage }}%)</span>
-                                </div>
-                                {% endfor %}
-                                {% if rec.ingredients|length > 5 %}
-                                <small class="text-muted">还有 {{ rec.ingredients|length - 5 }} 种食材...</small>
-                                {% endif %}
-                            </div>
-                        </div>
-                        
-                        <!-- 营养信息 -->
-                        <div class="mb-3">
-                            <h6 style="color: #510B0B;">
-                                <i class="fas fa-chart-pie"></i> 营养信息
-                            </h6>
-                            <div class="row text-center">
-                                <div class="col-3">
-                                    <small class="text-muted d-block">热量</small>
-                                    <strong style="color: #B82F0D;">{{ rec.nutrition_ratios.calories_per_100g|round|int }}</strong>
-                                    <small class="text-muted">kcal/100g</small>
-                                </div>
-                                <div class="col-3">
-                                    <small class="text-muted d-block">蛋白质</small>
-                                    <strong style="color: #5580AD;">{{ rec.nutrition_ratios.protein_percent }}</strong>
-                                    <small class="text-muted">%</small>
-                                </div>
-                                <div class="col-3">
-                                    <small class="text-muted d-block">脂肪</small>
-                                    <strong style="color: #A1B4B2;">{{ rec.nutrition_ratios.fat_percent }}</strong>
-                                    <small class="text-muted">%</small>
-                                </div>
-                                <div class="col-3">
-                                    <small class="text-muted d-block">碳水</small>
-                                    <strong style="color: #EDBF9D;">{{ rec.nutrition_ratios.carb_percent }}</strong>
-                                    <small class="text-muted">%</small>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- 分数详细信息 -->
-                        <div class="mb-3">
-                            <small class="text-muted">
-                                食材相似性: {{ (rec.score_breakdown.ingredient_similarity * 100)|round|int }}% | 
-                                营养匹配: {{ (rec.score_breakdown.nutrition_match * 100)|round|int }}% | 
-                                宠物适用: {{ (rec.score_breakdown.pet_suitability * 100)|round|int }}%
-                            </small>
-                        </div>
-                    </div>
-                    
-                    <!-- 操作按钮 -->
-                    <div class="recommendation-actions">
-                        <div class="row">
-                            <div class="col-6">
-                                <button class="btn btn-outline-primary btn-sm w-100 view-recipe-btn" 
-                                        data-recipe-id="{{ rec.recipe_id }}">
-                                    <i class="fas fa-eye"></i> 查看详情
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button class="btn btn-success btn-sm w-100 copy-recipe-btn" 
-                                        data-recipe-id="{{ rec.recipe_id }}"
-                                        data-recipe-name="{{ rec.name }}">
-                                    <i class="fas fa-copy"></i> 复制食谱
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- 选择的食材摘要 -->
+    {% if selected_ingredients %}
+    <div class="ingredients-summary-card">
+        <h2 class="summary-title">
+            <i class="fas fa-utensils"></i>Your Selected Ingredients ({{ selected_ingredients|length }})
+        </h2>
+        <div class="ingredients-pills">
+            {% for ingredient in selected_ingredients %}
+            <span class="ingredient-pill">{{ ingredient.name }}</span>
             {% endfor %}
-        {% else %}
-        <!-- 无推荐结果 -->
-        <div class="col-12">
-            <div class="empty-recommendations">
-                <i class="fas fa-search fa-4x mb-3" style="color: #A1B4B2;"></i>
-                <h4 style="color: #510B0B;">暂无推荐食谱</h4>
-                <p class="text-muted mb-4">
-                    {% if not selected_ingredients %}
-                    请先选择一些食材来获取推荐
-                    {% else %}
-                    未找到与您选择的食材匹配的食谱<br>
-                    您可以尝试选择其他食材组合
-                    {% endif %}
-                </p>
-                <div class="mt-4">
-                    <button class="back-button me-3" onclick="history.back()">
-                        <i class="fas fa-arrow-left"></i> 返回选择食材
-                    </button>
-                    <a href="/community" class="community-link">
-                        <i class="fas fa-users"></i> 浏览社区食谱
-                    </a>
-                </div>
+        </div>
+        
+        {% if pet %}
+        <div class="pet-info-summary">
+            <div class="pet-info-title">
+                <i class="fas fa-paw"></i>Customized for {{ pet.name }}
+            </div>
+            <div class="pet-info-details">
+                {{ pet.species.title() }}, {{ pet.age }} years old, {{ pet.weight }}kg
+                {% if pet.special_needs %}
+                • Special needs: {{ pet.special_needs }}
+                {% endif %}
             </div>
         </div>
         {% endif %}
     </div>
+    {% endif %}
 
-    <!-- 更多推荐 -->
+    <!-- 推荐结果 -->
     {% if recommendations %}
-    <div class="text-center mt-5 mb-4">
-        <h5 style="color: #510B0B;">想要更多选择？</h5>
-        <p class="text-muted mb-3">在社区中发现更多由其他宠物主人分享的优质食谱</p>
-        <a href="/community" class="community-link">
-            <i class="fas fa-users me-2"></i>前往社区查看更多食谱
+    <div class="recommendations-grid">
+        {% for rec in recommendations %}
+        <div class="recommendation-card">
+            <!-- 卡片标题区域 -->
+            <div class="card-header-section">
+                <div class="match-score-badge">{{ "%.0f"|format(rec.recommendation_score * 100) }}% Match</div>
+                
+                {% if rec.community_stats.likes_count >= 20 %}
+                <div class="special-badge popular-badge">
+                    <i class="fas fa-fire"></i> Popular
+                </div>
+                {% endif %}
+                
+                {% if rec.community_stats.created_days_ago is not none and rec.community_stats.created_days_ago <= 7 %}
+                <div class="special-badge new-badge">
+                    <i class="fas fa-star"></i> New
+                </div>
+                {% endif %}
+
+                <h3 class="recipe-title">{{ rec.name }}</h3>
+                <p class="recipe-description">
+                    {{ rec.description[:120] }}{% if rec.description|length > 120 %}...{% endif %}
+                </p>
+            </div>
+
+            <!-- 卡片内容区域 -->
+            <div class="card-content">
+                <!-- 推荐亮点显示 -->
+                <div class="match-highlights-section">
+                    <div class="highlights-title">
+                        <i class="fas fa-star"></i> Why We Recommend:
+                    </div>
+                    <div class="match-highlights">
+                        {% for highlight in rec.match_highlights %}
+                        <span class="match-highlight">{{ highlight }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 详细评分展示 -->
+                <div class="score-breakdown">
+                    <div class="score-breakdown-title">
+                        <i class="fas fa-chart-bar"></i> Match Analysis
+                    </div>
+                    
+                    <div class="score-item">
+                        <div class="score-label">Ingredients</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: {{ rec.score_breakdown.ingredient_similarity * 100 }}%"></div>
+                        </div>
+                        <div class="score-percent">{{ "%.0f"|format(rec.score_breakdown.ingredient_similarity * 100) }}%</div>
+                    </div>
+                    
+                    <div class="score-item">
+                        <div class="score-label">Nutrition</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: {{ rec.score_breakdown.nutrition_match * 100 }}%"></div>
+                        </div>
+                        <div class="score-percent">{{ "%.0f"|format(rec.score_breakdown.nutrition_match * 100) }}%</div>
+                    </div>
+                    
+                    <div class="score-item">
+                        <div class="score-label">Pet Fit</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: {{ rec.score_breakdown.pet_suitability * 100 }}%"></div>
+                        </div>
+                        <div class="score-percent">{{ "%.0f"|format(rec.score_breakdown.pet_suitability * 100) }}%</div>
+                    </div>
+                    
+                    {% if rec.score_breakdown.popularity_score > 0 %}
+                    <div class="score-item">
+                        <div class="score-label">Community</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: {{ rec.score_breakdown.popularity_score * 100 }}%"></div>
+                        </div>
+                        <div class="score-percent">{{ "%.0f"|format(rec.score_breakdown.popularity_score * 100) }}%</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- 营养信息摘要 -->
+                <div class="nutrition-summary">
+                    <div class="nutrition-title">
+                        <i class="fas fa-chart-pie"></i> Nutrition Profile (per 100g)
+                    </div>
+                    <div class="nutrition-grid">
+                        <div class="nutrition-item">
+                            <span class="nutrition-value">{{ rec.nutrition_ratios.protein_percent }}%</span>
+                            <div class="nutrition-label">Protein</div>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-value">{{ rec.nutrition_ratios.fat_percent }}%</span>
+                            <div class="nutrition-label">Fat</div>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-value">{{ rec.nutrition_ratios.carb_percent }}%</span>
+                            <div class="nutrition-label">Carbs</div>
+                        </div>
+                        <div class="nutrition-item">
+                            <span class="nutrition-value">{{ rec.nutrition_ratios.calories_per_100g }}</span>
+                            <div class="nutrition-label">Calories</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 主要食材展示 -->
+                <div class="ingredients-section">
+                    <div class="ingredients-title">
+                        <i class="fas fa-list"></i> Main Ingredients
+                    </div>
+                    <div class="ingredients-pills-list">
+                        {% for ingredient in rec.ingredients[:6] %}
+                        <span class="ingredient-badge">{{ ingredient.name }} ({{ ingredient.percentage }}%)</span>
+                        {% endfor %}
+                        {% if rec.ingredients|length > 6 %}
+                        <span class="more-ingredients-badge">+{{ rec.ingredients|length - 6 }} more</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 社区统计信息 -->
+                <div class="community-stats">
+                    <div class="stat-group">
+                        <i class="fas fa-heart text-danger"></i>
+                        <span>{{ rec.community_stats.likes_count }}</span>
+                    </div>
+                    <div class="stat-group">
+                        <i class="fas fa-copy text-info"></i>
+                        <span>{{ rec.community_stats.usage_count }} uses</span>
+                    </div>
+                    {% if rec.community_stats.created_days_ago is not none %}
+                    <div class="stat-group">
+                        <i class="fas fa-clock"></i>
+                        <span>{{ rec.community_stats.created_days_ago }} days ago</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="card-actions">
+                <button class="action-btn btn-view" onclick="viewRecipeDetails({{ rec.recipe_id }})">
+                    <i class="fas fa-eye"></i>View Details
+                </button>
+                <button class="action-btn btn-copy" onclick="copyRecipeToAccount({{ rec.recipe_id }}, '{{ rec.name|replace("'", "\\'") }}')">
+                    <i class="fas fa-copy"></i>Copy Recipe
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 社区链接区域 -->
+    <div class="community-section">
+        <p class="community-description">
+            <strong>Want more recipe inspiration?</strong><br>
+            Explore our vibrant community for thousands of pet recipes shared by fellow pet owners!
+        </p>
+        <a href="{{ url_for('main.community') }}" class="community-link">
+            <i class="fas fa-users"></i>Browse Community Recipes
         </a>
+    </div>
+
+    {% else %}
+    <!-- 无推荐结果页面 -->
+    <div class="empty-recommendations">
+        <div class="empty-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <h3 class="empty-title">No Matching Recipes Found</h3>
+        <p class="empty-description">
+            We couldn't find recipes that perfectly match your selected ingredients and pet's needs.<br>
+            Try adjusting your ingredient selection or explore our community for more options.
+        </p>
+        
+        <div class="empty-actions">
+            <button class="empty-btn empty-btn-primary" onclick="history.back()">
+                <i class="fas fa-arrow-left"></i>Back to Selection
+            </button>
+            <a href="{{ url_for('main.community') }}" class="empty-btn empty-btn-secondary">
+                <i class="fas fa-users"></i>Browse Community
+            </a>
+        </div>
     </div>
     {% endif %}
 </div>
 
 <!-- 食谱详情模态框 -->
-<div class="modal fade" id="recipeDetailsModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header" style="background-color: #510B0B; color: white;">
-                <h5 class="modal-title">食谱详情</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<div class="modal-overlay" id="recipeDetailsModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="recipeDetailsModalTitle">Recipe Details</h3>
+            <button class="modal-close" onclick="closePlanDetail()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="recipeDetailsContent">
+            <div style="text-align: center; padding: 2rem;">
+                <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+                <span style="color: #666;">Loading recipe details...</span>
             </div>
-            <div class="modal-body" id="recipe-details-content">
-                <div class="text-center py-4">
-                    <div class="spinner-border" style="color: #510B0B;" role="status">
-                        <span class="visually-hidden">加载中...</span>
-                    </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary" onclick="closePlanDetail()">Close</button>
+            <button class="modal-btn modal-btn-primary" id="copyFromModal" onclick="copyCurrentRecipe()">
+                <i class="fas fa-copy"></i>Copy This Recipe
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 复制确认模态框 -->
+<div class="modal-overlay" id="copyConfirmModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Copy Recipe to Your Account</h3>
+            <button class="modal-close" onclick="closeCopyModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="copyRecipeForm">
+                <div class="form-group">
+                    <label for="newRecipeName">Recipe Name:</label>
+                    <input type="text" class="form-control" id="newRecipeName" required style="width: 100%; padding: 0.8rem; border: 2px solid #A1B4B2; border-radius: 8px; font-size: 1rem;">
                 </div>
-            </div>
+                
+                {% if pet %}
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="associateWithPet" checked style="margin-right: 0.5rem;">
+                        Associate with {{ pet.name }} ({{ pet.species.title() }})
+                    </label>
+                </div>
+                {% endif %}
+                
+                <div style="background: #e3f2fd; border: 1px solid #2196f3; border-radius: 8px; padding: 1rem; margin-top: 1rem;">
+                    <i class="fas fa-info-circle" style="color: #2196f3; margin-right: 0.5rem;"></i>
+                    This recipe will be copied to your personal collection as a draft. You can modify it as needed.
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-secondary" onclick="closeCopyModal()">Cancel</button>
+            <button class="modal-btn modal-btn-primary" onclick="confirmCopyRecipe()">
+                <i class="fas fa-copy"></i>Copy Recipe
+            </button>
         </div>
     </div>
 </div>
 
-<!-- 复制食谱模态框 -->
-<div class="modal fade" id="copyRecipeModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header" style="background-color: #5580AD; color: white;">
-                <h5 class="modal-title">复制食谱到我的账户</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="copy-recipe-form">
-                    <div class="mb-3">
-                        <label for="copy-recipe-name" class="form-label">新食谱名称</label>
-                        <input type="text" class="form-control" id="copy-recipe-name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="copy-pet-select" class="form-label">关联宠物</label>
-                        <select id="copy-pet-select" class="form-select">
-                            <option value="">不关联特定宠物</option>
-                            {% if session.user_id %}
-                            <!-- 这里需要传入用户的宠物列表 -->
-                            {% endif %}
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                <button type="button" class="btn btn-success" id="confirm-copy-recipe">
-                    <i class="fas fa-copy"></i> 复制食谱
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
 <script>
-$(document).ready(function() {
-    let currentRecipeId = null;
-    
-    // 查看食谱详情
-    $('.view-recipe-btn').click(function() {
-        const recipeId = $(this).data('recipe-id');
-        loadRecipeDetails(recipeId);
-    });
-    
-    // 复制食谱
-    $('.copy-recipe-btn').click(function() {
-        currentRecipeId = $(this).data('recipe-id');
-        const recipeName = $(this).data('recipe-name');
-        
-        {% if not session.user_id %}
-        alert('请先登录后再复制食谱');
-        window.location.href = '/user/login';
-        return;
-        {% endif %}
-        
-        $('#copy-recipe-name').val(recipeName + ' (副本)');
-        $('#copyRecipeModal').modal('show');
-    });
-    
-    // 确认复制食谱
-    $('#confirm-copy-recipe').click(function() {
-        copyRecipe();
-    });
-    
-    // 如果有选择的食材，检查过敏安全性
-    {% if selected_ingredients and pet %}
-    const ingredientIds = [{% for ing in selected_ingredients %}{{ ing.id }}{% if not loop.last %},{% endif %}{% endfor %}];
-    if (window.allergenManager) {
-        allergenManager.currentPetId = {{ pet.id }};
-        allergenManager.checkRecipeSafety(ingredientIds);
-    }
-    {% endif %}
+// 全局变量
+let currentRecipeId = null;
+
+// 页面加载完成后初始化
+document.addEventListener('DOMContentLoaded', function() {
+    initializePage();
 });
 
-async function loadRecipeDetails(recipeId) {
-    try {
-        $('#recipeDetailsModal').modal('show');
-        
-        const response = await fetch(`/api/recipe/${recipeId}/details`);
-        const data = await response.json();
-        
-        if (data.success) {
-            renderRecipeDetails(data.recipe);
-        } else {
-            $('#recipe-details-content').html(`
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i> ${data.error}
-                </div>
-            `);
-        }
-    } catch (error) {
-        console.error('加载食谱详情失败:', error);
-        $('#recipe-details-content').html(`
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle"></i> 加载失败，请稍后重试
-            </div>
-        `);
+// 初始化页面功能
+function initializePage() {
+    // 设置返回按钮文本
+    setBackButtonText();
+    
+    // 为评分条添加动画效果
+    animateScoreBars();
+    
+    // 为推荐卡片添加渐入动画
+    animateRecommendationCards();
+    
+    // 为统计数字添加计数动画
+    animateStatNumbers();
+    
+    // 添加键盘快捷键支持
+    addKeyboardSupport();
+}
+
+// 设置返回按钮文本
+function setBackButtonText() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromPage = urlParams.get('from');
+    const backButtonText = document.getElementById('backButtonText');
+    
+    if (fromPage === 'create_recipe' && backButtonText) {
+        backButtonText.textContent = 'Back to Recipe Creation';
+    } else {
+        backButtonText.textContent = 'Back';
     }
 }
 
-function renderRecipeDetails(recipe) {
-    const ingredientsHtml = recipe.ingredients.map(ing => `
-        <tr>
-            <td>${ing.name}</td>
-            <td>${ing.weight}g</td>
-            <td>${ing.preparation_note || '-'}</td>
-            <td>
-                <small class="text-muted">
-                    ${ing.nutrition_contribution.calories.toFixed(1)} kcal<br>
-                    蛋白: ${ing.nutrition_contribution.protein.toFixed(1)}g
-                </small>
-            </td>
-        </tr>
-    `).join('');
+// 智能返回导航处理
+function handleBackNavigation() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromPage = urlParams.get('from');
     
-    const suitabilityIcons = [];
-    if (recipe.suitability.dogs) suitabilityIcons.push('<i class="fas fa-dog text-success" title="适合狗狗"></i>');
-    if (recipe.suitability.cats) suitabilityIcons.push('<i class="fas fa-cat text-success" title="适合猫咪"></i>');
-    if (recipe.suitability.puppies) suitabilityIcons.push('<i class="fas fa-baby text-info" title="适合幼犬"></i>');
-    if (recipe.suitability.kittens) suitabilityIcons.push('<i class="fas fa-baby text-info" title="适合幼猫"></i>');
-    if (recipe.suitability.seniors) suitabilityIcons.push('<i class="fas fa-user-clock text-warning" title="适合老年宠物"></i>');
+    if (fromPage === 'create_recipe') {
+        // 从创建食谱页面来的，返回创建页面
+        if (confirm('Return to recipe creation? Your selected ingredients and progress will be restored.')) {
+            window.location.href = '/recipe/create_recipe';
+        }
+    } else {
+        // 其他情况，使用浏览器历史返回
+        history.back();
+    }
+}
+
+// 为评分条添加动画效果
+function animateScoreBars() {
+    const scoreItems = document.querySelectorAll('.score-fill');
+    scoreItems.forEach((item, index) => {
+        const width = item.style.width;
+        item.style.width = '0%';
+        setTimeout(() => {
+            item.style.width = width;
+        }, 300 + index * 100); // 错开动画时间
+    });
+}
+
+// 为推荐卡片添加渐入动画
+function animateRecommendationCards() {
+    const cards = document.querySelectorAll('.recommendation-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 150); // 错开动画时间
+    });
+}
+
+// 为统计数字添加计数动画
+function animateStatNumbers() {
+    const statNumbers = document.querySelectorAll('.stat-number');
+    statNumbers.forEach(stat => {
+        const finalValue = stat.textContent.trim();
+        const isPercentage = finalValue.includes('%');
+        const numValue = parseInt(finalValue.replace(/[^\d]/g, ''));
+        
+        if (!isNaN(numValue) && numValue > 0) {
+            animateCounter(stat, 0, numValue, isPercentage ? '%' : '', 1500);
+        }
+    });
+}
+
+// 数字计数器动画
+function animateCounter(element, start, end, suffix, duration) {
+    const range = end - start;
+    const increment = range / (duration / 16); // 60fps
+    let current = start;
     
-    const detailsHtml = `
-        <div class="recipe-details">
-            <div class="row mb-4">
-                <div class="col-md-8">
-                    <h4>${recipe.name}</h4>
-                    <p class="text-muted">${recipe.description || '暂无描述'}</p>
-                    <div class="suitability-icons mb-3">
-                        <strong>适用对象:</strong> ${suitabilityIcons.join(' ')}
-                    </div>
-                </div>
-                <div class="col-md-4 text-end">
-                    <div class="nutrition-summary">
-                        <div class="mb-2">
-                            <strong>总重量:</strong> ${recipe.total_weight}g
-                        </div>
-                        <div class="mb-2">
-                            <strong>总热量:</strong> ${recipe.total_nutrition.calories.toFixed(0)} kcal
-                        </div>
-                        <div class="mb-2">
-                            <strong>钙磷比:</strong> ${recipe.total_nutrition.calcium_phosphorus_ratio.toFixed(2)}
-                        </div>
-                        ${recipe.nutrition_score ? `
-                            <div>
-                                <strong>营养评分:</strong> 
-                                <span class="badge bg-success">${recipe.nutrition_score.toFixed(0)}/100</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mb-4">
-                <h5>营养成分比例</h5>
-                <div class="row text-center">
-                    <div class="col-3">
-                        <div class="border rounded p-2">
-                            <strong style="color: #5580AD;">${recipe.nutrition_ratios.protein_percent}%</strong>
-                            <small class="text-muted d-block">蛋白质</small>
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="border rounded p-2">
-                            <strong style="color: #B82F0D;">${recipe.nutrition_ratios.fat_percent}%</strong>
-                            <small class="text-muted d-block">脂肪</small>
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="border rounded p-2">
-                            <strong style="color: #A1B4B2;">${recipe.nutrition_ratios.carb_percent}%</strong>
-                            <small class="text-muted d-block">碳水化合物</small>
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="border rounded p-2">
-                            <strong style="color: #EDBF9D;">${recipe.nutrition_ratios.calories_per_100g.toFixed(0)}</strong>
-                            <small class="text-muted d-block">kcal/100g</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div>
-                <h5>食材清单</h5>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>食材</th>
-                                <th>重量</th>
-                                <th>制备说明</th>
-                                <th>营养贡献</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${ingredientsHtml}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= end) {
+            current = end;
+            clearInterval(timer);
+        }
+        element.textContent = Math.floor(current) + suffix;
+    }, 16);
+}
+
+// 查看食谱详情功能
+function viewRecipeDetails(recipeId) {
+    currentRecipeId = recipeId;
+    
+    // 显示模态框
+    const modal = document.getElementById('recipeDetailsModal');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+    
+    // 重置内容为加载状态
+    document.getElementById('recipeDetailsContent').innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+            <div style="width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+            <span style="color: #666;">Loading recipe details...</span>
         </div>
     `;
     
-    $('#recipe-details-content').html(detailsHtml);
+    // 获取详细信息
+    fetch(`/api/recipe/${recipeId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayRecipeDetails(data.recipe);
+            } else {
+                showErrorInModal(data.error || 'Failed to load recipe details');
+            }
+        })
+        .catch(error => {
+            console.error('获取食谱详情失败:', error);
+            showErrorInModal('Network error, please try again later');
+        });
 }
 
-async function copyRecipe() {
-    const recipeName = $('#copy-recipe-name').val().trim();
-    const petId = $('#copy-pet-select').val();
+// 在模态框中显示错误
+function showErrorInModal(errorMessage) {
+    document.getElementById('recipeDetailsContent').innerHTML = `
+        <div style="text-align: center; padding: 2rem; color: var(--error-color);">
+            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+            <p>${escapeHtml(errorMessage)}</p>
+        </div>
+    `;
+}
+
+// 显示详细食谱信息
+function displayRecipeDetails(recipe) {
+    const title = document.getElementById('recipeDetailsModalTitle');
+    const content = document.getElementById('recipeDetailsContent');
     
-    if (!recipeName) {
-        alert('请输入食谱名称');
+    title.textContent = recipe.name;
+    
+    let html = '';
+    
+    // 食谱描述区域
+    if (recipe.description) {
+        html += `
+            <div style="margin-bottom: 2rem;">
+                <h4 style="color: var(--primary-color); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-info-circle"></i> Description
+                </h4>
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 10px; border-left: 4px solid var(--accent-color);">
+                    <p style="margin: 0; line-height: 1.6; color: #555;">${escapeHtml(recipe.description)}</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 食材列表区域
+    if (recipe.ingredients && recipe.ingredients.length > 0) {
+        html += `
+            <div style="margin-bottom: 2rem;">
+                <h4 style="color: var(--primary-color); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-list"></i> Ingredients (${recipe.ingredients.length})
+                </h4>
+                <div style="background: #f8f9fa; border-radius: 10px; overflow: hidden; border: 1px solid #e9ecef;">
+                    ${recipe.ingredients.map((ingredient, index) => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; ${index < recipe.ingredients.length - 1 ? 'border-bottom: 1px solid #e9ecef;' : ''}">
+                            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                <span style="background: var(--accent-color); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold;">${index + 1}</span>
+                                <span style="font-weight: 600; color: var(--primary-color);">${escapeHtml(ingredient.name)}</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="color: var(--accent-color); font-weight: 700; font-size: 1.1rem;">${ingredient.weight}g</div>
+                                <div style="color: #666; font-size: 0.8rem;">${ingredient.percentage}%</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    // 营养信息区域
+    if (recipe.nutrition) {
+        html += `
+            <div style="margin-bottom: 2rem;">
+                <h4 style="color: var(--primary-color); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-chart-pie"></i> Nutrition Information
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 1.2rem; border-radius: 10px; text-align: center; border: 1px solid var(--light-accent);">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: var(--error-color); margin-bottom: 0.3rem;">${recipe.nutrition.total_calories ? recipe.nutrition.total_calories.toFixed(1) : '0'}</div>
+                        <div style="font-size: 0.85rem; color: #666; font-weight: 600;">Calories</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 1.2rem; border-radius: 10px; text-align: center; border: 1px solid var(--light-accent);">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: var(--success-color); margin-bottom: 0.3rem;">${recipe.nutrition.total_protein ? recipe.nutrition.total_protein.toFixed(1) : '0'}</div>
+                        <div style="font-size: 0.85rem; color: #666; font-weight: 600;">Protein (g)</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 1.2rem; border-radius: 10px; text-align: center; border: 1px solid var(--light-accent);">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: var(--warning-color); margin-bottom: 0.3rem;">${recipe.nutrition.total_fat ? recipe.nutrition.total_fat.toFixed(1) : '0'}</div>
+                        <div style="font-size: 0.85rem; color: #666; font-weight: 600;">Fat (g)</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 1.2rem; border-radius: 10px; text-align: center; border: 1px solid var(--light-accent);">
+                        <div style="font-size: 1.8rem; font-weight: bold; color: var(--info-color); margin-bottom: 0.3rem;">${recipe.nutrition.total_carbs ? recipe.nutrition.total_carbs.toFixed(1) : '0'}</div>
+                        <div style="font-size: 0.85rem; color: #666; font-weight: 600;">Carbs (g)</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // 营养分析评估（如果有）
+    if (recipe.nutrition_analysis) {
+        html += `
+            <div style="margin-bottom: 2rem;">
+                <h4 style="color: var(--primary-color); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-microscope"></i> Nutrition Analysis
+                </h4>
+                <div style="background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%); padding: 1.5rem; border-radius: 10px; border: 1px solid var(--success-color);">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+                        <div>
+                            <strong style="color: var(--primary-color);">Calcium-Phosphorus Ratio:</strong><br>
+                            <span style="color: var(--accent-color); font-size: 1.1rem; font-weight: bold;">${recipe.nutrition_analysis.calcium_phosphorus_ratio}</span>
+                            <small style="display: block; color: #666; margin-top: 0.2rem;">${recipe.nutrition_analysis.calcium_phosphorus_status.message}</small>
+                        </div>
+                        <div>
+                            <strong style="color: var(--primary-color);">Protein Quality:</strong><br>
+                            <span style="color: var(--accent-color); font-size: 1.1rem; font-weight: bold;">${recipe.nutrition_analysis.protein_quality.level.toUpperCase()}</span>
+                            <small style="display: block; color: #666; margin-top: 0.2rem;">${recipe.nutrition_analysis.protein_quality.message}</small>
+                        </div>
+                    </div>
+                    <div style="text-align: center; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.1);">
+                        <strong style="color: var(--primary-color);">Overall Balance:</strong>
+                        <span style="background: var(--success-color); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; margin-left: 0.5rem; font-weight: bold;">
+                            ${recipe.nutrition_analysis.overall_balance.score.toUpperCase()}
+                        </span>
+                        <br><small style="color: #666; margin-top: 0.5rem; display: block;">${recipe.nutrition_analysis.overall_balance.message}</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    content.innerHTML = html;
+}
+
+// 复制食谱到账户
+function copyRecipeToAccount(recipeId, recipeName) {
+    if (!checkLoginStatus()) {
         return;
     }
     
-    try {
-        const response = await fetch(`/api/recipe/${currentRecipeId}/copy`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: recipeName,
-                pet_id: petId || null
-            })
-        });
+    currentRecipeId = recipeId;
+    document.getElementById('newRecipeName').value = recipeName + ' (My Copy)';
+    
+    const modal = document.getElementById('copyConfirmModal');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+// 从详情模态框复制
+function copyCurrentRecipe() {
+    if (currentRecipeId) {
+        closePlanDetail();
         
-        const data = await response.json();
-        
-        if (data.success) {
-            $('#copyRecipeModal').modal('hide');
-            
-            // 显示成功消息
-            showNotification(data.message, 'success');
-            
-            // 询问是否跳转到用户中心
-            setTimeout(() => {
-                if (confirm('食谱复制成功！是否前往用户中心查看？')) {
-                    window.location.href = '/user/center';
-                }
-            }, 1000);
-        } else {
-            alert('复制失败：' + data.error);
-        }
-    } catch (error) {
-        console.error('复制食谱失败:', error);
-        alert('复制失败，请稍后重试');
+        // 获取当前显示的食谱名称
+        const recipeName = document.getElementById('recipeDetailsModalTitle').textContent;
+        copyRecipeToAccount(currentRecipeId, recipeName);
     }
 }
 
-function showNotification(message, type = 'info') {
-    // 简单的通知实现
-    const alertClass = {
-        'success': 'alert-success',
-        'error': 'alert-danger',
-        'warning': 'alert-warning',
-        'info': 'alert-info'
-    }[type] || 'alert-info';
+// 确认复制食谱
+function confirmCopyRecipe() {
+    const newName = document.getElementById('newRecipeName').value.trim();
+    const associateWithPet = document.getElementById('associateWithPet')?.checked;
     
-    const notification = $(`
-        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
-            style="top: 20px; right: 20px; z-index: 1050; min-width: 300px;">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `);
+    if (!newName) {
+        showSuccessMessage('Please enter a name for the recipe', 'type-error');
+        return;
+    }
     
-    $('body').append(notification);
+    const requestData = {
+        name: newName
+    };
     
-    // 自动消失
-    setTimeout(() => {
-        notification.alert('close');
-    }, 3000);
+    {% if pet %}
+    if (associateWithPet) {
+        requestData.pet_id = {{ pet.id }};
+    }
+    {% endif %}
+    
+    // 显示加载状态
+    const copyBtn = document.querySelector('#copyConfirmModal .modal-btn-primary');
+    const originalText = copyBtn.innerHTML;
+    copyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Copying...';
+    copyBtn.disabled = true;
+    
+    fetch(`/api/recipe/${currentRecipeId}/copy`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccessMessage('Recipe copied successfully! Redirecting to your recipes...');
+            
+            // 关闭模态框
+            closeCopyModal();
+            
+            // 2秒后跳转到个人食谱页面
+            setTimeout(() => {
+                window.location.href = `/user_center?highlight=${data.recipe_id}`;
+            }, 2000);
+        } else {
+            showSuccessMessage(data.error || 'Copy failed', 'type-error');
+        }
+    })
+    .catch(error => {
+        console.error('复制食谱失败:', error);
+        showSuccessMessage('Network error, please try again later', 'type-error');
+    })
+    .finally(() => {
+        // 恢复按钮状态
+        copyBtn.innerHTML = originalText;
+        copyBtn.disabled = false;
+    });
 }
-</script>
 
-<!-- 如果启用了过敏食材管理 -->
-{% if pet %}
-<script src="{{ url_for('static', filename='js/allergenManager.js') }}"></script>
-{% endif %}
+// 关闭详情模态框
+function closePlanDetail() {
+    const modal = document.getElementById('recipeDetailsModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        document.body.style.overflow = '';
+        currentRecipeId = null;
+    }, 300);
+}
+
+// 关闭复制模态框
+function closeCopyModal() {
+    const modal = document.getElementById('copyConfirmModal');
+    modal.classList.remove('show');
+    setTimeout(() => {
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+// 检查登录状态
+function checkLoginStatus() {
+    {% if not session.user_id %}
+    showSuccessMessage('Please log in first to copy recipes', 'type-info');
+    setTimeout(() => {
+        window.location.href = '/auth/login?redirect=' + encodeURIComponent(window.location.href);
+    }, 2000);
+    return false;
+    {% endif %}
+    return true;
+}
+
+// 显示成功/错误消息
+function showSuccessMessage(message, type = 'type-success') {
+    // 移除现有消息
+    const existingMsg = document.querySelector('.success-message');
+    if (existingMsg) {
+        existingMsg.remove();
+    }
+    
+    // 创建新消息
+    const msgEl = document.createElement('div');
+    msgEl.className = `success-message show ${type}`;
+    msgEl.textContent = message;
+    document.body.appendChild(msgEl);
+    
+    // 自动隐藏
+    setTimeout(() => {
+        msgEl.classList.add('hide');
+        setTimeout(() => msgEl.remove(), 500);
+    }, type.includes('error') ? 5000 : 3000);
+}
+
+// HTML转义函数
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// 添加键盘快捷键支持
+function addKeyboardSupport() {
+    document.addEventListener('keydown', function(event) {
+        // ESC 键关闭模态框
+        if (event.key === 'Escape') {
+            closePlanDetail();
+            closeCopyModal();
+        }
+        
+        // Ctrl/Cmd + 数字键快速复制对应推荐
+        if ((event.ctrlKey || event.metaKey) && event.key >= '1' && event.key <= '9') {
+            event.preventDefault();
+            const index = parseInt(event.key) - 1;
+            const copyButtons = document.querySelectorAll('.btn-copy');
+            if (copyButtons[index]) {
+                copyButtons[index].click();
+            }
+        }
+    });
+}
+
+// 点击模态框外部关闭
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal-overlay')) {
+        closePlanDetail();
+        closeCopyModal();
+    }
+});
+
+// 添加 CSS 动画关键帧
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(style);
+</script>
 {% endblock %}
