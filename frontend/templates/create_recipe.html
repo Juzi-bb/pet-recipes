@@ -175,14 +175,19 @@
     }
 
     /* 第二步：选择食材样式 */
+    .category-tabs-container {
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    padding: 0 5px;
+    }
+
     .category-tabs {
         display: flex;
-        flex-wrap: wrap;
         gap: 1rem;
-        margin-bottom: 2rem;
         padding: 1rem;
         background: #f8f9fa;
         border-radius: 10px;
+        min-width: max-content;
     }
 
     .category-tab {
@@ -196,17 +201,22 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 0.9rem;
+        position: relative;
+        z-index: 1;
+        pointer-events: auto;
     }
 
     .category-tab:hover {
         border-color: #5580AD;
         transform: translateY(-1px);
+        z-index: 2; /* 悬停时提高层级 */
     }
 
     .category-tab.active {
         background: #5580AD;
         border-color: #5580AD;
         color: white;
+        z-index: 2; /* 激活时提高层级 */
     }
 
     .category-count {
@@ -889,257 +899,7 @@
     }
 </style>
 
-<div class="create-recipe-container">
-    <div class="page-header">
-        <h1>🍽️ Create a Pet Recipe</h1>
-        <p>Customize a nutritious and delicious recipe for your beloved pet</p>
-    </div>
 
-    <!-- 进度条 -->
-    <div class="progress-container">
-        <div class="progress-steps">
-            <div class="progress-line">
-                <div class="progress-line-active" id="progressLineActive" style="width: 20%;"></div>
-            </div>
-            <div class="progress-step active" data-step="1">
-                <span>1</span>
-                <div class="step-label">Select Pet</div>
-            </div>
-            <div class="progress-step" data-step="2">
-                <span>2</span>
-                <div class="step-label">Select Ingredients</div>
-            </div>
-            <div class="progress-step" data-step="3">
-                <span>3</span>
-                <div class="step-label">Set Weights</div>
-            </div>
-            <div class="progress-step" data-step="4">
-                <span>4</span>
-                <div class="step-label">Nutrition Analysis</div>
-            </div>
-            <div class="progress-step" data-step="5">
-                <span>5</span>
-                <div class="step-label">Save Recipe</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 第一步：选择宠物 -->
-    <div class="step-content" id="step1">
-        <div class="step-title">
-            <i class="fas fa-paw"></i>
-            Select Target Pet
-        </div>
-        <p style="color: #B82F0D; margin-bottom: 2rem;">Choose which pet you want to create a recipe for. We will provide personalized nutritional advice based on their information.</p>
-        
-        <div class="pet-selector">
-            {% for pet in pets %}
-            <div class="pet-option" data-pet-id="{{ pet.id }}">
-                <img src="{{ url_for('static', filename='images/avatars/' + pet.avatar) }}" alt="{{ pet.name }}" class="pet-avatar">
-                <div class="pet-info">
-                    <h3>{{ pet.name }}</h3>
-                    <div class="pet-stats">
-                        {{ pet.species }} | {{ pet.weight }}kg | {{ pet.age }} years old
-                        {% if pet.breed %}
-                        <br>{{ pet.breed }}
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- 营养配比方案选择 -->
-        <div class="nutrition-plan-section" id="nutritionPlanSection" style="display: none;">
-            <h3 style="color: #510B0B; margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-chart-pie"></i>
-                Select Nutrition Plan
-            </h3>
-            <p style="color: #B82F0D; margin-bottom: 1.5rem;">
-                Based on your pet's characteristics, we recommend the following nutrition plans. Click on a card to view detailed ratios.
-            </p>
-            
-            <!-- 配比方案加载状态 -->
-            <div class="nutrition-plans-loading" id="nutritionPlansLoading">
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <span style="margin-left: 1rem;">Loading nutrition plans...</span>
-                </div>
-            </div>
-            
-            <!-- 配比方案网格 -->
-            <div class="nutrition-plans-grid" id="nutritionPlansGrid" style="display: none;">
-                <!-- 动态生成的配比方案卡片 -->
-            </div>
-        </div>
-    </div>
-
-    <!-- 营养方案详情模态框 -->
-    <div class="modal-overlay" id="planDetailModal" style="display: none;">
-        <div class="modal-content plan-detail-modal">
-            <div class="modal-header">
-                <h3 id="planDetailTitle">Nutrition Plan Details</h3>
-                <button class="modal-close" onclick="closePlanDetail()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body" id="planDetailContent">
-                <!-- 动态生成的方案详情 -->
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closePlanDetail()">Cancel</button>
-                <button class="btn btn-primary" id="selectPlanBtn" onclick="selectNutritionPlan()">Select This Plan</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 第二步：选择食材 -->
-    <div class="step-content hidden" id="step2">
-        <div class="step-title">
-            <i class="fas fa-carrot"></i>
-            Select Ingredients
-        </div>
-        <p style="color: #B82F0D; margin-bottom: 2rem;">Select your desired ingredients from various categories. It is recommended to combine multiple types to ensure a balanced diet.</p>
-        
-        <!-- 分类标签 -->
-        <div class="category-tabs" id="categoryTabs">
-            <div class="loading">
-                <div class="spinner"></div>
-                <span style="margin-left: 1rem;">Loading ingredient categories...</span>
-            </div>
-        </div>
-
-        <!-- 食材网格 -->
-        <div class="ingredients-grid" id="ingredientsGrid">
-            <div class="loading">
-                <div class="spinner"></div>
-                <span style="margin-left: 1rem;">Loading ingredients...</span>
-            </div>
-        </div>
-
-        <!-- 已选食材显示 -->
-        <div class="selected-ingredients-panel">
-            <h3>
-                <i class="fas fa-check-circle"></i>
-                Selected Ingredients
-                <span class="selected-count" id="selectedCount">0</span>
-            </h3>
-            <div class="selected-list" id="selectedList">
-                <div style="color: #666; font-style: italic;">No ingredients selected yet</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 第三步：设置重量 -->
-    <div class="step-content hidden" id="step3">
-        <div class="step-title">
-            <i class="fas fa-weight"></i>
-            Set Ingredient Weights
-        </div>
-        <p style="color: #B82F0D; margin-bottom: 2rem;">Set the appropriate weight (in grams) for each ingredient. The system will calculate the nutritional content in real-time.</p>
-        
-        <!-- 表格上方的操作区域 -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; border: 1px solid #A1B4B2;">
-            <div style="color: #510B0B;">
-                <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
-                <strong>Weight Distribution</strong>
-                <small style="display: block; color: #B82F0D; margin-top: 0.3rem;">
-                    You can manually set weights or use auto-distribution based on your selected nutrition plan
-                </small>
-            </div>
-            <button type="button"
-                    id="autoDistributeBtn"
-                    class="nav-btn"
-                    style="background: #5580AD; margin: 0; padding: 0.8rem 1.5rem; font-size: 0.9rem;"
-                    onclick="autoDistributeWeights()"
-                    disabled>
-                <i class="fas fa-magic" style="margin-right: 0.5rem;"></i>
-                Auto-Distribute Weights
-            </button>
-        </div>
-        
-        <table class="weight-table">
-            <thead>
-                <tr>
-                    <th>Ingredient Name</th>
-                    <th>Weight (g)</th>
-                    <th>Calories (kcal)</th>
-                    <th>Protein (g)</th>
-                    <th>Fat (g)</th>
-                    <th>Carbs (g)</th>
-                </tr>
-            </thead>
-            <tbody id="weightTableBody">
-                <tr>
-                    <td colspan="6" style="text-align: center; color: #666; font-style: italic;">Please select ingredients first</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- 第四步：营养分析 -->
-    <div class="step-content hidden" id="step4">
-        <div class="step-title">
-            <i class="fas fa-chart-bar"></i>
-            Nutritional Analysis
-        </div>
-        <p style="color: #B82F0D; margin-bottom: 2rem;">Review the detailed nutritional information of the recipe to ensure it meets your pet's needs.</p>
-        
-        <div id="nutritionAnalysis">
-            <div class="loading">
-                <div class="spinner"></div>
-                <span style="margin-left: 1rem;">Analyzing nutritional content...</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- 第五步：保存食谱 -->
-    <div class="step-content hidden" id="step5">
-        <div class="step-title">
-            <i class="fas fa-save"></i>
-            Save Recipe
-        </div>
-        <p style="color: #B82F0D; margin-bottom: 2rem;">Give your recipe a name and add a description.</p>
-        
-        <div style="max-width: 600px;">
-            <div class="form-group">
-                <label for="recipeName">Recipe Name *</label>
-                <input type="text" id="recipeName" placeholder="e.g., Fluffy's Nutritional Feast" maxlength="50">
-            </div>
-            <div class="form-group">
-                <label for="recipeDescription">Recipe Description</label>
-                <textarea id="recipeDescription" rows="4" placeholder="Describe the features of this recipe, suitable occasions, etc..." maxlength="200"></textarea>
-            </div>
-            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-                <button class="nav-btn" style="background: #A1B4B2;" onclick="saveRecipe(true)">
-                    <i class="fas fa-edit"></i>
-                    Save as Draft
-                </button>
-                <button class="nav-btn" style="background: #B82F0D;" onclick="saveRecipe(false)">
-                    <i class="fas fa-check"></i>
-                    Publish Recipe
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 导航按钮 -->
-    <div class="navigation-buttons">
-        <button class="nav-btn prev-btn" id="prevBtn" onclick="previousStep()" disabled>
-            <i class="fas fa-chevron-left"></i>
-            Previous Step
-        </button>
-        
-        <div class="step-info">
-            Step <span id="currentStepText">1</span> of 5
-        </div>
-        
-        <button class="nav-btn next-btn" id="nextBtn" onclick="nextStep()" disabled>
-            Next Step
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -1163,6 +923,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (petOption) {
             const petId = petOption.getAttribute('data-pet-id');
             selectPet(petId);
+            return; // 阻止事件继续处理
         }
     });
     
@@ -1339,17 +1100,18 @@ function selectNutritionPlan() {
 // 加载食材分类
 async function loadCategories() {
     try {
-        const response = await fetch('/recipe/api/categories');
+        const response = await fetch('/api/ingredients/categories?exclude_dangerous=true');
         if (!response.ok) {
             throw new Error('Failed to load categories');
         }
         
-        categories = await response.json();
+        const data = await response.json();
+        categories = data.success ? data.categories : data; // 处理不同的返回格式
         
         const tabsContainer = document.getElementById('categoryTabs');
         tabsContainer.innerHTML = '';
         
-        // 添加"全部"选项
+        // 创建"全部"标签
         const allTab = document.createElement('div');
         allTab.className = 'category-tab active';
         allTab.innerHTML = `
@@ -1357,24 +1119,37 @@ async function loadCategories() {
             All Ingredients
             <span class="category-count">${categories.reduce((sum, cat) => sum + cat.count, 0)}</span>
         `;
-        allTab.onclick = () => selectCategory('all', allTab);
+        // 直接绑定事件，避免 onclick 字符串解析问题
+        allTab.addEventListener('click', function() {
+            handleCategoryClick('all', this);
+        });
         tabsContainer.appendChild(allTab);
         
-        // 添加分类选项
-        categories.forEach(category => {
+        // 创建分类标签
+        categories.forEach((category, index) => {
+            console.log(`创建分类 ${index}:`, category); // 调试：检查每个分类的数据
+            
             const tab = document.createElement('div');
             tab.className = 'category-tab';
             tab.innerHTML = `
-                <i class="${category.icon}"></i>
-                ${category.name}
-                <span class="category-count">${category.count}</span>
+                <i class="${category.icon || 'fas fa-tag'}"></i>
+                ${category.name || 'Unknown Category'}
+                <span class="category-count">${category.count || 0}</span>
             `;
-            tab.onclick = () => selectCategory(category.value, tab);
+            
+            // 关键修复：直接绑定事件，确保 category.value 正确传递
+            tab.addEventListener('click', function() {
+                // 使用闭包确保 category.value 被正确捕获
+                const categoryValue = category.value || category.name || `category_${index}`;
+                console.log('点击分类，categoryValue:', categoryValue);
+                handleCategoryClick(categoryValue, this);
+            });
+            
             tabsContainer.appendChild(tab);
         });
         
         // 默认加载全部食材
-        loadIngredients();
+        loadIngredients(null);
         
     } catch (error) {
         console.error('Failed to load categories:', error);
@@ -1391,23 +1166,60 @@ function selectCategory(categoryValue, tabElement) {
     tabElement.classList.add('active');
     
     // 加载该分类的食材
-    loadIngredients(categoryValue === 'all' ? null : categoryValue);
+    const actualCategory = categoryValue === 'all' ? null : categoryValue;
+    loadIngredients(actualCategory);
+}
+
+// 全局函数处理分类点击
+function handleCategoryClick(categoryValue, element) {
+    console.log('=== handleCategoryClick 被调用 ===');
+    console.log('categoryValue:', categoryValue);
+    console.log('typeof categoryValue:', typeof categoryValue);
+    
+    // 防御性编程：确保 categoryValue 不是 undefined
+    if (categoryValue === undefined || categoryValue === 'undefined') {
+        console.error('categoryValue 是 undefined，使用默认值 all');
+        categoryValue = 'all';
+    }
+    
+    // 更新UI状态
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    element.classList.add('active');
+    
+    // 加载食材
+    const category = categoryValue === 'all' ? null : categoryValue;
+    console.log('传递给 loadIngredients 的 category:', category);
+    
+    loadIngredients(category);
 }
 
 // 加载食材
 async function loadIngredients(category = null) {
     try {
-        const url = new URL('/recipe/api/ingredients', window.location.origin);
-        if (category) {
-            url.searchParams.append('category', category);
+        let url = '/api/ingredients?exclude_dangerous=true';
+        
+        // 严格检查 category 参数
+        if (category && category !== null && category !== undefined && category !== 'undefined' && category.trim() !== '') {
+            url += `&category=${encodeURIComponent(category)}`;
+            console.log('添加了 category 参数');
+        } else {
+            console.log('没有添加 category 参数，加载所有食材');
         }
+        
+        console.log('最终请求 URL:', url);
         
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error('Failed to load ingredients');
+            console.error('API 请求失败:', response.status, response.statusText);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
-        const ingredients = await response.json();
+        const data = await response.json();
+        const ingredients = data.success ? data.ingredients : data;
+        
+        console.log(`成功加载 ${ingredients.length} 个食材`);
         
         const gridContainer = document.getElementById('ingredientsGrid');
         gridContainer.innerHTML = '';
@@ -2556,5 +2368,259 @@ window.addEventListener('beforeunload', function(e) {
     }
 });
 </script>
+
+<div class="create-recipe-container">
+    <div class="page-header">
+        <h1>🍽️ Create a Pet Recipe</h1>
+        <p>Customize a nutritious and delicious recipe for your beloved pet</p>
+    </div>
+
+    <!-- 进度条 -->
+    <div class="progress-container">
+        <div class="progress-steps">
+            <div class="progress-line">
+                <div class="progress-line-active" id="progressLineActive" style="width: 20%;"></div>
+            </div>
+            <div class="progress-step active" data-step="1">
+                <span>1</span>
+                <div class="step-label">Select Pet</div>
+            </div>
+            <div class="progress-step" data-step="2">
+                <span>2</span>
+                <div class="step-label">Select Ingredients</div>
+            </div>
+            <div class="progress-step" data-step="3">
+                <span>3</span>
+                <div class="step-label">Set Weights</div>
+            </div>
+            <div class="progress-step" data-step="4">
+                <span>4</span>
+                <div class="step-label">Nutrition Analysis</div>
+            </div>
+            <div class="progress-step" data-step="5">
+                <span>5</span>
+                <div class="step-label">Save Recipe</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第一步：选择宠物 -->
+    <div class="step-content" id="step1">
+        <div class="step-title">
+            <i class="fas fa-paw"></i>
+            Select Target Pet
+        </div>
+        <p style="color: #B82F0D; margin-bottom: 2rem;">Choose which pet you want to create a recipe for. We will provide personalized nutritional advice based on their information.</p>
+        
+        <div class="pet-selector">
+            {% for pet in pets %}
+            <div class="pet-option" data-pet-id="{{ pet.id }}">
+                <img src="{{ url_for('static', filename='images/avatars/' + pet.avatar) }}" alt="{{ pet.name }}" class="pet-avatar">
+                <div class="pet-info">
+                    <h3>{{ pet.name }}</h3>
+                    <div class="pet-stats">
+                        {{ pet.species }} | {{ pet.weight }}kg | {{ pet.age }} years old
+                        {% if pet.breed %}
+                        <br>{{ pet.breed }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 营养配比方案选择 -->
+        <div class="nutrition-plan-section" id="nutritionPlanSection" style="display: none;">
+            <h3 style="color: #510B0B; margin: 2rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-chart-pie"></i>
+                Select Nutrition Plan
+            </h3>
+            <p style="color: #B82F0D; margin-bottom: 1.5rem;">
+                Based on your pet's characteristics, we recommend the following nutrition plans. Click on a card to view detailed ratios.
+            </p>
+            
+            <!-- 配比方案加载状态 -->
+            <div class="nutrition-plans-loading" id="nutritionPlansLoading">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span style="margin-left: 1rem;">Loading nutrition plans...</span>
+                </div>
+            </div>
+            
+            <!-- 配比方案网格 -->
+            <div class="nutrition-plans-grid" id="nutritionPlansGrid" style="display: none;">
+                <!-- 动态生成的配比方案卡片 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 营养方案详情模态框 -->
+    <div class="modal-overlay" id="planDetailModal" style="display: none;">
+        <div class="modal-content plan-detail-modal">
+            <div class="modal-header">
+                <h3 id="planDetailTitle">Nutrition Plan Details</h3>
+                <button class="modal-close" onclick="closePlanDetail()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="planDetailContent">
+                <!-- 动态生成的方案详情 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePlanDetail()">Cancel</button>
+                <button class="btn btn-primary" id="selectPlanBtn" onclick="selectNutritionPlan()">Select This Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第二步：选择食材 -->
+    <div class="step-content hidden" id="step2">
+        <div class="step-title">
+            <i class="fas fa-carrot"></i>
+            Select Ingredients
+        </div>
+        <p style="color: #B82F0D; margin-bottom: 2rem;">Select your desired ingredients from various categories. It is recommended to combine multiple types to ensure a balanced diet.</p>
+        
+        <!-- 分类标签 -->
+        <div class="category-tabs-container">
+            <div class="category-tabs" id="categoryTabs">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span style="margin-left: 1rem;">Loading ingredient categories...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 食材网格 -->
+        <div class="ingredients-grid" id="ingredientsGrid">
+            <div class="loading">
+                <div class="spinner"></div>
+                <span style="margin-left: 1rem;">Loading ingredients...</span>
+            </div>
+        </div>
+
+        <!-- 已选食材显示 -->
+        <div class="selected-ingredients-panel">
+            <h3>
+                <i class="fas fa-check-circle"></i>
+                Selected Ingredients
+                <span class="selected-count" id="selectedCount">0</span>
+            </h3>
+            <div class="selected-list" id="selectedList">
+                <div style="color: #666; font-style: italic;">No ingredients selected yet</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第三步：设置重量 -->
+    <div class="step-content hidden" id="step3">
+        <div class="step-title">
+            <i class="fas fa-weight"></i>
+            Set Ingredient Weights
+        </div>
+        <p style="color: #B82F0D; margin-bottom: 2rem;">Set the appropriate weight (in grams) for each ingredient. The system will calculate the nutritional content in real-time.</p>
+        
+        <!-- 表格上方的操作区域 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; border: 1px solid #A1B4B2;">
+            <div style="color: #510B0B;">
+                <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>
+                <strong>Weight Distribution</strong>
+                <small style="display: block; color: #B82F0D; margin-top: 0.3rem;">
+                    You can manually set weights or use auto-distribution based on your selected nutrition plan
+                </small>
+            </div>
+            <button type="button"
+                    id="autoDistributeBtn"
+                    class="nav-btn"
+                    style="background: #5580AD; margin: 0; padding: 0.8rem 1.5rem; font-size: 0.9rem;"
+                    onclick="autoDistributeWeights()"
+                    disabled>
+                <i class="fas fa-magic" style="margin-right: 0.5rem;"></i>
+                Auto-Distribute Weights
+            </button>
+        </div>
+        
+        <table class="weight-table">
+            <thead>
+                <tr>
+                    <th>Ingredient Name</th>
+                    <th>Weight (g)</th>
+                    <th>Calories (kcal)</th>
+                    <th>Protein (g)</th>
+                    <th>Fat (g)</th>
+                    <th>Carbs (g)</th>
+                </tr>
+            </thead>
+            <tbody id="weightTableBody">
+                <tr>
+                    <td colspan="6" style="text-align: center; color: #666; font-style: italic;">Please select ingredients first</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 第四步：营养分析 -->
+    <div class="step-content hidden" id="step4">
+        <div class="step-title">
+            <i class="fas fa-chart-bar"></i>
+            Nutritional Analysis
+        </div>
+        <p style="color: #B82F0D; margin-bottom: 2rem;">Review the detailed nutritional information of the recipe to ensure it meets your pet's needs.</p>
+        
+        <div id="nutritionAnalysis">
+            <div class="loading">
+                <div class="spinner"></div>
+                <span style="margin-left: 1rem;">Analyzing nutritional content...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 第五步：保存食谱 -->
+    <div class="step-content hidden" id="step5">
+        <div class="step-title">
+            <i class="fas fa-save"></i>
+            Save Recipe
+        </div>
+        <p style="color: #B82F0D; margin-bottom: 2rem;">Give your recipe a name and add a description.</p>
+        
+        <div style="max-width: 600px;">
+            <div class="form-group">
+                <label for="recipeName">Recipe Name *</label>
+                <input type="text" id="recipeName" placeholder="e.g., Fluffy's Nutritional Feast" maxlength="50">
+            </div>
+            <div class="form-group">
+                <label for="recipeDescription">Recipe Description</label>
+                <textarea id="recipeDescription" rows="4" placeholder="Describe the features of this recipe, suitable occasions, etc..." maxlength="200"></textarea>
+            </div>
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button class="nav-btn" style="background: #A1B4B2;" onclick="saveRecipe(true)">
+                    <i class="fas fa-edit"></i>
+                    Save as Draft
+                </button>
+                <button class="nav-btn" style="background: #B82F0D;" onclick="saveRecipe(false)">
+                    <i class="fas fa-check"></i>
+                    Publish Recipe
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导航按钮 -->
+    <div class="navigation-buttons">
+        <button class="nav-btn prev-btn" id="prevBtn" onclick="previousStep()" disabled>
+            <i class="fas fa-chevron-left"></i>
+            Previous Step
+        </button>
+        
+        <div class="step-info">
+            Step <span id="currentStepText">1</span> of 5
+        </div>
+        
+        <button class="nav-btn next-btn" id="nextBtn" onclick="nextStep()" disabled>
+            Next Step
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+</div>
 
 {% endblock %}

@@ -37,16 +37,45 @@ def get_ingredients():
         page = int(request.args.get('page', 1))
         per_page = int(request.args.get('per_page', 50))
         safe_for = request.args.get('safe_for', 'all')  # all, dogs, cats
+        exclude_dangerous = request.args.get('exclude_dangerous', 'false').lower() == 'true'
         
         # 构建基础查询
         query = Ingredient.query.filter_by(is_active=True)
+
+        # 排除危险食材（用于创建食谱）
+        if exclude_dangerous:
+            query = query.filter(Ingredient.category != IngredientCategory.DANGEROUS)
         
-        # 分类筛选
+        # 分类筛选 - 修复分类名称映射
         if category != 'all':
+            # 创建分类名称到枚举值的映射
+            category_mapping = {
+                'Red Meat': 'red_meat',
+                'White Meat': 'white_meat', 
+                'Fish': 'fish',
+                'Organs': 'organs',
+                'Vegetables': 'vegetables',
+                'Fruits': 'fruits',
+                'Grains': 'grains',
+                'Dairy': 'dairy',
+                'Supplements': 'supplements',
+                'Dangerous Foods': 'dangerous'
+            }
+            
+            # 如果传入的是显示名称，转换为枚举值
+            if category in category_mapping:
+                category_value = category_mapping[category]
+            else:
+                category_value = category.lower().replace(' ', '_')
+            
+            print(f"转换后的分类值: '{category_value}'")  # 调试日志
+            
             try:
-                category_enum = IngredientCategory(category)
+                category_enum = IngredientCategory(category_value)
                 query = query.filter_by(category=category_enum)
-            except ValueError:
+                print(f"成功设置分类筛选: {category_enum}")  # 调试日志
+            except ValueError as ve:
+                print(f"无效的分类值: {category_value}, 错误: {ve}")
                 return jsonify({'error': f'Invalid category: {category}'}), 400
         
         # 安全性筛选
@@ -72,8 +101,8 @@ def get_ingredients():
         # 分页
         if per_page > 0:
             pagination = query.paginate(
-                page=page, 
-                per_page=per_page, 
+                page=page,
+                per_page=per_page,
                 error_out=False
             )
             ingredients = pagination.items
@@ -262,6 +291,9 @@ def get_ingredient_detail(ingredient_id):
 def get_categories():
     """获取食材分类列表及每个分类的食材数量"""
     try:
+        # 新增参数：是否排除危险食材
+        exclude_dangerous = request.args.get('exclude_dangerous', 'false').lower() == 'true'
+
         # 定义分类名称映射 - 修改为英文
         category_names = {
             'red_meat': 'Red Meat',
@@ -276,25 +308,39 @@ def get_categories():
             'dangerous': 'Dangerous Foods'  # 新添加危险食材分类
         }
 
-        # 定义自定义排序顺序 - 按照你的要求排序
-        custom_order = [
-            'red_meat',      # 红肉
-            'white_meat',    # 白肉
-            'fish',          # 鱼类
-            'organs',        # 内脏类
-            'vegetables',    # 蔬菜类
-            'fruits',        # 水果类
-            'grains',        # 谷物类
-            'dairy',         # 乳制品类
-            'supplements',   # 营养补充剂类
-            'dangerous'      # 危险食材 - 放在最后
-        ]
+        # 定义自定义排序顺序
+        if exclude_dangerous:
+            # 创建食谱时的分类顺序（排除危险食材）
+            custom_order = [
+                'red_meat', 'white_meat', 'fish', 'organs',
+                'vegetables', 'fruits', 'grains', 'dairy', 'supplements'
+            ]
+        else:
+            # 食材百科的分类顺序（包含危险食材）
+            custom_order = [
+                'red_meat', 'white_meat', 'fish', 'organs',
+                'vegetables', 'fruits', 'grains', 'dairy',
+                'supplements', 'dangerous'
+            ]
         
-        # 统计各分类的食材数量
-        category_counts = db.session.query(
-            Ingredient.category,
-            func.count(Ingredient.id).label('count')
-        ).filter_by(is_active=True).group_by(Ingredient.category).all()
+        # 构建查询条件
+        if exclude_dangerous:
+            # 排除危险食材分类
+            category_counts = db.session.query(
+                Ingredient.category,
+                func.count(Ingredient.id).label('count')
+            ).filter(
+                and_(
+                    Ingredient.is_active == True,
+                    Ingredient.category != IngredientCategory.DANGEROUS
+                )
+            ).group_by(Ingredient.category).all()
+        else:
+            # 包含所有分类
+            category_counts = db.session.query(
+                Ingredient.category,
+                func.count(Ingredient.id).label('count')
+            ).filter_by(is_active=True).group_by(Ingredient.category).all()
         
         # 转换为字典以便查找
         count_dict = {category.value: count for category, count in category_counts}
@@ -305,19 +351,27 @@ def get_categories():
             if category_id in count_dict:  # 只添加数据库中存在的分类
                 categories_data.append({
                     'id': category_id,
+                    'value': category_id,
                     'name': category_names.get(category_id, category_id),
                     'count': count_dict[category_id],
-                    'icon_class': get_category_icon(category_id)
+                    'icon': get_category_icon(category_id)
                 })
+        
+        # 统计各分类的食材数量
+        category_counts = db.session.query(
+            Ingredient.category,
+            func.count(Ingredient.id).label('count')
+        ).filter_by(is_active=True).group_by(Ingredient.category).all()
         
         # 添加任何不在自定义顺序中但存在于数据库中的分类
         for category, count in category_counts:
             if category.value not in custom_order:
                 categories_data.append({
                     'id': category.value,
+                    'value': category.value,
                     'name': category_names.get(category.value, category.value),
                     'count': count,
-                    'icon_class': get_category_icon(category.value)
+                    'icon': get_category_icon(category.value)
                 })
         
         return jsonify({
