@@ -197,16 +197,16 @@ class RecipeIngredient(db.Model):  # 修复：继承 db.Model 而不是 Base
         # 根据食材类型提供默认说明
         if self.ingredient:
             if self.ingredient.category.value in ['red_meat', 'white_meat']:
-                return "切块煮熟或蒸熟"
+                return "Dice and boil or steam until cooked"
             elif self.ingredient.category.value == 'fish':
-                return "去骨去皮，蒸煮至熟"
+                return "Debone, skin, and steam until cooked"
             elif self.ingredient.category.value == 'vegetables':
-                return "洗净切块，蒸煮至软烂"
+                return "Wash, dice, and steam until soft"
             elif self.ingredient.category.value == 'organs':
-                return "清洗干净，煮熟切小块"
+                return "Clean, cook thoroughly, and chop into small pieces"
             elif self.ingredient.category.value == 'grains':
-                return "煮熟至软烂"
+                return "Cook until soft"
             elif self.ingredient.category.value == 'fruits':
-                return "洗净去皮去核，切小块"
+                return "Wash, peel, remove seeds, and chop into small pieces"
         
-        return "按常规方法处理"
+        return "Prepare as usual"

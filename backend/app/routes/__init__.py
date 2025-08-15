@@ -13,6 +13,7 @@ from .recipe_save_api import recipe_save_api_bp
 from .user import user_bp
 from .recipe import recipe_bp
 from .recipe_detail_api import recipe_detail_bp
+from .favorite_api import favorite_api
 
 # 创建主要的路由蓝图
 main_bp = Blueprint('main', __name__)
@@ -28,6 +29,7 @@ def register_routes(app):
     app.register_blueprint(recipe_detail_bp)
     app.register_blueprint(user_bp)
     app.register_blueprint(recipe_bp)
+    app.register_blueprint(favorite_api)
     
     # 注册主要功能路由
     app.register_blueprint(main_bp)

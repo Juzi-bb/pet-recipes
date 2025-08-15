@@ -19,19 +19,19 @@ def calculate_nutrition():
     try:
         # 检查用户登录状态
         if 'user_id' not in session:
-            return jsonify({'error': '请先登录'}), 401
+            return jsonify({'error': 'Please log in first'}), 401
         
         data = request.get_json()
         if not data:
-            return jsonify({'error': '无效的请求数据'}), 400
+            return jsonify({'error': 'Invalid request data'}), 400
             
         ingredients_data = data.get('ingredients', [])
         pet_id = data.get('pet_id')
         
-        print(f"收到营养计算请求: {data}")  # 调试日志
+        print(f"Received nutrition calculation request: {data}")  # 调试日志
         
         if not ingredients_data:
-            return jsonify({'error': '请选择食材'}), 400
+            return jsonify({'error': 'Please select ingredients'}), 400
         
         # 修复：统一处理pet_id数据类型
         if pet_id:
@@ -54,24 +54,24 @@ def calculate_nutrition():
                 weight_map[int(ingredient_id)] = weight
         
         if not ingredient_ids:
-            return jsonify({'error': '请为食材设置有效重量'}), 400
+            return jsonify({'error': 'Please set a valid weight for the ingredients'}), 400
         
-        print(f"处理的食材ID: {ingredient_ids}")
-        print(f"重量映射: {weight_map}")
+        print(f"Processing ingredient IDs: {ingredient_ids}")
+        print(f"Weight map: {weight_map}")
         
         # 获取食材信息
         ingredients = Ingredient.query.filter(Ingredient.id.in_(ingredient_ids)).all()
         if not ingredients:
-            return jsonify({'error': '未找到有效食材'}), 404
+            return jsonify({'error': 'No valid ingredients found'}), 404
         
-        print(f"找到食材数量: {len(ingredients)}")
+        print(f"Found ingredients count: {len(ingredients)}")
         
         # 获取宠物信息（可选）
         pet = None
         if pet_id:
             pet = Pet.query.filter_by(id=pet_id, user_id=session['user_id']).first()
             if pet:
-                print(f"找到宠物: {pet.name}")
+                print(f"Found pet: {pet.name}")
         
         # 计算总营养成分
         total_nutrition = {
@@ -175,7 +175,7 @@ def calculate_nutrition():
     except Exception as e:
         print(f"营养计算失败: {str(e)}")
         traceback.print_exc()  # 打印完整错误堆栈
-        return jsonify({'error': f'计算营养成分失败: {str(e)}'}), 500
+        return jsonify({'error': f'Failed to calculate nutrition: {str(e)}'}), 500
 
 @nutrition_api_bp.route('/api/nutrition/plans', methods=['GET'])
 def get_nutrition_plans():
@@ -208,7 +208,7 @@ def get_nutrition_plans():
         # 根据宠物信息推荐方案
         pet = Pet.query.filter_by(id=int(pet_id), user_id=session.get('user_id')).first()
         if not pet:
-            return jsonify({'error': '宠物信息不存在'}), 404
+            return jsonify({'error': 'Pet information not found'}), 404
         
         # 解析特殊需求
         special_needs = []
@@ -270,7 +270,7 @@ def get_nutrition_plans():
     except Exception as e:
         print(f"获取营养方案失败: {str(e)}")
         traceback.print_exc()
-        return jsonify({'error': f'获取营养方案失败: {str(e)}'}), 500
+        return jsonify({'error': f'Failed to get nutrition plans: {str(e)}'}), 500
 
 @nutrition_api_bp.route('/api/nutrition/suggest-weights', methods=['POST'])
 def suggest_ingredient_weights():
@@ -283,17 +283,17 @@ def suggest_ingredient_weights():
         total_weight = data.get('total_weight', 200)  # 默认200g
         
         if not ingredient_ids or not nutrition_plan_id:
-            return jsonify({'error': '参数不完整'}), 400
+            return jsonify({'error': 'Incomplete parameters'}), 400
         
         # 获取营养方案
         try:
             nutrition_profile = NutritionProfile(nutrition_plan_id)
             nutrition_plan = NutritionRatioService.get_plan(nutrition_profile)
         except ValueError:
-            return jsonify({'error': '无效的营养方案'}), 400
+            return jsonify({'error': 'Invalid nutrition plan'}), 400
         
         if not nutrition_plan:
-            return jsonify({'error': '营养方案不存在'}), 404
+            return jsonify({'error': 'Nutrition plan not found'}), 404
         
         # 获取食材信息
         ingredients = Ingredient.query.filter(Ingredient.id.in_(ingredient_ids)).all()
@@ -341,7 +341,7 @@ def suggest_ingredient_weights():
     except Exception as e:
         print(f"计算推荐重量失败: {str(e)}")
         traceback.print_exc()
-        return jsonify({'error': f'计算推荐重量失败: {str(e)}'}), 500
+        return jsonify({'error': f'Failed to suggest weights: {str(e)}'}), 500
 
 def assess_nutrition_adequacy(total_nutrition, nutrition_ratios, pet=None):
     """评估营养充足性"""
@@ -365,59 +365,59 @@ def assess_nutrition_adequacy(total_nutrition, nutrition_ratios, pet=None):
     
     # 蛋白质检查
     if protein_percent < 15:
-        assessment['warnings'].append('蛋白质含量偏低，建议增加肉类食材')
+        assessment['warnings'].append('Protein content is low, consider adding more meat.')
         score += 20
     elif protein_percent > 40:
-        assessment['warnings'].append('蛋白质含量偏高，建议减少肉类食材')
+        assessment['warnings'].append('Protein content is high, consider reducing meat.')
         score += 60
     elif 18 <= protein_percent <= 30:
         score += 100
-        assessment['recommendations'].append('蛋白质比例良好')
+        assessment['recommendations'].append('Good protein ratio.')
     else:
         score += 80
     
     # 脂肪检查
     if fat_percent < 5:
-        assessment['warnings'].append('脂肪含量偏低，建议添加适量脂肪来源')
+        assessment['warnings'].append('Fat content is low, consider adding a fat source.')
     elif fat_percent > 25:
-        assessment['warnings'].append('脂肪含量偏高，建议减少高脂食材')
+        assessment['warnings'].append('Fat content is high, consider reducing high-fat ingredients.')
     elif 8 <= fat_percent <= 15:
-        assessment['recommendations'].append('脂肪比例适中')
+        assessment['recommendations'].append('Good fat ratio.')
     
     # 碳水化合物检查
     if carb_percent > 30:
-        assessment['warnings'].append('碳水化合物含量偏高，注意控制谷物类食材')
+        assessment['warnings'].append('Carbohydrate content is high, consider reducing grains.')
     elif carb_percent <= 20:
-        assessment['recommendations'].append('碳水化合物比例合理')
+        assessment['recommendations'].append('Reasonable carbohydrate ratio.')
     
     # 钙磷比检查
     if total_nutrition.get('calcium', 0) > 0 and total_nutrition.get('phosphorus', 0) > 0:
         ca_p_ratio = total_nutrition['calcium'] / total_nutrition['phosphorus']
         if ca_p_ratio < 0.8:
-            assessment['warnings'].append(f'钙磷比偏低({ca_p_ratio:.2f}:1)，建议增加含钙食材如奶制品、绿叶蔬菜')
+            assessment['warnings'].append(f'Calcium-phosphorus ratio is low ({ca_p_ratio:.2f}:1). Consider adding calcium-rich foods like dairy or leafy greens.')
             score += 40
         elif ca_p_ratio > 2.5:
-            assessment['warnings'].append(f'钙磷比偏高({ca_p_ratio:.2f}:1)，建议平衡钙磷摄入或减少钙质补充')
+            assessment['warnings'].append(f'Calcium-phosphorus ratio is high ({ca_p_ratio:.2f}:1). Consider balancing calcium and phosphorus intake.')
             score += 40
         elif 1.0 <= ca_p_ratio <= 2.0:
-            assessment['recommendations'].append(f'钙磷比例优秀({ca_p_ratio:.2f}:1)，有利于骨骼健康')
+            assessment['recommendations'].append(f'Excellent calcium-phosphorus ratio ({ca_p_ratio:.2f}:1), beneficial for bone health.')
             score += 100
         else:
-            assessment['recommendations'].append(f'钙磷比例可接受({ca_p_ratio:.2f}:1)')
+            assessment['recommendations'].append(f'Acceptable calcium-phosphorus ratio ({ca_p_ratio:.2f}:1).')
             score += 80
     else:
-        assessment['warnings'].append('缺少钙或磷的数据，建议添加含钙磷的食材')
+        assessment['warnings'].append('Missing calcium or phosphorus data. Consider adding ingredients containing them.')
     
     # 设置总体状态
     if len(assessment['warnings']) == 0:
         assessment['status'] = 'excellent'
-        assessment['recommendations'].append('营养配比优秀，可以保存此食谱')
+        assessment['recommendations'].append('Excellent nutritional balance! You can save this recipe.')
     elif len(assessment['warnings']) <= 2:
         assessment['status'] = 'good'
-        assessment['recommendations'].append('营养配比良好，可考虑微调')
+        assessment['recommendations'].append('Good nutritional balance. Consider minor adjustments.')
     else:
         assessment['status'] = 'needs_improvement'
-        assessment['recommendations'].append('建议调整食材比例以改善营养平衡')
+        assessment['recommendations'].append('Recommend adjusting ingredient proportions to improve nutritional balance.')
     
     assessment['score'] = min(score // 3, 100)  # 转换为100分制
     

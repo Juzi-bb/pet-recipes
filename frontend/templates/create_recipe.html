@@ -1674,7 +1674,7 @@ async function calculateNutrition() {
         
     } catch (error) {
         console.error('营养计算失败:', error);
-        showErrorMessage(`营养计算失败: ${error.message}`);
+        showErrorMessage(`Nutrition calculation failed: ${error.message}`);
     }
 }
 
@@ -1692,16 +1692,16 @@ function displayNutritionAnalysis(data) {
     };
     
     const statusTexts = {
-        'excellent': '优秀',
-        'good': '良好',
-        'calculated': '已计算',
-        'needs_improvement': '需要改善',
-        'insufficient_data': '数据不足'
+        'excellent': 'Excellent',
+        'good': 'Good',
+        'calculated': 'Calculated',
+        'needs_improvement': 'Needs Improvement',
+        'insufficient_data': 'Insufficient Data'
     };
 
     const analysis = data.nutrition_analysis || {};
     const statusColor = statusColors[analysis.status] || '#6c757d';
-    const statusText = statusTexts[analysis.status] || '未知';
+    const statusText = statusTexts[analysis.status] || 'Unknown';
 
     // 计算钙磷比
     let calciumPhosphorusRatio = 0;
@@ -1714,22 +1714,22 @@ function displayNutritionAnalysis(data) {
         // 评估钙磷比状态（理想范围 1.0-2.0）
         if (calciumPhosphorusRatio >= 1.0 && calciumPhosphorusRatio <= 2.0) {
             calciumPhosphorusStatus = 'excellent';
-            calciumPhosphorusNote = '理想范围';
+            calciumPhosphorusNote = 'Ideal Range';
         } else if (calciumPhosphorusRatio >= 0.8 && calciumPhosphorusRatio < 1.0) {
             calciumPhosphorusStatus = 'warning';
-            calciumPhosphorusNote = '略低，建议增加含钙食材';
+            calciumPhosphorusNote = 'Slightly Low, Consider Adding Calcium-Rich Ingredients';
         } else if (calciumPhosphorusRatio > 2.0 && calciumPhosphorusRatio <= 2.5) {
             calciumPhosphorusStatus = 'warning';
-            calciumPhosphorusNote = '略高，建议平衡钙磷摄入';
+            calciumPhosphorusNote = 'Slightly High, Consider Balancing Calcium-Phosphorus Intake';
         } else if (calciumPhosphorusRatio < 0.8) {
             calciumPhosphorusStatus = 'danger';
-            calciumPhosphorusNote = '偏低，需要增加钙质';
+            calciumPhosphorusNote = 'Too Low, Need to Increase Calcium';
         } else {
             calciumPhosphorusStatus = 'danger';
-            calciumPhosphorusNote = '偏高，建议减少钙质或增加磷';
+            calciumPhosphorusNote = 'Too High, Consider Reducing Calcium or Increasing Phosphorus';
         }
     } else {
-        calciumPhosphorusNote = '数据不足';
+        calciumPhosphorusNote = 'Insufficient Data';
     }
 
     container.innerHTML = `
@@ -1738,27 +1738,27 @@ function displayNutritionAnalysis(data) {
             <div style="background: white; padding: 1.5rem; border-radius: 15px; border: 2px solid #A1B4B2;">
                 <h4 style="color: #510B0B; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-info-circle"></i>
-                    基础营养信息
+                    Basic Nutrition Information
                 </h4>
                 <div style="display: grid; gap: 0.75rem;">
                     <div style="display: flex; justify-content: space-between;">
-                        <span>总重量:</span>
+                        <span>Total Weight:</span>
                         <strong style="color: #5580AD;">${data.total_nutrition.total_weight.toFixed(1)} g</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span>总热量:</span>
+                        <span>Total Calories:</span>
                         <strong style="color: #B82F0D;">${data.total_nutrition.calories.toFixed(1)} kcal</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span>蛋白质:</span>
+                        <span>Protein:</span>
                         <strong style="color: #28a745;">${data.total_nutrition.protein.toFixed(1)} g</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span>脂肪:</span>
+                        <span>Fat:</span>
                         <strong style="color: #fd7e14;">${data.total_nutrition.fat.toFixed(1)} g</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span>碳水化合物:</span>
+                        <span>Carbohydrates:</span>
                         <strong style="color: #20c997;">${data.total_nutrition.carbohydrate.toFixed(1)} g</strong>
                     </div>
                 </div>
@@ -1768,37 +1768,37 @@ function displayNutritionAnalysis(data) {
             <div style="background: white; padding: 1.5rem; border-radius: 15px; border: 2px solid #A1B4B2;">
                 <h4 style="color: #510B0B; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-chart-pie"></i>
-                    营养比例
+                    Nutrition Ratios
                 </h4>
                 <div style="display: grid; gap: 0.75rem;">
                     <div style="display: flex; justify-content: space-between;">
-                        <span>蛋白质比例:</span>
+                        <span>Protein Ratio:</span>
                         <strong style="color: #28a745;">${data.nutrition_ratios.protein_percent || 0}%</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span>脂肪比例:</span>
+                        <span>Fat Ratio:</span>
                         <strong style="color: #fd7e14;">${data.nutrition_ratios.fat_percent || 0}%</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span>碳水比例:</span>
+                        <span>Carb Ratio:</span>
                         <strong style="color: #20c997;">${data.nutrition_ratios.carbohydrate_percent || 0}%</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between;">
-                        <span>热量密度:</span>
+                        <span>Calorie Density:</span>
                         <strong style="color: #5580AD;">${data.nutrition_ratios.calories_per_100g || 0} kcal/100g</strong>
                     </div>
                     <!-- 新增：钙磷比显示 -->
                     <div style="border-top: 1px solid #eee; padding-top: 0.75rem; margin-top: 0.5rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span style="display: flex; align-items: center; gap: 0.5rem;">
-                                钙磷比:
+                                Calcium-Phosphorus Ratio:
                                 <i class="fas fa-info-circle"
-                                    style="color: #666; font-size: 0.8rem; cursor: help;" 
-                                    title="理想钙磷比为 1.0-2.0:1，对骨骼健康很重要"></i>
+                                    style="color: #666; font-size: 0.8rem; cursor: help;"
+                                    title="Ideal calcium-phosphorus ratio is 1.0-2.0:1, important for bone health"></i>
                             </span>
                             <div style="text-align: right;">
                                 <strong style="color: ${statusColors[calciumPhosphorusStatus] || '#6c757d'};">
-                                    ${calciumPhosphorusRatio > 0 ? calciumPhosphorusRatio.toFixed(2) + ':1' : '无数据'}
+                                    ${calciumPhosphorusRatio > 0 ? calciumPhosphorusRatio.toFixed(2) + ':1' : 'No Data'}
                                 </strong>
                                 ${calciumPhosphorusNote ? `<br><small style="color: ${statusColors[calciumPhosphorusStatus] || '#6c757d'}; font-size: 0.8rem;">${calciumPhosphorusNote}</small>` : ''}
                             </div>
@@ -1812,13 +1812,13 @@ function displayNutritionAnalysis(data) {
         <div style="background: white; padding: 1.5rem; border-radius: 15px; border: 2px solid ${statusColor}; margin-bottom: 2rem;">
             <h4 style="color: ${statusColor}; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-clipboard-check"></i>
-                营养评估 - ${statusText}
+                Nutrition Assessment - ${statusText}
                 ${analysis.score ? `<span style="font-size: 0.9rem; background: ${statusColor}; color: white; padding: 0.25rem 0.5rem; border-radius: 8px;">${analysis.score}分</span>` : ''}
             </h4>
             
             ${analysis.recommendations && analysis.recommendations.length > 0 ? `
                 <div style="margin-bottom: 1rem;">
-                    <strong style="color: #28a745;">✓ 推荐:</strong>
+                    <strong style="color: #28a745;">✓ Recommendations:</strong>
                     <ul style="margin: 0.5rem 0; padding-left: 1.5rem; color: #28a745;">
                         ${analysis.recommendations.map(rec => `<li>${rec}</li>`).join('')}
                     </ul>
@@ -1827,7 +1827,7 @@ function displayNutritionAnalysis(data) {
             
             ${analysis.warnings && analysis.warnings.length > 0 ? `
                 <div>
-                    <strong style="color: #dc3545;">⚠ 注意事项:</strong>
+                    <strong style="color: #dc3545;">⚠ Notes:</strong>
                     <ul style="margin: 0.5rem 0; padding-left: 1.5rem; color: #dc3545;">
                         ${analysis.warnings.map(warning => `<li>${warning}</li>`).join('')}
                     </ul>
@@ -1838,10 +1838,10 @@ function displayNutritionAnalysis(data) {
             ${calciumPhosphorusStatus === 'warning' || calciumPhosphorusStatus === 'danger' ? `
                 <div style="margin-top: 1rem; padding: 0.75rem; background: ${calciumPhosphorusStatus === 'danger' ? '#fff5f5' : '#fffaf0'}; border-radius: 8px; border: 1px solid ${statusColors[calciumPhosphorusStatus]};">
                     <strong style="color: ${statusColors[calciumPhosphorusStatus]};">
-                        <i class="fas fa-balance-scale"></i> 钙磷比建议:
+                        <i class="fas fa-balance-scale"></i> Calcium-Phosphorus Ratio Suggestion:
                     </strong>
                     <p style="margin: 0.5rem 0 0 0; color: ${statusColors[calciumPhosphorusStatus]}; font-size: 0.9rem;">
-                        ${calciumPhosphorusNote}。钙磷比对宠物骨骼和牙齿健康至关重要。
+                        ${calciumPhosphorusNote}. The calcium-phosphorus ratio is crucial for your pet's bone and dental health.
                     </p>
                 </div>
             ` : ''}
@@ -1851,19 +1851,19 @@ function displayNutritionAnalysis(data) {
         <div style="background: white; padding: 1.5rem; border-radius: 15px; border: 2px solid #A1B4B2;">
             <h4 style="color: #510B0B; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-table"></i>
-                食材营养贡献
+                Ingredient Nutrition Contribution
             </h4>
             <div style="overflow-x: auto;">
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead>
                         <tr style="background: #f8f9fa;">
-                            <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6;">食材</th>
-                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">重量(g)</th>
-                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">比例(%)</th>
-                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">热量(kcal)</th>
-                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">蛋白质(g)</th>
-                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">钙(mg)</th>
-                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">磷(mg)</th>
+                            <th style="padding: 0.75rem; text-align: left; border-bottom: 2px solid #dee2e6;">Ingredient</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">Weight(g)</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">Ratio(%)</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">Calories(kcal)</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">Protein(g)</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">Calcium(mg)</th>
+                            <th style="padding: 0.75rem; text-align: right; border-bottom: 2px solid #dee2e6;">Phosphorus(mg)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1898,26 +1898,26 @@ function displayNutritionAnalysis(data) {
             <div style="text-align: center; margin-bottom: 1.5rem;">
                 <h4 style="color: #510B0B; margin-bottom: 0.5rem;">
                     <i class="fas fa-lightbulb" style="color: #5580AD;"></i>
-                    想要更多灵感？
+                    Want More Inspiration?
                 </h4>
                 <p style="color: #666; margin: 0; line-height: 1.5;">
-                    基于您选择的食材，我们可以为您推荐社区中的相似食谱，<br>
-                    帮助您发现更多营养搭配的可能性！
+                    Based on your selected ingredients, we can recommend similar recipes from the community,<br>
+                    helping you discover more nutritional pairing possibilities!
                 </p>
             </div>
             
             <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-                <button type="button" 
-                        class="recommendation-action-btn primary" 
-                        onclick="goToRecommendations()" 
+                <button type="button"
+                        class="recommendation-action-btn primary"
+                        onclick="goToRecommendations()"
                         style="background: #5580AD; color: white; border: none; border-radius: 25px; padding: 1rem 2rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 12px rgba(85, 128, 173, 0.3);">
                     <i class="fas fa-magic"></i>
                     Get Recipe Recommendations
                 </button>
                 
-                <button type="button" 
-                        class="recommendation-action-btn secondary" 
-                        onclick="showRecommendationHelp()" 
+                <button type="button"
+                        class="recommendation-action-btn secondary"
+                        onclick="showRecommendationHelp()"
                         style="background: transparent; color: #5580AD; border: 2px solid #5580AD; border-radius: 25px; padding: 1rem 2rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-question-circle"></i>
                     How It Works
@@ -1936,7 +1936,7 @@ function displayNutritionAnalysis(data) {
         <div style="margin-top: 2rem; padding: 1rem; background: #d4edda; border-radius: 10px; border-left: 4px solid #28a745;">
             <p style="color: #155724; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-check-circle"></i>
-                营养计算完成！您可以继续到下一步保存食谱。
+                Nutrition calculation completed! You can proceed to the next step to save the recipe.
             </p>
         </div>
     `;
@@ -1985,7 +1985,7 @@ function goToRecommendations() {
     const ingredientIds = selectedIngredients.map(ing => ing.id);
     
     if (ingredientIds.length === 0) {
-        showErrorMessage('推荐失败', '请先选择食材');
+        showErrorMessage('Recommendation failed: Please select ingredients first');
         return;
     }
     
@@ -2016,7 +2016,7 @@ function goToRecommendations() {
     
     // 显示跳转提示
     showSuccessMessage(
-        'Redirecting to recommendations...', 
+        'Redirecting to recommendations...',
         'Your recipe progress has been saved and you can return anytime!'
     );
     

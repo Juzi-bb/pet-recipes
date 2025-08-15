@@ -143,7 +143,7 @@ class CommunityUtils {
         try {
             return await this.apiRequest(`${this.apiBaseUrl}/stats`);
         } catch (error) {
-            console.error('获取社区统计失败:', error);
+            console.error('Failed to get community statistics:', error);
             return null;
         }
     }
@@ -155,7 +155,7 @@ class CommunityUtils {
         try {
             return await this.apiRequest(`${this.apiBaseUrl}/trending?limit=${limit}`);
         } catch (error) {
-            console.error('获取热门食谱失败:', error);
+            console.error('Failed to get popular recipes:', error);
             return null;
         }
     }
@@ -175,7 +175,7 @@ class CommunityUtils {
         try {
             return await this.apiRequest(`${this.apiBaseUrl}/recipes?${queryParams}`);
         } catch (error) {
-            console.error('获取社区食谱失败:', error);
+            console.error('Failed to get popular recipes:', error);
             throw error;
         }
     }

@@ -1,4 +1,3 @@
-// static/js/nutritionCalculator.js
 /**
  * 营养计算前端集成
  * 提供实时营养计算和可视化功能
@@ -69,18 +68,18 @@ class NutritionCalculator {
             }
         } catch (error) {
             console.error('加载营养方案失败:', error);
-            this.showNotification('加载营养方案失败', 'error');
+            this.showNotification('Failed to load nutrition plans', 'error');
         }
     }
     
     renderNutritionPlans(plans) {
         const select = $('#nutrition-plan-select');
-        select.empty().append('<option value="">请选择营养方案</option>');
+        select.empty().append('<option value="">Select nutrition plan</option>');
         
         // 推荐方案
         const recommended = plans.filter(p => p.is_recommended);
         if (recommended.length > 0) {
-            const recommendedGroup = $('<optgroup label="推荐方案"></optgroup>');
+            const recommendedGroup = $('<optgroup label="Recommended Plans"></optgroup>');
             recommended.forEach(plan => {
                 recommendedGroup.append(`
                     <option value="${plan.id}" data-description="${plan.description}">
@@ -94,7 +93,7 @@ class NutritionCalculator {
         // 其他方案
         const others = plans.filter(p => !p.is_recommended);
         if (others.length > 0) {
-            const othersGroup = $('<optgroup label="其他方案"></optgroup>');
+            const othersGroup = $('<optgroup label="Other Plans"></optgroup>');
             others.forEach(plan => {
                 othersGroup.append(`
                     <option value="${plan.id}" data-description="${plan.description}">
@@ -152,7 +151,7 @@ class NutritionCalculator {
         container.empty();
         
         if (this.selectedIngredients.size === 0) {
-            container.html('<p class="text-muted">请选择食材</p>');
+            container.html('<p class="text-muted">Please select ingredients</p>');
             return;
         }
         
@@ -173,21 +172,21 @@ class NutritionCalculator {
                                     value="${weight}"
                                     min="0"
                                     max="1000"
-                                    placeholder="重量">
+                                    placeholder="Weight">
                                 <span class="input-group-text">g</span>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <small class="text-muted">
-                                热量: ${(ingredient.calories * weight / 100).toFixed(1)} kcal<br>
-                                蛋白质: ${(ingredient.protein * weight / 100).toFixed(1)}g
+                                Calories: ${(ingredient.calories * weight / 100).toFixed(1)} kcal<br>
+                                Protein: ${(ingredient.protein * weight / 100).toFixed(1)}g
                             </small>
                         </div>
                         <div class="col-md-2">
                             <button type="button" 
                                     class="btn btn-outline-danger btn-sm"
                                     onclick="nutritionCalculator.removeIngredient(${ingredientId})">
-                                移除
+                                Remove
                             </button>
                         </div>
                     </div>
@@ -198,7 +197,7 @@ class NutritionCalculator {
     
     async suggestWeights() {
         if (!this.currentNutritionPlan || this.selectedIngredients.size === 0) {
-            this.showNotification('请选择营养方案和食材', 'warning');
+            this.showNotification('Please select nutrition plan and ingredients', 'warning');
             return;
         }
         
@@ -229,11 +228,11 @@ class NutritionCalculator {
                 
                 this.renderSelectedIngredients();
                 this.calculateNutrition();
-                this.showNotification('重量分配完成', 'success');
+                this.showNotification('Weight allocation completed', 'success');
             }
         } catch (error) {
             console.error('推荐重量失败:', error);
-            this.showNotification('推荐重量失败', 'error');
+            this.showNotification('Failed to suggest weights', 'error');
         }
     }
     
@@ -268,19 +267,26 @@ class NutritionCalculator {
             }
         } catch (error) {
             console.error('营养计算失败:', error);
-            this.showNotification('营养计算失败', 'error');
+            this.showNotification('Failed to calculate nutrition', 'error');
         }
     }
     
     displayNutritionResults(data) {
-        const { total_nutrition, nutrition_ratios, nutrition_assessment } = data;
+        const { total_nutrition, nutrition_ratios, nutrition_analysis } = data;
         
         // 显示总营养
         $('#total-weight').text(total_nutrition.total_weight.toFixed(1));
         $('#total-calories').text(total_nutrition.calories.toFixed(1));
         $('#total-protein').text(total_nutrition.protein.toFixed(1));
         $('#total-fat').text(total_nutrition.fat.toFixed(1));
-        $('#calcium-phosphorus-ratio').text(total_nutrition.calcium_phosphorus_ratio.toFixed(2));
+        
+        // 计算钙磷比
+        if (total_nutrition.calcium > 0 && total_nutrition.phosphorus > 0) {
+            const caPhosRatio = total_nutrition.calcium / total_nutrition.phosphorus;
+            $('#calcium-phosphorus-ratio').text(caPhosRatio.toFixed(2));
+        } else {
+            $('#calcium-phosphorus-ratio').text('N/A');
+        }
         
         // 显示营养比例
         if (nutrition_ratios) {
@@ -290,81 +296,68 @@ class NutritionCalculator {
         }
         
         // 显示营养评估
-        this.displayNutritionAssessment(nutrition_assessment);
+        this.displayNutritionAssessment(nutrition_analysis);
     }
     
-    displayNutritionAssessment(assessment) {
+    displayNutritionAssessment(analysis) {
         const container = $('#nutrition-assessment');
         container.empty();
         
+        if (!analysis) {
+            return;
+        }
+        
         // 总体状态
         const statusClass = {
-            'good': 'success',
-            'fair': 'warning', 
-            'poor': 'danger',
-            'unknown': 'secondary'
-        }[assessment.overall_status] || 'secondary';
+            'excellent': 'success',
+            'good': 'success', 
+            'needs_improvement': 'warning',
+            'calculated': 'info'
+        }[analysis.status] || 'secondary';
         
         const statusText = {
-            'good': '营养均衡',
-            'fair': '基本达标',
-            'poor': '需要改进',
-            'unknown': '评估中'
-        }[assessment.overall_status] || '未知';
+            'excellent': 'Excellent Balance',
+            'good': 'Good Balance',
+            'needs_improvement': 'Needs Improvement',
+            'calculated': 'Calculated'
+        }[analysis.status] || 'Unknown';
         
         container.append(`
             <div class="alert alert-${statusClass} mb-3">
-                <strong>营养评估: ${statusText}</strong>
+                <strong>Nutrition Assessment: ${statusText}</strong>
+                ${analysis.score ? `<span class="float-end">Score: ${analysis.score}/100</span>` : ''}
             </div>
         `);
         
-        // 营养缺陷
-        if (assessment.deficiencies && assessment.deficiencies.length > 0) {
-            const deficienciesHtml = assessment.deficiencies.map(def => `
-                <li class="list-group-item list-group-item-danger">
-                    <strong>${this.getNutrientName(def.nutrient)}</strong> 不足 
-                    (当前: ${def.current.toFixed(1)}%, 建议: ≥${def.recommended_min}%)
-                </li>
-            `).join('');
-            
-            container.append(`
-                <div class="mb-3">
-                    <h6 class="text-danger">营养不足:</h6>
-                    <ul class="list-group">
-                        ${deficienciesHtml}
-                    </ul>
-                </div>
-            `);
-        }
-        
-        // 营养过量
-        if (assessment.excesses && assessment.excesses.length > 0) {
-            const excessesHtml = assessment.excesses.map(exc => `
+        // 警告信息
+        if (analysis.warnings && analysis.warnings.length > 0) {
+            const warningsHtml = analysis.warnings.map(warning => `
                 <li class="list-group-item list-group-item-warning">
-                    <strong>${this.getNutrientName(exc.nutrient)}</strong> 过量
-                    (当前: ${exc.current.toFixed(1)}%, 建议: ≤${exc.recommended_max}%)
+                    <i class="bi bi-exclamation-triangle me-2"></i>${warning}
                 </li>
             `).join('');
             
             container.append(`
                 <div class="mb-3">
-                    <h6 class="text-warning">营养过量:</h6>
+                    <h6 class="text-warning">Warnings:</h6>
                     <ul class="list-group">
-                        ${excessesHtml}
+                        ${warningsHtml}
                     </ul>
                 </div>
             `);
         }
         
         // 建议
-        if (assessment.recommendations && assessment.recommendations.length > 0) {
-            const recommendationsHtml = assessment.recommendations.map(rec => `
-                <li class="list-group-item list-group-item-info">${rec}</li>
+        if (analysis.recommendations && analysis.recommendations.length > 0) {
+            const recommendationsHtml = analysis.recommendations.map(rec => `
+                <li class="list-group-item list-group-item-info">
+                    <i class="bi bi-lightbulb me-2"></i>${rec}
+                </li>
             `).join('');
             
             container.append(`
                 <div class="mb-3">
-                    <h6 class="text-info">改进建议:</h6>
+                    <h6 class="text-info">Recommendations:</h6>
                     <ul class="list-group">
                         ${recommendationsHtml}
                     </ul>
@@ -374,7 +367,7 @@ class NutritionCalculator {
     }
     
     updateNutritionChart(data) {
-        const { nutrition_ratios, nutrition_assessment } = data;
+        const { nutrition_ratios, nutrition_analysis } = data;
         
         if (!nutrition_ratios) {
             this.clearChart();
@@ -387,10 +380,10 @@ class NutritionCalculator {
         }
         
         // 创建新图表
-        this.createNutritionChart(nutrition_ratios, nutrition_assessment);
+        this.createNutritionChart(nutrition_ratios, nutrition_analysis);
     }
     
-    createNutritionChart(nutritionRatios, assessment) {
+    createNutritionChart(nutritionRatios, analysis) {
         const ctx = document.getElementById('nutrition-chart').getContext('2d');
         
         // 主题色配置
@@ -406,7 +399,7 @@ class NutritionCalculator {
         };
         
         // 准备数据
-        const chartData = this.prepareChartData(nutritionRatios, assessment, themeColors);
+        const chartData = this.prepareChartData(nutritionRatios, analysis, themeColors);
         
         // 创建横向柱状图
         this.nutritionChart = new Chart(ctx, {
@@ -429,7 +422,7 @@ class NutritionCalculator {
                                 
                                 let label = `${nutrient}: ${actual.toFixed(1)}%`;
                                 if (target) {
-                                    label += ` (目标: ${target.min}-${target.max}%)`;
+                                    label += ` (Target: ${target.min}-${target.max}%)`;
                                 }
                                 return label;
                             }
@@ -475,12 +468,12 @@ class NutritionCalculator {
         });
     }
     
-    prepareChartData(nutritionRatios, assessment, themeColors) {
+    prepareChartData(nutritionRatios, analysis, themeColors) {
         const nutrients = [
-            { key: 'protein_percent', label: '蛋白质', target: { min: 18, max: 35 } },
-            { key: 'fat_percent', label: '脂肪', target: { min: 5.5, max: 20 } },
-            { key: 'carbohydrate_percent', label: '碳水化合物', target: { min: 0, max: 25 } },
-            { key: 'fiber_percent', label: '纤维', target: { min: 1, max: 8 } }
+            { key: 'protein_percent', label: 'Protein', target: { min: 18, max: 35 } },
+            { key: 'fat_percent', label: 'Fat', target: { min: 5.5, max: 20 } },
+            { key: 'carbohydrate_percent', label: 'Carbohydrate', target: { min: 0, max: 25 } },
+            { key: 'fiber_percent', label: 'Fiber', target: { min: 1, max: 8 } }
         ];
         
         const labels = [];
@@ -490,7 +483,7 @@ class NutritionCalculator {
         
         nutrients.forEach(nutrient => {
             const value = nutritionRatios[nutrient.key] || 0;
-            const status = this.getNutrientStatus(value, nutrient.target, assessment);
+            const status = this.getNutrientStatus(value, nutrient.target, analysis);
             
             labels.push(nutrient.label);
             data.push(value);
@@ -518,7 +511,7 @@ class NutritionCalculator {
         return {
             labels: labels,
             datasets: [{
-                label: '营养比例',
+                label: 'Nutrition Ratio',
                 data: data,
                 backgroundColor: backgroundColor,
                 borderColor: borderColor,
@@ -527,42 +520,26 @@ class NutritionCalculator {
         };
     }
     
-    getNutrientStatus(value, target, assessment) {
-        // 检查营养评估中的缺陷和过量
-        if (assessment.deficiencies) {
-            const deficiency = assessment.deficiencies.find(d =>
-                (target.min && value < target.min) ||
-                (d.nutrient === 'protein' && target.min === 18) ||
-                (d.nutrient === 'fat' && target.min === 5.5)
-            );
-            if (deficiency) return 'deficient';
+    getNutrientStatus(value, target, analysis) {
+        // 简化的状态判断逻辑
+        if (target.min && value < target.min) {
+            return 'deficient';
         }
-        
-        if (assessment.excesses) {
-            const excess = assessment.excesses.find(e =>
-                (target.max && value > target.max) ||
-                (e.nutrient === 'protein' && target.max === 35) ||
-                (e.nutrient === 'fat' && target.max === 20)
-            );
-            if (excess) return 'excessive';
+        if (target.max && value > target.max) {
+            return 'excessive';
         }
-        
-        // 检查是否在理想范围内
-        if (target.min && target.max) {
-            if (value >= target.min && value <= target.max) {
-                return 'optimal';
-            }
+        if (target.min && target.max && value >= target.min && value <= target.max) {
+            return 'optimal';
         }
-        
         return 'unknown';
     }
     
     getNutrientTarget(nutrientLabel) {
         const targets = {
-            '蛋白质': { min: 18, max: 35 },
-            '脂肪': { min: 5.5, max: 20 },
-            '碳水化合物': { min: 0, max: 25 },
-            '纤维': { min: 1, max: 8 }
+            'Protein': { min: 18, max: 35 },
+            'Fat': { min: 5.5, max: 20 },
+            'Carbohydrate': { min: 0, max: 25 },
+            'Fiber': { min: 1, max: 8 }
         };
         return targets[nutrientLabel];
     }
@@ -581,7 +558,7 @@ class NutritionCalculator {
         ctx.fillStyle = '#A1B4B2';
         ctx.font = '14px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('选择食材后显示图表', ctx.canvas.width / 2, ctx.canvas.height / 2);
+        ctx.fillText('Select ingredients to view chart', ctx.canvas.width / 2, ctx.canvas.height / 2);
     }
     
     clearNutritionDisplay() {
@@ -592,27 +569,27 @@ class NutritionCalculator {
     
     getCategoryName(category) {
         const categoryNames = {
-            'red_meat': '红肉',
-            'white_meat': '白肉',
-            'fish': '鱼类',
-            'organs': '内脏',
-            'vegetables': '蔬菜',
-            'fruits': '水果',
-            'grains': '谷物',
-            'dairy': '乳制品',
-            'supplements': '营养补充剂',
-            'oils': '油脂类'
+            'red_meat': 'Red Meat',
+            'white_meat': 'White Meat',
+            'fish': 'Fish',
+            'organs': 'Organs',
+            'vegetables': 'Vegetables',
+            'fruits': 'Fruits',
+            'grains': 'Grains',
+            'dairy': 'Dairy',
+            'supplements': 'Supplements',
+            'oils': 'Oils'
         };
         return categoryNames[category] || category;
     }
     
     getNutrientName(nutrient) {
         const nutrientNames = {
-            'protein': '蛋白质',
-            'fat': '脂肪',
-            'carbohydrate': '碳水化合物',
-            'calcium': '钙',
-            'phosphorus': '磷'
+            'protein': 'Protein',
+            'fat': 'Fat',
+            'carbohydrate': 'Carbohydrate',
+            'calcium': 'Calcium',
+            'phosphorus': 'Phosphorus'
         };
         return nutrientNames[nutrient] || nutrient;
     }

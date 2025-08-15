@@ -240,7 +240,7 @@ def check_login():
 def create_recipe_redirect():
     """重定向到食谱创建页面"""
     if 'user_id' not in session:
-        flash('请先登录再创建食谱')
+        flash('Please log in to create a recipe.')
         return redirect(url_for('user_bp.login_page'))
     return redirect(url_for('recipe_bp.create_recipe'))
 
@@ -248,17 +248,17 @@ def create_recipe_redirect():
 def recipe_detail(recipe_id):
     """食谱详情页面"""
     if 'user_id' not in session:
-        flash('请先登录')
+        flash('Please log in.')
         return redirect(url_for('user_bp.login_page'))
     
     recipe = Recipe.query.filter_by(id=recipe_id).first()
     if not recipe:
-        flash('食谱不存在')
+        flash('Recipe not found.')
         return redirect(url_for('main.user_center'))
     
     # 检查权限 - 只有创建者或公开食谱可以查看
     if recipe.user_id != session['user_id'] and not recipe.is_public:
-        flash('没有权限查看此食谱')
+        flash('You do not have permission to view this recipe.')
         return redirect(url_for('main.user_center'))
     
     return render_template('recipe_detail.html', recipe=recipe)
@@ -267,7 +267,7 @@ def recipe_detail(recipe_id):
 def my_recipes():
     """我的食谱列表"""
     if 'user_id' not in session:
-        flash('请先登录')
+        flash('Please log in.')
         return redirect(url_for('user_bp.login_page'))
     
     recipes = Recipe.query.filter_by(user_id=session['user_id']).order_by(Recipe.updated_at.desc()).all()
@@ -277,22 +277,22 @@ def my_recipes():
 def delete_recipe(recipe_id):
     """删除食谱"""
     if 'user_id' not in session:
-        flash('请先登录')
+        flash('Please log in.')
         return redirect(url_for('user_bp.login_page'))
     
     recipe = Recipe.query.filter_by(id=recipe_id, user_id=session['user_id']).first()
     if not recipe:
-        flash('食谱不存在')
+        flash('Recipe not found.')
         return redirect(url_for('main.user_center'))
     
     try:
         recipe_name = recipe.name
         db.session.delete(recipe)
         db.session.commit()
-        flash(f'已删除食谱 {recipe_name}')
+        flash(f'Deleted recipe: {recipe_name}')
     except Exception as e:
         db.session.rollback()
-        flash('删除失败，请重试')
+        flash('Deletion failed, please try again.')
     
     return redirect(url_for('main.user_center'))
 
@@ -305,7 +305,7 @@ def api_pet_info(pet_id):
     
     pet = Pet.query.filter_by(id=pet_id, user_id=session['user_id']).first()
     if not pet:
-        return {'error': '宠物不存在'}, 404
+        return {'error': 'Pet not found'}, 404
     
     return {
         'id': pet.id,
@@ -326,26 +326,28 @@ def get_user_recipes():
         if 'user_id' not in session:
             return jsonify({
                 'success': False,
-                'message': '请先登录'
+                'message': 'Please log in.'
             }), 401
         
         user_id = session['user_id']
         print(f"🔍 获取用户 {user_id} 的食谱列表")  # 调试日志
         
-        # 获取用户创建的食谱
-        recipes = Recipe.query.filter_by(user_id=user_id).order_by(
+        # 获取用户创建的食谱，并关联宠物信息
+        recipes_query = db.session.query(Recipe, Pet).outerjoin(
+            Pet, Recipe.pet_id == Pet.id
+        ).filter(Recipe.user_id == user_id).order_by(
             Recipe.created_at.desc()
-        ).all()
-
-        print(f"📊 找到 {len(recipes)} 个食谱")  # 调试日志
+        )
+        
+        recipe_pets = recipes_query.all()
+        print(f"📊 找到 {len(recipe_pets)} 个食谱")  # 调试日志
         
         recipes_data = []
-        for recipe in recipes:
+        for recipe, pet in recipe_pets:
             try:
                 # 检查当前用户是否收藏了这个食谱
                 is_favorited = False
                 try:
-                    # 检查收藏状态
                     favorite = RecipeFavorite.query.filter_by(
                         user_id=user_id,
                         recipe_id=recipe.id
@@ -355,39 +357,49 @@ def get_user_recipes():
                     print(f"⚠️ 检查收藏状态出错: {fav_error}")
                     is_favorited = False
                 
+                # 获取宠物名称
+                pet_name = pet.name if pet else None
+                
                 recipe_dict = {
                     'id': recipe.id,
-                    'name': recipe.name,
+                    'name': recipe.name or f'Recipe {recipe.id}',
                     'description': recipe.description or '',
                     'user_id': recipe.user_id,
+                    'pet_id': recipe.pet_id,
+                    'pet_name': pet_name,  # 添加宠物名称
                     'created_at': recipe.created_at.isoformat() if recipe.created_at else None,
-                    'is_favorited': is_favorited
+                    'updated_at': recipe.updated_at.isoformat() if recipe.updated_at else None,
+                    'is_favorited': is_favorited,
+                    'status': recipe.status.value if hasattr(recipe.status, 'value') else 'draft',
+                    'is_public': getattr(recipe, 'is_public', False)
                 }
                 
                 recipes_data.append(recipe_dict)
                 print(f"✅ 成功处理食谱: {recipe.name}")
                 
             except Exception as recipe_error:
-                print(f"❌ 处理食谱 {recipe.id} 时出错: {recipe_error}")
+                print(f"⚠️ 处理食谱 {recipe.id} 时出错: {recipe_error}")
                 # 即使单个食谱处理出错，也添加基本信息
                 recipes_data.append({
                     'id': recipe.id,
                     'name': recipe.name or f'Recipe {recipe.id}',
-                    'description': '',
+                    'description': recipe.description or '',
                     'user_id': recipe.user_id,
+                    'pet_id': recipe.pet_id,
+                    'pet_name': None,
                     'created_at': recipe.created_at.isoformat() if recipe.created_at else None,
-                    'is_favorited': False
+                    'updated_at': recipe.updated_at.isoformat() if recipe.updated_at else None,
+                    'is_favorited': False,
+                    'status': 'draft',
+                    'is_public': False
                 })
         
         print(f"✅ 最终返回 {len(recipes_data)} 个食谱")
 
-        # ⚠️ 关键修复：统一返回格式，与前端期望一致
-        response_data = {
+        return jsonify({
             'success': True,
-            'recipes': recipes_data  # 前端期望 data.recipes，不是 data.data.recipes
-        }
-        
-        return jsonify(response_data)
+            'recipes': recipes_data
+        })
         
     except Exception as e:
         print(f"❌ 获取用户食谱出错: {e}")

@@ -36,7 +36,7 @@ class CategoryRatio:
     
     def validate(self) -> bool:
         """验证比例总和是否为100%"""
-        total = (self.red_meat + self.white_meat + self.fish + self.organs + 
+        total = (self.red_meat + self.white_meat + self.fish + self.organs +
                 self.vegetables + self.fruits + self.grains)
         return abs(total - 1.0) < 0.01  # 允许1%的误差
 
@@ -67,11 +67,11 @@ class NutritionRatioService:
     # 预设营养方案
     NUTRITION_PLANS = {
         NutritionProfile.BASIC_DOG: NutritionPlan(
-            name="基础成犬配方",
-            description="适合健康成年犬的均衡营养配方",
+            name="Basic Adult Dog Formula",
+            description="Balanced nutrition formula for healthy adult dogs",
             category_ratios=CategoryRatio(
                 red_meat=0.35,      # 35% 红肉
-                white_meat=0.25,    # 25% 白肉  
+                white_meat=0.25,    # 25% 白肉
                 fish=0.10,          # 10% 鱼类
                 organs=0.05,        # 5% 内脏
                 vegetables=0.15,    # 15% 蔬菜
@@ -84,12 +84,12 @@ class NutritionRatioService:
                 carb_max=25.0,
                 calories_per_kg=95
             ),
-            special_notes=["适合1-7岁健康成犬", "维持体重和日常活动"]
+            special_notes=["Suitable for healthy adult dogs aged 1-7", "Maintains weight and daily activity"]
         ),
         
         NutritionProfile.BASIC_CAT: NutritionPlan(
-            name="基础成猫配方", 
-            description="适合健康成年猫的高蛋白配方",
+            name="Basic Adult Cat Formula",
+            description="High-protein formula for healthy adult cats",
             category_ratios=CategoryRatio(
                 red_meat=0.20,      # 20% 红肉
                 white_meat=0.35,    # 35% 白肉
@@ -105,12 +105,12 @@ class NutritionRatioService:
                 carb_max=10.0,
                 calories_per_kg=85
             ),
-            special_notes=["猫咪为肉食动物，需要高蛋白", "必须添加牛磺酸"]
+            special_notes=["Cats are obligate carnivores requiring high protein", "Taurine supplementation essential"]
         ),
         
         NutritionProfile.ACTIVE_DOG: NutritionPlan(
-            name="活跃犬配方",
-            description="适合运动量大、工作犬的高能量配方", 
+            name="Active Dog Formula",
+            description="High-energy formula for active and working dogs",
             category_ratios=CategoryRatio(
                 red_meat=0.40,      # 40% 红肉
                 white_meat=0.25,    # 25% 白肉
@@ -126,12 +126,12 @@ class NutritionRatioService:
                 carb_max=20.0,
                 calories_per_kg=130  # 更高热量需求
             ),
-            special_notes=["适合工作犬、运动犬", "增加脂肪和蛋白质摄入"]
+            special_notes=["Ideal for working dogs and active breeds", "Enhanced protein and fat intake"]
         ),
         
         NutritionProfile.SENIOR_DOG: NutritionPlan(
-            name="老年犬配方",
-            description="适合7岁以上老年犬的易消化配方",
+            name="Senior Dog Formula",
+            description="Easily digestible formula for dogs 7+ years old",
             category_ratios=CategoryRatio(
                 red_meat=0.25,      # 25% 红肉（减少）
                 white_meat=0.35,    # 35% 白肉（增加，易消化）
@@ -147,12 +147,12 @@ class NutritionRatioService:
                 carb_max=15.0,
                 calories_per_kg=80  # 降低热量
             ),
-            special_notes=["易消化蛋白质", "增加omega-3脂肪酸", "减少热量摄入"]
+            special_notes=["Easily digestible proteins", "Enhanced omega-3 fatty acids", "Reduced calorie intake"]
         ),
         
         NutritionProfile.WEIGHT_LOSS: NutritionPlan(
-            name="减重配方",
-            description="适合需要减重的超重宠物",
+            name="Weight Management Formula",
+            description="For overweight pets requiring weight loss",
             category_ratios=CategoryRatio(
                 red_meat=0.15,      # 15% 红肉（减少脂肪）
                 white_meat=0.45,    # 45% 白肉（高蛋白低脂）
@@ -168,12 +168,12 @@ class NutritionRatioService:
                 carb_max=10.0,
                 calories_per_kg=70  # 低热量
             ),
-            special_notes=["高蛋白低脂肪", "增加饱腹感", "严格控制热量"]
+            special_notes=["High protein, low fat composition", "Increased satiety", "Strict calorie control"]
         ),
         
         NutritionProfile.KIDNEY_SUPPORT: NutritionPlan(
-            name="肾脏支持配方",
-            description="适合肾病宠物的低蛋白、低磷配方",
+            name="Kidney Support Formula",
+            description="Low protein, low phosphorus formula for kidney issues",
             category_ratios=CategoryRatio(
                 red_meat=0.15,      # 15% 红肉（减少）
                 white_meat=0.30,    # 30% 白肉
@@ -189,12 +189,12 @@ class NutritionRatioService:
                 carb_max=30.0,
                 calories_per_kg=85
             ),
-            special_notes=["限制蛋白质和磷", "需要兽医监督", "优质蛋白质"]
+            special_notes=["Restricted protein and phosphorus", "Requires veterinary supervision", "High-quality proteins only"]
         ),
         
         NutritionProfile.COAT_HEALTH: NutritionPlan(
-            name="美毛配方",
-            description="促进毛发健康和光泽的配方",
+            name="Coat Health Formula",
+            description="Promotes healthy coat and skin condition",
             category_ratios=CategoryRatio(
                 red_meat=0.25,      # 25% 红肉
                 white_meat=0.20,    # 20% 白肉
@@ -210,7 +210,7 @@ class NutritionRatioService:
                 carb_max=20.0,
                 calories_per_kg=95
             ),
-            special_notes=["富含omega-3脂肪酸", "高质量蛋白质", "维生素E和锌"]
+            special_notes=["Rich in omega-3 fatty acids", "High-quality proteins", "Enhanced vitamin E and zinc"]
         )
     }
     
@@ -238,19 +238,19 @@ class NutritionRatioService:
         if special_needs:
             for need in special_needs:
                 need_lower = need.lower()
-                if '肥胖' in need_lower or '减重' in need_lower:
+                if any(keyword in need_lower for keyword in ['obesity', 'overweight', 'weight loss', '肥胖', '减重']):
                     suitable_plans.append(NutritionProfile.WEIGHT_LOSS)
-                elif '肾' in need_lower:
+                elif any(keyword in need_lower for keyword in ['kidney', 'renal', '肾']):
                     suitable_plans.append(NutritionProfile.KIDNEY_SUPPORT)
-                elif '美毛' in need_lower or '毛发' in need_lower:
+                elif any(keyword in need_lower for keyword in ['coat', 'skin', 'hair', '美毛', '毛发']):
                     suitable_plans.append(NutritionProfile.COAT_HEALTH)
-                elif '过敏' in need_lower:
+                elif any(keyword in need_lower for keyword in ['allergy', 'allergic', '过敏']):
                     suitable_plans.append(NutritionProfile.ALLERGY_FRIENDLY)
         
         return list(set(suitable_plans))  # 去重
     
     @classmethod
-    def calculate_ingredient_weights(cls, plan: NutritionPlan, total_weight: float, 
+    def calculate_ingredient_weights(cls, plan: NutritionPlan, total_weight: float,
                                     selected_ingredients: Dict) -> Dict[int, float]:
         """
         根据营养方案和总重量计算各食材的推荐重量
@@ -277,7 +277,7 @@ class NutritionRatioService:
         # 分配重量
         for category, ratio in [
             ('red_meat', ratios.red_meat),
-            ('white_meat', ratios.white_meat), 
+            ('white_meat', ratios.white_meat),
             ('fish', ratios.fish),
             ('organs', ratios.organs),
             ('vegetables', ratios.vegetables),
@@ -297,6 +297,6 @@ class NutritionRatioService:
 def get_nutrition_profile_choices():
     """获取可选的营养方案列表（用于前端下拉框）"""
     return [
-        (profile.value, plan.name) 
+        (profile.value, plan.name)
         for profile, plan in NutritionRatioService.NUTRITION_PLANS.items()
     ]

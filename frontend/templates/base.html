@@ -389,6 +389,331 @@
         </div>
     </main>
 
+    <!-- 功能信息模态框 -->
+    <div class="feature-modal" id="featureModal" onclick="closeFeatureModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalFeatureTitle">Feature Introduction</h2>
+                <button class="close-btn" onclick="closeFeatureModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="feature-description" id="modalFeatureDescription">
+                    Feature description content
+                </div>
+                <div class="feature-highlights" id="modalFeatureHighlights">
+                    <!-- 功能亮点列表 -->
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeFeatureModal()">
+                    <i class="fas fa-check"></i> Got it
+                </button>
+                <button class="btn btn-secondary" onclick="navigateToFeature()" id="modalNavigateBtn" style="display: none;">
+                    <i class="fas fa-external-link-alt"></i> Try it out
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    /* 功能信息模态框样式 - 无图标且可滚动 */
+    .feature-modal {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(8px);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        align-items: center;
+        justify-content: center;
+        padding: 20px; /* 添加外边距 */
+        box-sizing: border-box;
+    }
+
+    .feature-modal.show {
+        display: flex;
+        opacity: 1;
+    }
+
+    .feature-modal .modal-content {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 20px;
+        max-width: 800px;
+        width: 100%;
+        max-height: 90vh; /* 限制最大高度 */
+        position: relative;
+        transform: scale(0.8) translateY(-30px);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+        border: 2px solid #EDBF9D;
+        display: flex;
+        flex-direction: column; /* 使用flex布局 */
+        overflow: hidden; /* 防止整体溢出 */
+    }
+
+    .feature-modal.show .modal-content {
+        transform: scale(1) translateY(0);
+    }
+
+    .feature-modal .modal-header {
+        background: linear-gradient(135deg, #4a6fa5 0%, #8fa8a3 100%);
+        color: white;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0; /* 防止头部被压缩 */
+    }
+
+    .feature-modal .modal-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 100px;
+        height: 100px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        transform: scale(3);
+    }
+
+    .feature-modal .modal-title {
+        font-size: 1.8rem;
+        margin: 0;
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        font-weight: 700;
+        color: #ffffff; /* 明确设置为纯白色 */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* 添加文字阴影增强对比度 */
+        letter-spacing: 0.5px;
+    }
+
+    .feature-modal .close-btn {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        font-size: 1.8rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3;
+    }
+
+    .feature-modal .close-btn:hover {
+        background: rgba(255,255,255,0.3);
+        transform: rotate(90deg) scale(1.1);
+    }
+
+    .feature-modal .modal-body {
+        padding: 2.5rem 3rem 1rem 3rem;
+        flex: 1; /* 占据剩余空间 */
+        overflow-y: auto; /* 允许垂直滚动 */
+        overflow-x: hidden; /* 隐藏水平滚动 */
+    }
+
+    /* 自定义滚动条样式 */
+    .feature-modal .modal-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .feature-modal .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .feature-modal .modal-body::-webkit-scrollbar-thumb {
+        background: #5580AD;
+        border-radius: 10px;
+    }
+
+    .feature-modal .modal-body::-webkit-scrollbar-thumb:hover {
+        background: #A1B4B2;
+    }
+
+    .feature-description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #495057;
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+
+    .feature-highlights {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        border-left: 4px solid #5580AD;
+        margin-bottom: 0.5rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 在宽屏上分为两列 */
+        gap: 0.5rem 2rem;
+    }
+
+    .highlight-item {
+        display: flex;
+        align-items: flex-start; /* 改为顶部对齐 */
+        gap: 1rem;
+        padding: 0.8rem 0;
+        border-bottom: 1px solid rgba(85, 128, 173, 0.1);
+        transition: all 0.3s ease;
+        break-inside: avoid;
+    }
+
+    .highlight-item:last-child {
+        border-bottom: none;
+    }
+
+    .highlight-item:hover {
+        transform: translateX(5px);
+        color: #5580AD;
+    }
+
+    .highlight-text {
+        flex: 1;
+        text-align: left;
+        font-weight: 500;
+        color: #510B0B;
+        line-height: 1.5; /* 增加行高 */
+    }
+
+    /* 添加项目符号样式 */
+    .highlight-item::before {
+        content: "•";
+        color: #5580AD;
+        font-weight: bold;
+        font-size: 1.2rem;
+        width: 1em;
+        flex-shrink: 0;
+        margin-top: 0.1rem; /* 微调对齐 */
+    }
+
+    .feature-modal .modal-footer {
+        padding: 1rem 3rem 1rem 3rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-shrink: 0; /* 防止底部被压缩 */
+        border-top: 1px solid #e9ecef; /* 添加分隔线 */
+        background: white; /* 确保背景色 */
+        margin-top: 0;
+    }
+
+    .feature-modal .btn {
+        padding: 0.8rem 2rem;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        font-size: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin: 0;
+    }
+
+    .feature-modal .btn-primary {
+        background: linear-gradient(135deg, #5580AD 0%, #A1B4B2 100%);
+        color: white;
+    }
+
+    .feature-modal .btn-primary:hover {
+        background: linear-gradient(135deg, #A1B4B2 0%, #5580AD 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(85, 128, 173, 0.3);
+    }
+
+    .feature-modal .btn-secondary {
+        background: linear-gradient(135deg, #EDBF9D 0%, #B82F0D 100%);
+        color: white;
+    }
+
+    .feature-modal .btn-secondary:hover {
+        background: linear-gradient(135deg, #B82F0D 0%, #510B0B 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(184, 47, 13, 0.3);
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .feature-modal {
+            width: 95%; /* 移动端保持95% */
+            padding: 10px; /* 减少移动端外边距 */
+        }
+        
+        .feature-modal .modal-content {
+            width: 100%;
+            max-height: 95vh; /* 移动端增加最大高度 */
+        }
+        
+        .feature-modal .modal-header {
+            padding: 1.5rem;
+        }
+        
+        .feature-modal .modal-title {
+            font-size: 1.6rem;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+        }
+        
+        .feature-modal .modal-body {
+            padding: 2rem 1.5rem 0.8rem 1.5rem;
+        }
+        
+        .feature-modal .modal-footer {
+            padding: 0.8rem 1.5rem 0.8rem 1.5rem;
+            flex-direction: column;
+        }
+        
+        .feature-modal .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .feature-highlights {
+            grid-template-columns: 1fr; /* 移动端恢复单列布局 */
+            gap: 0;
+            margin-bottom: 0.3rem;
+    }
+    }
+
+    @media (max-width: 480px) {
+        .feature-modal .modal-body {
+            padding: 1.5rem 1rem;
+        }
+        
+        .feature-description {
+            font-size: 1rem;
+        }
+        
+        .feature-highlights {
+            padding: 1rem;
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .feature-modal .modal-content {
+            max-width: 900px; /* 在大屏幕上进一步增加宽度 */
+        }
+    }
+    </style>
+
     <script src="/static/js/main.js"></script>
 </body>
 </html>

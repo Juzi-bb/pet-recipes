@@ -917,6 +917,195 @@
         background: #f39c12;
     }
 
+    /* 收藏夹模块样式 */
+    .favorites-modal {
+        max-width: 800px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .favorites-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        padding: 20px 0;
+    }
+
+    .favorite-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .favorite-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .favorite-card-header {
+        background: linear-gradient(135deg, var(--warm-accent) 0%, var(--light-accent) 100%);
+        padding: 1.5rem;
+        text-align: center;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .recipe-icon-large {
+        font-size: 3rem;
+        background: white;
+        border-radius: 50%;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .favorite-info {
+        padding: 15px;
+    }
+
+    .favorite-info h4 {
+        margin: 0 0 10px 0;
+        color: #333;
+        font-size: 1.2em;
+    }
+
+    .favorite-info p {
+        margin: 0 0 15px 0;
+        color: #666;
+        font-size: 0.9em;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .favorite-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-view {
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: background 0.3s ease;
+    }
+
+    .btn-view:hover {
+        background: #ff5252;
+    }
+
+    .btn-remove {
+        background: none;
+        border: none;
+        color: #ff6b6b;
+        font-size: 1.2em;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 50%;
+        transition: color 0.3s ease, background 0.3s ease;
+    }
+
+    .btn-remove:hover {
+        color: #ff5252;
+        background: rgba(255, 107, 107, 0.1);
+    }
+
+    .no-favorites {
+        text-align: center;
+        color: #666;
+        font-size: 1.1em;
+        padding: 40px 20px;
+        grid-column: 1 / -1;
+    }
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .favorites-container {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .favorites-modal {
+            width: 95%;
+            max-height: 85vh;
+        }
+        
+        .favorite-card img {
+            height: 150px;
+        }
+    }
+
+    /* 错误状态样式 */
+    .error-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #666;
+    }
+
+    .error-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    .error-state h3 {
+        color: #e74c3c;
+        margin-bottom: 8px;
+    }
+
+    .error-state p {
+        margin-bottom: 20px;
+        color: #666;
+    }
+
+    .btn-retry {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-retry:hover {
+        background-color: #2980b9;
+    }
+
+    /* 加载状态样式 */
+    .loading {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
     /* ===============================
         响应式设计
        =============================== */
@@ -1138,7 +1327,7 @@
 
 <!-- 收藏夹区域 -->
 <div class="favorites-section">
-    <div class="favorites-card" onclick="showFavoritesModal()">
+    <div class="favorites-card">
         <div class="favorites-icon">
             📁
             <span class="favorites-count" id="favoritesCount">0</span>
@@ -1181,7 +1370,7 @@
         <div class="quick-action-text">Create Recipe</div>
     </a>
     
-    <a href="#" class="quick-action-card" onclick="showComingSoon('Ingredient Encyclopedia feature')">
+    <a href="{{ url_for('ingredient_pages.encyclopedia') }}" class="quick-action-card">
         <div class="quick-action-icon">📚</div>
         <div class="quick-action-text">Browse Ingredient Encyclopedia</div>
     </a>
@@ -1276,7 +1465,66 @@
     {% endfor %}
 </div>
 
+<!-- 收藏夹模态框 -->
+<div id="favoritesModal" class="modal" style="display: none;">
+    <div class="modal-content favorites-modal" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h2>📖 My Favorites</h2>
+            <button class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="favoritesGrid" class="favorites-container">
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <div>Loading...</div>
+                </div>
+            </div>
+            <!-- 空状态显示 -->
+            <div id="favoritesEmptyState" class="empty-state" style="display: none;">
+                <div class="empty-state-icon">💔</div>
+                <h3>No favorites yet</h3>
+                <p>Start exploring the community and save your favorite recipes!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 确认模态框 -->
+<div id="confirmModal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 400px;" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Confirm Action</h3>
+            <button class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage"></p>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button onclick="document.getElementById('confirmModal').style.display='none'; document.body.style.overflow='';"
+                class="btn-modal" style="background: #6c757d;">Cancel</button>
+                <button id="confirmButton" class="btn-modal" style="background: #dc3545;">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+// 添加缺失的工具函数
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'Unknown';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
 // 全局变量定义
 let petData = []; // 宠物数据存储
 let allRecipes = []; // 所有食谱数据
@@ -1301,6 +1549,25 @@ function initializePage() {
     loadUserRecipes(); // 加载用户食谱
     loadFavoritesCount(); // 加载收藏数量
     checkUrlParams(); // 检查URL参数显示消息
+}
+
+// 加载收藏数量函数（添加回来）
+async function loadFavoritesCount() {
+    try {
+        console.log('📊 加载收藏数量...');
+        const response = await fetch('/api/user/favorites');
+        const data = await response.json();
+        
+        if (data.success) {
+            const countElement = document.getElementById('favoritesCount');
+            if (countElement) {
+                countElement.textContent = data.data.count;
+                console.log('✅ 收藏数量加载成功:', data.data.count);
+            }
+        }
+    } catch (error) {
+        console.error('❌ 加载收藏数量失败:', error);
+    }
 }
 
 // 从隐藏DOM元素中读取宠物数据
@@ -1637,77 +1904,6 @@ function closeRecipeModal(event) {
     }, 300);
 }
 
-// 切换收藏状态功能
-async function toggleFavorite(recipeId, element, event) {
-    if (event) {
-        event.stopPropagation();
-    }
-    
-    const isFavorited = element.classList.contains('favorited');
-    
-    try {
-        element.disabled = true;
-        
-        const method = isFavorited ? 'DELETE' : 'POST';
-        const url = isFavorited ? `/api/recipe/favorite/${recipeId}` : '/api/recipe/favorite';
-        const body = isFavorited ? null : JSON.stringify({ recipe_id: recipeId });
-        
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: body
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            if (isFavorited) {
-                element.classList.remove('favorited');
-                showToast('Recipe removed from favorites', 'success');
-            } else {
-                element.classList.add('favorited');
-                showToast('Recipe added to favorites!', 'success');
-            }
-            
-            // 更新本地数据中的收藏状态
-            const recipe = allRecipes.find(r => r.id === recipeId);
-            if (recipe) {
-                recipe.is_favorited = !isFavorited;
-            }
-            
-            loadFavoritesCount(); // 更新收藏数量
-        } else {
-            showToast(data.message, 'error');
-        }
-    } catch (error) {
-        console.error('切换收藏状态失败:', error);
-        showToast('Operation failed, please try again', 'error');
-    } finally {
-        element.disabled = false;
-    }
-}
-
-// 加载收藏数量
-async function loadFavoritesCount() {
-    try {
-        const response = await fetch('/api/user/favorites');
-        const data = await response.json();
-        
-        if (data.success) {
-            document.getElementById('favoritesCount').textContent = data.data.count;
-        }
-    } catch (error) {
-        console.error('加载收藏数量失败:', error);
-    }
-}
-
-// 显示收藏夹模态框（待社区功能完成）
-function showFavoritesModal() {
-    showToast('Community feature is under development, stay tuned!', 'info');
-}
-
 // ===============================
 // 宠物相关功能函数（保持原有逻辑）
 // ===============================
@@ -1866,5 +2062,281 @@ function checkUrlParams() {
         window.history.replaceState({}, document.title, newUrl);
     }
 }
+
+// 修复收藏夹功能
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(() => {
+        console.log('🔧 初始化独立收藏夹功能...');
+        
+        // 完全独立的收藏夹系统
+        setupIndependentFavorites();
+        
+    }, 500); // 缩短延迟时间
+});
+
+function setupIndependentFavorites() {
+    // 找到收藏夹卡片
+    const favoritesCard = document.querySelector('.favorites-card');
+    if (!favoritesCard) {
+        console.error('❌ 收藏夹卡片未找到');
+        return;
+    }
+    
+    // 移除所有现有事件监听器
+    const newCard = favoritesCard.cloneNode(true);
+    favoritesCard.parentNode.replaceChild(newCard, favoritesCard);
+    
+    // 绑定点击事件
+    newCard.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation(); // 阻止所有事件传播
+        
+        console.log('🎯 独立收藏夹被点击');
+        
+        showIndependentFavoritesModal();
+    });
+    
+    newCard.style.cursor = 'pointer';
+    
+    // 设置关闭功能
+    setupIndependentCloseHandlers();
+    
+    // 加载收藏数量
+    loadIndependentFavoritesCount();
+    
+    console.log('✅ 独立收藏夹系统已初始化');
+}
+
+// 显示收藏夹模态框
+function showIndependentFavoritesModal() {
+    console.log('📂 显示独立收藏夹模态框');
+    
+    const modal = document.getElementById('favoritesModal');
+    if (!modal) {
+        console.error('❌ 模态框未找到');
+        return;
+    }
+    
+    // 强制显示模态框
+    modal.style.display = 'block';
+    modal.style.zIndex = '999999'; // 使用超高z-index
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    
+    document.body.style.overflow = 'hidden';
+    
+    console.log('✅ 模态框强制显示');
+    
+    // 加载内容
+    loadIndependentFavoritesContent();
+}
+
+// 关闭收藏夹模态框
+function closeIndependentFavoritesModal() {
+    console.log('🔒 关闭独立收藏夹模态框');
+    
+    const modal = document.getElementById('favoritesModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+// 设置关闭事件处理器
+function setupIndependentCloseHandlers() {
+    // 移除所有现有的关闭事件监听器
+    const modal = document.getElementById('favoritesModal');
+    const closeBtn = document.querySelector('#favoritesModal .close-btn');
+    
+    if (modal) {
+        // 克隆模态框以移除所有事件监听器
+        const newModal = modal.cloneNode(true);
+        modal.parentNode.replaceChild(newModal, modal);
+        
+        // 重新获取元素
+        const finalModal = document.getElementById('favoritesModal');
+        const finalCloseBtn = document.querySelector('#favoritesModal .close-btn');
+        
+        // 绑定新的关闭事件
+        if (finalCloseBtn) {
+            finalCloseBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                closeIndependentFavoritesModal();
+            });
+        }
+        
+        // 点击外部关闭
+        finalModal.addEventListener('click', function(event) {
+            if (event.target === finalModal) {
+                closeIndependentFavoritesModal();
+            }
+        });
+        
+        console.log('✅ 独立关闭事件已设置');
+    }
+}
+
+// 加载收藏数量
+async function loadIndependentFavoritesCount() {
+    try {
+        const response = await fetch('/api/user/favorites');
+        const data = await response.json();
+        
+        if (data.success) {
+            const countElement = document.getElementById('favoritesCount');
+            if (countElement) {
+                countElement.textContent = data.data.count;
+                console.log('✅ 独立收藏数量已更新:', data.data.count);
+            }
+        }
+    } catch (error) {
+        console.error('❌ 加载收藏数量失败:', error);
+    }
+}
+
+// 加载收藏夹内容
+async function loadIndependentFavoritesContent() {
+    const container = document.getElementById('favoritesGrid');
+    if (!container) {
+        console.error('❌ 收藏夹容器未找到');
+        return;
+    }
+    
+    // 显示加载状态
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px; color: #666; background: white; border-radius: 10px; margin: 20px;">
+            <div style="font-size: 24px; margin-bottom: 10px;">⏳</div>
+            <div>正在加载收藏夹...</div>
+        </div>
+    `;
+    
+    try {
+        console.log('🌐 开始加载独立收藏夹数据...');
+        
+        const response = await fetch('/api/user/favorites');
+        const data = await response.json();
+        
+        console.log('📄 独立收藏夹数据:', data);
+        
+        if (data.success && data.data.favorites && data.data.favorites.length > 0) {
+            console.log('✅ 找到', data.data.favorites.length, '个收藏食谱');
+            
+            // 渲染收藏夹内容
+            const html = data.data.favorites.map((recipe, index) => `
+                <div style="border: 2px solid #ddd; padding: 25px; margin: 20px 0; border-radius: 15px; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); transition: transform 0.3s ease;" 
+                     onmouseover="this.style.transform='translateY(-2px)'" 
+                     onmouseout="this.style.transform='translateY(0)'">
+                    <div style="display: flex; align-items: center; gap: 20px;">
+                        <div style="font-size: 40px; background: linear-gradient(135deg, #EDBF9D 0%, #A1B4B2 100%); padding: 20px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                            🍽️
+                        </div>
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 10px 0; color: #510B0B; font-size: 20px; font-weight: bold;">
+                                ${escapeHtml(recipe.name)}
+                            </h4>
+                            <p style="margin: 0 0 15px 0; color: #666; font-size: 15px; line-height: 1.5;">
+                                ${escapeHtml(recipe.description || '这个食谱还没有描述')}
+                            </p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                                <small style="color: #999; font-size: 13px;">
+                                    📅 收藏时间: ${new Date(recipe.favorited_at).toLocaleDateString('zh-CN')}
+                                </small>
+                                <div style="display: flex; gap: 10px;">
+                                    <button onclick="window.open('/recipe/detail/${recipe.id}', '_blank')" 
+                                            style="background: #5580AD; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.3s ease;"
+                                            onmouseover="this.style.background='#A1B4B2'" 
+                                            onmouseout="this.style.background='#5580AD'">
+                                        👁️ 查看详情
+                                    </button>
+                                    <button onclick="removeFromFavorites(${recipe.id}, this)" 
+                                            style="background: #B82F0D; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.3s ease;"
+                                            onmouseover="this.style.background='#510B0B'" 
+                                            onmouseout="this.style.background='#B82F0D'">
+                                        ❌ 取消收藏
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+            
+        } else {
+            console.log('📭 收藏夹为空');
+            container.innerHTML = `
+                <div style="text-align: center; padding: 60px; color: #666; background: white; border-radius: 15px; margin: 20px;">
+                    <div style="font-size: 80px; margin-bottom: 25px;">💔</div>
+                    <h3 style="color: #510B0B; margin-bottom: 20px; font-size: 28px;">还没有收藏任何食谱</h3>
+                    <p style="font-size: 18px; line-height: 1.6; color: #7f8c8d;">去社区逛逛，收藏一些喜欢的食谱吧！<br>发现美味，分享快乐～</p>
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('❌ 加载独立收藏夹失败:', error);
+        container.innerHTML = `
+            <div style="text-align: center; padding: 50px; color: #e74c3c; background: white; border-radius: 15px; margin: 20px;">
+                <div style="font-size: 60px; margin-bottom: 25px;">⚠️</div>
+                <h3 style="margin-bottom: 15px;">加载失败</h3>
+                <p style="margin-bottom: 25px;">网络连接出现问题，请稍后重试</p>
+                <button onclick="loadIndependentFavoritesContent()" 
+                        style="background: #5580AD; color: white; border: none; padding: 15px 30px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">
+                    🔄 重新加载
+                </button>
+            </div>
+        `;
+    }
+}
+
+// 从收藏夹中移除食谱
+async function removeFromFavorites(recipeId, buttonElement) {
+    if (!confirm('确定要取消收藏这个食谱吗？')) {
+        return;
+    }
+    
+    const originalText = buttonElement.textContent;
+    buttonElement.textContent = '⏳ 处理中...';
+    buttonElement.disabled = true;
+    
+    try {
+        const response = await fetch(`/api/recipe/favorite/${recipeId}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // 重新加载收藏夹内容
+            loadIndependentFavoritesContent();
+            loadIndependentFavoritesCount();
+            
+            // 显示成功消息
+            showToast('取消收藏成功', 'success');
+        } else {
+            throw new Error(data.message || '取消收藏失败');
+        }
+    } catch (error) {
+        console.error('❌ 取消收藏失败:', error);
+        buttonElement.textContent = originalText;
+        buttonElement.disabled = false;
+        showToast('取消收藏失败，请重试', 'error');
+    }
+}
+
+// 测试函数
+window.testIndependentFavorites = function() {
+    console.log('🧪 测试独立收藏夹');
+    showIndependentFavoritesModal();
+};
+
+console.log('🎉 独立收藏夹系统脚本已加载，可运行 testIndependentFavorites() 测试');
 </script>
 {% endblock %}

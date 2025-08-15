@@ -1343,8 +1343,8 @@ class CommunityManager {
             const authorInitial = recipe.author?.nickname?.charAt(0)?.toUpperCase() || '?';
             
             return `
-                <div class="recipe-card${this.currentView === 'list' ? ' list-view' : ''}" 
-                     onclick="viewRecipeDetail(${recipe.id})" style="cursor: pointer;">
+                <div class="recipe-card${this.currentView === 'list' ? ' list-view' : ''}"
+                    onclick="viewRecipeDetail(${recipe.id})" style="cursor: pointer;">
                     <div class="recipe-header">
                         <div class="recipe-icon">${randomIcon}</div>
                         <!-- 改为显示状态的图标，不可交互 -->
@@ -1435,8 +1435,8 @@ class CommunityManager {
 
         for (let i = startPage; i <= endPage; i++) {
             paginationHtml += `
-                <a href="#" class="page-btn ${i === this.pagination.page ? 'active' : ''}" 
-                   onclick="communityManager.goToPage(${i})">${i}</a>
+                <a href="#" class="page-btn ${i === this.pagination.page ? 'active' : ''}"
+                onclick="communityManager.goToPage(${i})">${i}</a>
             `;
         }
 
@@ -1465,7 +1465,7 @@ class CommunityManager {
         // 页面信息
         paginationHtml += `
             <span class="page-info">
-                Page ${this.pagination.page} of ${this.pagination.total_pages} 
+                Page ${this.pagination.page} of ${this.pagination.total_pages}
                 (${this.pagination.total} recipes)
             </span>
         `;
@@ -1497,9 +1497,9 @@ class CommunityManager {
         this.loadRecipes();
         
         // 滚动到顶部
-        document.querySelector('.recipes-container').scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
+        document.querySelector('.recipes-container').scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
         });
     }
 
@@ -1822,8 +1822,8 @@ class CommunityManager {
         toast.className = `toast toast-${type}`;
 
         const icon = type === 'success' ? 'check-circle' :
-                     type === 'error' ? 'exclamation-circle' :
-                     'info-circle';
+                    type === 'error' ? 'exclamation-circle' :
+                    'info-circle';
 
         toast.innerHTML = `
             <i class="fas fa-${icon}"></i>
@@ -1868,8 +1868,8 @@ async function toggleLikeInModal(recipeId, element) {
         element.disabled = true;
         element.querySelector('span').textContent = 'Processing...';
         
-        const url = isLoved ? 
-            `/api/community/recipe/${recipeId}/unlike` : 
+        const url = isLoved ?
+            `/api/community/recipe/${recipeId}/unlike` :
             `/api/community/recipe/${recipeId}/like`;
         
         const method = isLoved ? 'DELETE' : 'POST';
@@ -1932,8 +1932,8 @@ async function toggleFavoriteInModal(recipeId, element) {
         element.disabled = true;
         element.querySelector('span').textContent = 'Processing...';
         
-        const url = isFavorited ? 
-            `/api/recipe/favorite/${recipeId}` : 
+        const url = isFavorited ?
+            `/api/recipe/favorite/${recipeId}` :
             '/api/recipe/favorite';
         
         const method = isFavorited ? 'DELETE' : 'POST';
