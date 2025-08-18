@@ -1217,7 +1217,15 @@ async function loadIngredients(category = null) {
         }
         
         const data = await response.json();
-        const ingredients = data.success ? data.ingredients : data;
+        // 修复：兼容不同的返回格式
+        let ingredients;
+        if (data.success && data.ingredients) {
+            ingredients = data.ingredients;
+        } else if (Array.isArray(data)) {
+            ingredients = data;
+        } else {
+            throw new Error('Invalid response format');
+        }
         
         console.log(`成功加载 ${ingredients.length} 个食材`);
         
@@ -1236,6 +1244,10 @@ async function loadIngredients(category = null) {
                 card.classList.add('selected');
             }
             
+            // 修复：安全处理营养信息显示
+            const nutritionSummary = ingredient.nutrition_summary ||
+                `Calories: ${ingredient.calories || 0}kcal/100g | Protein: ${ingredient.protein || 0}g | Fat: ${ingredient.fat || 0}g | Carbs: ${ingredient.carbohydrate || 0}g`;
+
             card.innerHTML = `
                 ${ingredient.seasonality ? `<div class="ingredient-seasonality">${getSeasonalityText(ingredient.seasonality)}</div>` : ''}
                 ${ingredient.is_common_allergen ? '<div class="allergen-warning">Allergen</div>' : ''}
@@ -1681,7 +1693,7 @@ async function calculateNutrition() {
 // ------- 新增：显示营养分析结果函数 -------
 function displayNutritionAnalysis(data) {
     const container = document.getElementById('nutritionAnalysis');
-    
+
     // 营养状态颜色映射
     const statusColors = {
         'excellent': '#28a745',

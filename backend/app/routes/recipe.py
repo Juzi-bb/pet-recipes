@@ -66,6 +66,22 @@ def get_ingredients():
         # 确保返回完整的营养信息
         result = []
         for ing in ingredients:
+            # 安全处理可能为 None 的营养字段
+            calories = float(ing.calories) if ing.calories is not None else 0.0
+            protein = float(ing.protein) if ing.protein is not None else 0.0
+            fat = float(ing.fat) if ing.fat is not None else 0.0
+            carbohydrate = float(ing.carbohydrate) if ing.carbohydrate is not None else 0.0
+            fiber = float(ing.fiber) if ing.fiber is not None else 0.0
+            calcium = float(ing.calcium) if ing.calcium is not None else 0.0
+            phosphorus = float(ing.phosphorus) if ing.phosphorus is not None else 0.0
+            
+            # 生成营养摘要文本 - 前端期望的字段
+            nutrition_summary = f"Calories: {calories:.0f}kcal/100g | Protein: {protein:.1f}g | Fat: {fat:.1f}g | Carbs: {carbohydrate:.1f}g"
+            
+            # 如果有钙磷信息，添加到摘要中
+            if calcium > 0 or phosphorus > 0:
+                nutrition_summary += f" | Ca: {calcium:.0f}mg | P: {phosphorus:.0f}mg"
+                        
             ingredient_data = {
                 'id': ing.id,
                 'name': ing.name,
@@ -73,26 +89,73 @@ def get_ingredients():
                 'category': ing.category.value,
                 'image_filename': ing.image_filename,
                 'seasonality': ing.seasonality,
-                'calories': float(ing.calories) if ing.calories else 0,
-                'protein': float(ing.protein) if ing.protein else 0,
-                'fat': float(ing.fat) if ing.fat else 0,
-                'carbohydrate': float(ing.carbohydrate) if ing.carbohydrate else 0,
-                'is_common_allergen': ing.is_common_allergen,
-                'nutrition_summary': f"Protein {ing.protein or 0}g, Fat {ing.fat or 0}g, Carbs {ing.carbohydrate or 0}g (per 100g)"
+                # 基础营养信息
+                'calories': calories,
+                'protein': protein,
+                'fat': fat,
+                'carbohydrate': carbohydrate,
+                'fiber': fiber,
+                'moisture': float(ing.moisture) if ing.moisture is not None else 0.0,
+                'ash': float(ing.ash) if ing.ash is not None else 0.0,
+
+                # 矿物质
+                'calcium': calcium,
+                'phosphorus': phosphorus,
+                'potassium': float(ing.potassium) if ing.potassium is not None else 0.0,
+                'sodium': float(ing.sodium) if ing.sodium is not None else 0.0,
+                'magnesium': float(ing.magnesium) if ing.magnesium is not None else 0.0,
+                'iron': float(ing.iron) if ing.iron is not None else 0.0,
+                'zinc': float(ing.zinc) if ing.zinc is not None else 0.0,
+                
+                # 维生素
+                'vitamin_a': float(ing.vitamin_a) if ing.vitamin_a is not None else 0.0,
+                'vitamin_d': float(ing.vitamin_d) if ing.vitamin_d is not None else 0.0,
+                'vitamin_e': float(ing.vitamin_e) if ing.vitamin_e is not None else 0.0,
+                'taurine': float(ing.taurine) if ing.taurine is not None else 0.0,
+                
+                # 脂肪酸
+                'omega_3_fatty_acids': float(ing.omega_3_fatty_acids) if ing.omega_3_fatty_acids is not None else 0.0,
+                'omega_6_fatty_acids': float(ing.omega_6_fatty_acids) if ing.omega_6_fatty_acids is not None else 0.0,
+                
+                # 安全性信息
+                'is_safe_for_dogs': bool(ing.is_safe_for_dogs),
+                'is_safe_for_cats': bool(ing.is_safe_for_cats),
+                'is_common_allergen': bool(ing.is_common_allergen),
+                
+                # 前端显示字段 - 关键修复
+                'nutrition_summary': nutrition_summary,
+                
+                # 食材指南信息
+                'description': ing.description,
+                'benefits': ing.benefits,
+                'preparation_method': ing.preparation_method,
+                'pro_tip': ing.pro_tip,
+                'allergy_alert': ing.allergy_alert,
+                'storage_notes': ing.storage_notes
             }
             result.append(ingredient_data)
         
-        return jsonify(result)
+        # 按名称排序
+        result.sort(key=lambda x: x['name'])
+        
+        return jsonify({
+            'success': True,
+            'ingredients': result,
+            'total_count': len(result)
+        })
         
     except Exception as e:
-        print(f"Failed to load ingredients: {str(e)}")  # 用于调试
-        return jsonify({'error': 'Failed to load ingredients'}), 500
+        print(f"Failed to load ingredients: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'Failed to load ingredients', 'details': str(e)}), 500
 
 @recipe_bp.route('/api/categories')
 def get_categories():
     """获取食材分类列表"""
     categories = []
     for category in IngredientCategory:
+
         # 统计该分类下安全食材的数量
         count = db.session.query(Ingredient).filter(
             Ingredient.category == category,
@@ -127,7 +190,6 @@ def get_category_name(category):
         IngredientCategory.GRAINS: 'Grains',
         IngredientCategory.DAIRY: 'Dairy',
         IngredientCategory.SUPPLEMENTS: 'Supplements',
-        IngredientCategory.OILS: 'Oils'
     }
     return category_names.get(category, category.value if hasattr(category, 'value') else str(category))
 
@@ -146,7 +208,6 @@ def get_category_icon(category):
         IngredientCategory.GRAINS: 'fas fa-seedling',
         IngredientCategory.DAIRY: 'fas fa-cheese',
         IngredientCategory.SUPPLEMENTS: 'fas fa-pills',
-        IngredientCategory.OILS: 'fas fa-tint'
     }
     return category_icons.get(category, 'fas fa-utensils')
 
