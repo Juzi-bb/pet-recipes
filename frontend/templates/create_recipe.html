@@ -1244,7 +1244,7 @@ async function loadIngredients(category = null) {
                 card.classList.add('selected');
             }
             
-            // 修复：安全处理营养信息显示
+            // 修复：构建营养信息摘要
             const nutritionSummary = ingredient.nutrition_summary ||
                 `Calories: ${ingredient.calories || 0}kcal/100g | Protein: ${ingredient.protein || 0}g | Fat: ${ingredient.fat || 0}g | Carbs: ${ingredient.carbohydrate || 0}g`;
 
@@ -1258,7 +1258,7 @@ async function loadIngredients(category = null) {
                     }
                 </div>
                 <div class="ingredient-name">${ingredient.name}</div>
-                <div class="ingredient-nutrition">${ingredient.nutrition_summary}</div>
+                <div class="ingredient-nutrition">${nutritionSummary}</div>
             `;
             
             card.onclick = () => toggleIngredient(ingredient);
